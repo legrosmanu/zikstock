@@ -4,12 +4,6 @@ This document defines the specialized roles and responsibilities of the AI agent
 
 ---
 
-## 📋 Product Owner
-**Goal**: Ensure the application fulfills the objectives defined in the [README.md](./README.md).
-- Prioritize features related to musical resources, songs, and songbooks.
-- Maintain the high-level roadmap and user value.
-- Validate that the implementation matches the user's vision.
-
 ## 🏗️ Architect
 **Goal**: Enforce technical excellence and Clean Code principles.
 - Define the project structure using Hexagonal Architecture or Clean Architecture.
