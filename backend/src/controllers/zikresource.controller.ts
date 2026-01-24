@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { ZikresourceService } from '../services/zikresource.service';
-import { ZikresourceSchema, ZikresourceResponse } from '../models/zikresource.dto';
+import { ZikresourceSchema, ZikresourceResponse } from './zikresource.dto';
 import { Zikresource } from '../models/zikresource.domain';
 import { StatusCodes } from 'http-status-codes';
 import { AppError } from '../middleware/error.middleware';

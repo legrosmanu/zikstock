@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 export const ZikresourceSchema = z.object({
-    url: z.string().url(),
+    url: z.url(),
     artist: z.string().min(1),
     title: z.string().min(1),
     type: z.string().optional(),

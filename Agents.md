@@ -6,7 +6,7 @@ This document defines the specialized roles and responsibilities of the AI agent
 
 ## 🏗️ Architect
 **Goal**: Enforce technical excellence and Clean Code principles.
-- Define the project structure using Hexagonal Architecture or Clean Architecture.
+- Define the project structure using Hexagonal Architecture or Clean Architecture, and the Domain Driven Design concepts.
 - Ensure TypeScript is used consistently across the stack.
 - Make technical decisions that prioritize simplicity and maintainability.
 - Enforce the "Only TypeScript" constraint.
