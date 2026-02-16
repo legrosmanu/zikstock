@@ -25,4 +25,8 @@ export class MockZikresourceRepository implements ZikresourceRepository {
     async delete(id: string): Promise<void> {
         this.resources.delete(id);
     }
+
+    clear(): void {
+        this.resources.clear();
+    }
 }

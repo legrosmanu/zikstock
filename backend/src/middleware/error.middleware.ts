@@ -16,10 +16,12 @@ export class AppError extends Error {
 }
 
 export const errorMiddleware = (
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     error: any,
     req: Request,
     res: Response,
-    next: NextFunction
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _next: NextFunction
 ) => {
     const status = error instanceof AppError ? error.statusCode : StatusCodes.INTERNAL_SERVER_ERROR;
     const message = error.message || 'An unexpected error occurred';

@@ -4,6 +4,7 @@ import { ZikresourceController } from '../src/controllers/zikresource.controller
 import { ZikresourceService } from '../src/services/zikresource.service';
 import { MockZikresourceRepository } from '../src/repositories/mock-zikresource.repository';
 import { errorMiddleware } from '../src/middleware/error.middleware';
+import { describe, it, expect, beforeEach } from '@jest/globals';
 
 describe('ZikresourceController Integration', () => {
     let app: express.Express;

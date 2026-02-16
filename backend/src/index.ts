@@ -1,4 +1,4 @@
-import express, { Request, Response } from 'express';
+import express from 'express';
 import { ZikresourceController } from './controllers/zikresource.controller';
 import { HealthController } from './controllers/health.controller';
 import { ZikresourceService } from './services/zikresource.service';

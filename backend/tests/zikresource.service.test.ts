@@ -1,14 +1,14 @@
 import { ZikresourceService } from '../src/services/zikresource.service';
 import { MockZikresourceRepository } from '../src/repositories/mock-zikresource.repository';
 import { Zikresource } from '../src/models/zikresource.domain';
+import { describe, it, expect, beforeEach } from '@jest/globals';
 
 describe('ZikresourceService', () => {
-    let service: ZikresourceService;
-    let repository: MockZikresourceRepository;
+    const repository = new MockZikresourceRepository();
+    const service = new ZikresourceService(repository);
 
     beforeEach(() => {
-        repository = new MockZikresourceRepository();
-        service = new ZikresourceService(repository);
+        repository.clear();
     });
 
     it('should create a zikresource', async () => {

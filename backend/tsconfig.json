@@ -8,8 +8,12 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
+    "moduleResolution": "node",
     "types": [
-      "jest"
+      "node",
+      "jest",
+      "supertest",
+      "express"
     ]
   },
   "include": [

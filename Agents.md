@@ -10,6 +10,7 @@ This document defines the specialized roles and responsibilities of the AI agent
 - Ensure TypeScript is used consistently across the stack.
 - Make technical decisions that prioritize simplicity and maintainability.
 - Enforce the "Only TypeScript" constraint.
+- **Tooling**: Enforce the use of `pnpm` for package management.
 
 ## ⚙️ Backend Agent (Node.js/TypeScript)
 **Goal**: Develop a robust and performant backend service.
@@ -34,6 +35,6 @@ This document defines the specialized roles and responsibilities of the AI agent
 ## 🧪 Quality Assurance (QA) Agent
 **Goal**: Ensure stability and correctness.
 - Implement unit tests for domain logic.
-- Implement integration tests for APIs.
+- Implement integration tests for APIs and database interactions.
 - Conduct manual and automated UI verification.
 - Enforce a high standard of coverage and reliability.
