@@ -4,7 +4,20 @@ import { ZikresourceController } from '../src/controllers/zikresource.controller
 import { ZikresourceService } from '../src/services/zikresource.service';
 import { MockZikresourceRepository } from '../src/repositories/mock-zikresource.repository';
 import { errorMiddleware } from '../src/middleware/error.middleware';
-import { describe, it, expect, beforeEach } from '@jest/globals';
+import { describe, it, expect, beforeEach, jest } from '@jest/globals';
+import { MockAuthMiddleware, VALID_TOKEN } from '../src/middleware/mock-auth.middleware';
+
+
+// Mock the auth middleware module so tests don't need a real Google token or network call.
+// The mock accepts requests carrying `Authorization: Bearer valid-test-token` and rejects all others.
+jest.mock('../src/middleware/google-auth.middleware', () => {
+    return {
+        GoogleAuthMiddleware: MockAuthMiddleware
+    };
+});
+
+// Import after mocking so the mock is applied
+import { GoogleAuthMiddleware } from '../src/middleware/google-auth.middleware';
 
 describe('ZikresourceController Integration', () => {
     let app: express.Express;
@@ -15,16 +28,36 @@ describe('ZikresourceController Integration', () => {
         repository = new MockZikresourceRepository();
         service = new ZikresourceService(repository);
         const controller = new ZikresourceController(service);
+        const googleAuthMiddleware = new GoogleAuthMiddleware();
 
         app = express();
         app.use(express.json());
-        app.post('/zikresources', controller.create);
-        app.get('/zikresources', controller.getAll);
-        app.get('/zikresources/:id', controller.getById);
-        app.put('/zikresources/:id', controller.update);
-        app.delete('/zikresources/:id', controller.delete);
+        app.post('/zikresources', googleAuthMiddleware.authMiddleware, controller.create);
+        app.get('/zikresources', googleAuthMiddleware.authMiddleware, controller.getAll);
+        app.get('/zikresources/:id', googleAuthMiddleware.authMiddleware, controller.getById);
+        app.put('/zikresources/:id', googleAuthMiddleware.authMiddleware, controller.update);
+        app.delete('/zikresources/:id', googleAuthMiddleware.authMiddleware, controller.delete);
         app.use(errorMiddleware);
     });
+
+    // ─── Auth tests ────────────────────────────────────────────────────────────
+
+    it('GET /zikresources should return 401 when no Authorization token is provided', async () => {
+        const response = await request(app).get('/zikresources');
+
+        expect(response.status).toBe(401);
+        expect(response.body.error).toBe('Unauthorized');
+    });
+
+    it('GET /zikresources should return 200 when a valid token is provided', async () => {
+        const response = await request(app)
+            .get('/zikresources')
+            .set('Authorization', `Bearer ${VALID_TOKEN}`);
+
+        expect(response.status).toBe(200);
+    });
+
+    // ─── Resource tests (all require a valid token) ─────────────────────────────
 
     it('POST /zikresources should create a zikresource', async () => {
         const payload = {
@@ -40,6 +73,7 @@ describe('ZikresourceController Integration', () => {
 
         const response = await request(app)
             .post('/zikresources')
+            .set('Authorization', `Bearer ${VALID_TOKEN}`)
             .send(payload);
 
         expect(response.status).toBe(201);
@@ -57,6 +91,7 @@ describe('ZikresourceController Integration', () => {
 
         const response = await request(app)
             .post('/zikresources')
+            .set('Authorization', `Bearer ${VALID_TOKEN}`)
             .send(payload);
 
         expect(response.status).toBe(400);
@@ -70,7 +105,8 @@ describe('ZikresourceController Integration', () => {
         await repository.save({ id: '2', url: 'https://u2.com', artist: 'a2', title: 't2' });
 
         const response = await request(app)
-            .get('/zikresources');
+            .get('/zikresources')
+            .set('Authorization', `Bearer ${VALID_TOKEN}`);
 
         expect(response.status).toBe(200);
         expect(response.body).toHaveLength(2);
@@ -87,6 +123,7 @@ describe('ZikresourceController Integration', () => {
 
         const response = await request(app)
             .put('/zikresources/123')
+            .set('Authorization', `Bearer ${VALID_TOKEN}`)
             .send(payload);
 
         expect(response.status).toBe(200);
@@ -99,7 +136,8 @@ describe('ZikresourceController Integration', () => {
         await repository.save({ id: '123', url: 'https://ext.com', artist: 'ext', title: 'ext' });
 
         const response = await request(app)
-            .delete('/zikresources/123');
+            .delete('/zikresources/123')
+            .set('Authorization', `Bearer ${VALID_TOKEN}`);
 
         expect(response.status).toBe(204);
         const found = await repository.findById('123');
@@ -108,14 +146,16 @@ describe('ZikresourceController Integration', () => {
 
     it('DELETE /zikresources/:id should be idempotent', async () => {
         const response = await request(app)
-            .delete('/zikresources/non-existent');
+            .delete('/zikresources/non-existent')
+            .set('Authorization', `Bearer ${VALID_TOKEN}`);
 
         expect(response.status).toBe(204);
     });
 
     it('GET /zikresources/:id should return 404 if not found', async () => {
         const response = await request(app)
-            .get('/zikresources/123');
+            .get('/zikresources/123')
+            .set('Authorization', `Bearer ${VALID_TOKEN}`);
 
         expect(response.status).toBe(404);
         expect(response.body.error).toBe('Not Found');

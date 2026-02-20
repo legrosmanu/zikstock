@@ -37,6 +37,11 @@ pnpm-debug.log*
 # Testing
 coverage/
 
+# Firebase, including Firestore
+**/.firebaserc
+**/firebase.json
+*-debug.log
+
 # Misc
 .vercel
 .turbo
