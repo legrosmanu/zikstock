@@ -1,11 +1,11 @@
 import { v4 as uuidv4 } from 'uuid';
 import { Zikresource } from '../models/zikresource.domain';
 import { ZikresourceRepository } from '../repositories/zikresource.repository';
-import { AppError } from '../middleware/error.middleware';
+import { AppError } from '../../application/middleware/error.middleware';
 import { StatusCodes } from 'http-status-codes';
 
 export class ZikresourceService {
-    constructor(private zikresourceRepository: ZikresourceRepository) { }
+    constructor(private readonly zikresourceRepository: ZikresourceRepository) { }
 
     async create(partial: Omit<Zikresource, 'id'>): Promise<Zikresource> {
         const zikresource: Zikresource = {

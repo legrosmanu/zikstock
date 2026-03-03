@@ -2,7 +2,7 @@ import { Zikresource } from '../models/zikresource.domain';
 import { ZikresourceRepository } from './zikresource.repository';
 
 export class MockZikresourceRepository implements ZikresourceRepository {
-    private resources: Map<string, Zikresource> = new Map();
+    private readonly resources: Map<string, Zikresource> = new Map();
 
     async save(zikresource: Zikresource): Promise<Zikresource> {
         this.resources.set(zikresource.id, zikresource);

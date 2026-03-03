@@ -3,10 +3,10 @@ import { ZikresourceService } from '../services/zikresource.service';
 import { ZikresourceSchema, ZikresourceResponse } from './zikresource.dto';
 import { Zikresource } from '../models/zikresource.domain';
 import { StatusCodes } from 'http-status-codes';
-import { AppError } from '../middleware/error.middleware';
+import { AppError } from '../../application/middleware/error.middleware';
 
 export class ZikresourceController {
-    constructor(private zikresourceService: ZikresourceService) { }
+    constructor(private readonly zikresourceService: ZikresourceService) { }
 
     create = async (req: Request, res: Response, next: NextFunction) => {
         try {

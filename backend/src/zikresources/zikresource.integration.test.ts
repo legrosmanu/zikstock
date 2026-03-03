@@ -1,23 +1,23 @@
 import request from 'supertest';
 import express from 'express';
-import { ZikresourceController } from '../src/controllers/zikresource.controller';
-import { ZikresourceService } from '../src/services/zikresource.service';
-import { MockZikresourceRepository } from '../src/repositories/mock-zikresource.repository';
-import { errorMiddleware } from '../src/middleware/error.middleware';
+import { ZikresourceController } from './api/zikresource.controller';
+import { ZikresourceService } from './services/zikresource.service';
+import { MockZikresourceRepository } from './repositories/mock-zikresource.repository';
+import { errorMiddleware } from '../application/middleware/error.middleware';
 import { describe, it, expect, beforeEach, jest } from '@jest/globals';
-import { MockAuthMiddleware, VALID_TOKEN } from '../src/middleware/mock-auth.middleware';
+import { MockAuthMiddleware, VALID_TOKEN } from '../application/middleware/mock-auth.middleware';
 
 
 // Mock the auth middleware module so tests don't need a real Google token or network call.
 // The mock accepts requests carrying `Authorization: Bearer valid-test-token` and rejects all others.
-jest.mock('../src/middleware/google-auth.middleware', () => {
+jest.mock('../application/middleware/google-auth.middleware', () => {
     return {
         GoogleAuthMiddleware: MockAuthMiddleware
     };
 });
 
 // Import after mocking so the mock is applied
-import { GoogleAuthMiddleware } from '../src/middleware/google-auth.middleware';
+import { GoogleAuthMiddleware } from '../application/middleware/google-auth.middleware';
 
 describe('ZikresourceController Integration', () => {
     let app: express.Express;

@@ -1,10 +1,10 @@
 import express from 'express';
-import { ZikresourceController } from './controllers/zikresource.controller';
-import { HealthController } from './controllers/health.controller';
-import { ZikresourceService } from './services/zikresource.service';
-import { FirestoreZikresourceRepository } from './repositories/firestore-zikresource.repository';
-import { errorMiddleware } from './middleware/error.middleware';
-import { GoogleAuthMiddleware } from './middleware/google-auth.middleware';
+import { ZikresourceController } from './zikresources/api/zikresource.controller';
+import { HealthController } from './application/health.controller';
+import { ZikresourceService } from './zikresources/services/zikresource.service';
+import { FirestoreZikresourceRepository } from './zikresources/repositories/firestore-zikresource.repository';
+import { errorMiddleware } from './application/middleware/error.middleware';
+import { GoogleAuthMiddleware } from './application/middleware/google-auth.middleware';
 
 const app = express();
 const port = process.env.PORT || 3000;

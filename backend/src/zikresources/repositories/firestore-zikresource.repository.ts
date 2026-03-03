@@ -4,8 +4,8 @@ import { Zikresource } from '../models/zikresource.domain';
 import { ZikresourceRepository } from './zikresource.repository';
 
 export class FirestoreZikresourceRepository implements ZikresourceRepository {
-    private collection = 'zikresources';
-    private db: Firestore;
+    private readonly collection = 'zikresources';
+    private readonly db: Firestore;
 
     constructor() {
         if (!admin.apps.length) {

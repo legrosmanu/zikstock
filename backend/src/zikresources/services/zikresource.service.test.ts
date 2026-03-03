@@ -1,6 +1,6 @@
-import { ZikresourceService } from '../src/services/zikresource.service';
-import { MockZikresourceRepository } from '../src/repositories/mock-zikresource.repository';
-import { Zikresource } from '../src/models/zikresource.domain';
+import { ZikresourceService } from './zikresource.service';
+import { MockZikresourceRepository } from '../repositories/mock-zikresource.repository';
+import { Zikresource } from '../models/zikresource.domain';
 import { describe, it, expect, beforeEach } from '@jest/globals';
 
 describe('ZikresourceService', () => {

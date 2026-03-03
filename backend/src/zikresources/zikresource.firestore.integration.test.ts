@@ -1,10 +1,10 @@
 import request from 'supertest';
 import express from 'express';
 import * as admin from 'firebase-admin';
-import { ZikresourceController } from '../src/controllers/zikresource.controller';
-import { ZikresourceService } from '../src/services/zikresource.service';
-import { FirestoreZikresourceRepository } from '../src/repositories/firestore-zikresource.repository';
-import { errorMiddleware } from '../src/middleware/error.middleware';
+import { ZikresourceController } from './api/zikresource.controller';
+import { ZikresourceService } from './services/zikresource.service';
+import { FirestoreZikresourceRepository } from './repositories/firestore-zikresource.repository';
+import { errorMiddleware } from '../application/middleware/error.middleware';
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from '@jest/globals';
 
 /**
