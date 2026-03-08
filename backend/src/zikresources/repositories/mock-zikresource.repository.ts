@@ -1,32 +1,29 @@
 import { Zikresource } from '../models/zikresource.domain';
-import { ZikresourceRepository } from './zikresource.repository';
 
-export class MockZikresourceRepository implements ZikresourceRepository {
-    private readonly resources: Map<string, Zikresource> = new Map();
+const resources: Map<string, Zikresource> = new Map();
 
-    async save(zikresource: Zikresource): Promise<Zikresource> {
-        this.resources.set(zikresource.id, zikresource);
-        return zikresource;
-    }
+export const saveZikresource = async (zikresource: Zikresource): Promise<Zikresource> => {
+    resources.set(zikresource.id, zikresource);
+    return zikresource;
+};
 
-    async findById(id: string): Promise<Zikresource | null> {
-        return this.resources.get(id) || null;
-    }
+export const findZikresourceById = async (id: string): Promise<Zikresource | null> => {
+    return resources.get(id) || null;
+};
 
-    async findAll(): Promise<Zikresource[]> {
-        return Array.from(this.resources.values());
-    }
+export const findAllZikresources = async (): Promise<Zikresource[]> => {
+    return Array.from(resources.values());
+};
 
-    async update(zikresource: Zikresource): Promise<Zikresource> {
-        this.resources.set(zikresource.id, zikresource);
-        return zikresource;
-    }
+export const updateZikresourceInDb = async (zikresource: Zikresource): Promise<Zikresource> => {
+    resources.set(zikresource.id, zikresource);
+    return zikresource;
+};
 
-    async delete(id: string): Promise<void> {
-        this.resources.delete(id);
-    }
+export const deleteZikresourceFromDb = async (id: string): Promise<void> => {
+    resources.delete(id);
+};
 
-    clear(): void {
-        this.resources.clear();
-    }
-}
+export const clearMockZikresources = (): void => {
+    resources.clear();
+};

@@ -1,14 +1,46 @@
-import { ZikresourceService } from './zikresource.service';
-import { MockZikresourceRepository } from '../repositories/mock-zikresource.repository';
+import {
+    createZikresource,
+    getZikresourceById,
+    getAllZikresources,
+    updateZikresource,
+    deleteZikresource
+} from './zikresource.service';
 import { Zikresource } from '../models/zikresource.domain';
-import { describe, it, expect, beforeEach } from '@jest/globals';
+import { describe, it, expect, beforeEach, jest } from '@jest/globals';
+
+jest.mock('../repositories/firestore-zikresource.repository', () => {
+    let resources: Map<string, Zikresource> = new Map();
+    return {
+        saveZikresource: jest.fn(async (zikresource: Zikresource) => {
+            resources.set(zikresource.id, zikresource);
+            return zikresource;
+        }),
+        findZikresourceById: jest.fn(async (id: string) => {
+            return resources.get(id) || null;
+        }),
+        findAllZikresources: jest.fn(async () => {
+            return Array.from(resources.values());
+        }),
+        updateZikresourceInDb: jest.fn(async (zikresource: Zikresource) => {
+            resources.set(zikresource.id, zikresource);
+            return zikresource;
+        }),
+        deleteZikresourceFromDb: jest.fn(async (id: string) => {
+            resources.delete(id);
+        }),
+        _clearMock: () => {
+            resources.clear();
+        }
+    };
+});
+
+import * as repo from '../repositories/firestore-zikresource.repository';
 
 describe('ZikresourceService', () => {
-    const repository = new MockZikresourceRepository();
-    const service = new ZikresourceService(repository);
 
     beforeEach(() => {
-        repository.clear();
+        (repo as any)._clearMock();
+        jest.clearAllMocks();
     });
 
     it('should create a zikresource', async () => {
@@ -16,43 +48,49 @@ describe('ZikresourceService', () => {
             url: 'https://example.com',
             artist: 'Test Artist',
             title: 'Test Title',
+            type: 'video',
+            tags: []
         };
 
-        const result = await service.create(partial);
+        const result = await createZikresource(partial);
 
         expect(result.id).toBeDefined();
         expect(result.url).toBe(partial.url);
         expect(result.artist).toBe(partial.artist);
         expect(result.title).toBe(partial.title);
+        expect(repo.saveZikresource).toHaveBeenCalledWith(expect.objectContaining(partial));
     });
 
     it('should get a zikresource by id', async () => {
-        const saved = await repository.save({
+        const zikresource: Zikresource = {
             id: '123',
             url: 'https://example.com',
             artist: 'Test Artist',
             title: 'Test Title',
-        });
+            type: 'video',
+            tags: []
+        };
+        await repo.saveZikresource(zikresource);
 
-        const result = await service.getById('123');
+        const result = await getZikresourceById('123');
 
         expect(result.id).toBe('123');
-        expect(result.url).toBe(saved.url);
+        expect(result.url).toBe(zikresource.url);
     });
 
     it('should throw error if zikresource not found on getById', async () => {
-        await expect(service.getById('non-existent')).rejects.toThrow('Zikresource with id non-existent not found');
+        await expect(getZikresourceById('non-existent')).rejects.toThrow('Zikresource with id non-existent not found');
     });
 
     it('should not throw error if zikresource not found on delete', async () => {
-        await expect(service.delete('non-existent')).resolves.not.toThrow();
+        await expect(deleteZikresource('non-existent')).resolves.not.toThrow();
     });
 
     it('should get all zikresources', async () => {
-        await repository.save({ id: '1', url: 'u1', artist: 'a1', title: 't1' });
-        await repository.save({ id: '2', url: 'u2', artist: 'a2', title: 't2' });
+        await repo.saveZikresource({ id: '1', url: 'u1', artist: 'a1', title: 't1', type: 'video', tags: [] });
+        await repo.saveZikresource({ id: '2', url: 'u2', artist: 'a2', title: 't2', type: 'video', tags: [] });
 
-        const result = await service.getAll();
+        const result = await getAllZikresources();
 
         expect(result).toHaveLength(2);
     });

@@ -1,42 +1,38 @@
 import request from 'supertest';
 import express from 'express';
-import { ZikresourceController } from './api/zikresource.controller';
-import { ZikresourceService } from './services/zikresource.service';
-import { MockZikresourceRepository } from './repositories/mock-zikresource.repository';
+import {
+    createZikresourceHandler,
+    getAllZikresourcesHandler,
+    getZikresourceByIdHandler,
+    updateZikresourceHandler,
+    deleteZikresourceHandler
+} from './api/zikresource.controller';
 import { errorMiddleware } from '../application/middleware/error.middleware';
 import { describe, it, expect, beforeEach, jest } from '@jest/globals';
-import { MockAuthMiddleware, VALID_TOKEN } from '../application/middleware/mock-auth.middleware';
-
+import { VALID_TOKEN } from '../application/middleware/mock-auth.middleware';
 
 // Mock the auth middleware module so tests don't need a real Google token or network call.
-// The mock accepts requests carrying `Authorization: Bearer valid-test-token` and rejects all others.
-jest.mock('../application/middleware/google-auth.middleware', () => {
-    return {
-        GoogleAuthMiddleware: MockAuthMiddleware
-    };
-});
+jest.mock('../application/middleware/google-auth.middleware', () => require('../application/middleware/mock-auth.middleware'));
 
-// Import after mocking so the mock is applied
-import { GoogleAuthMiddleware } from '../application/middleware/google-auth.middleware';
+// Mock the firestore repository to use the in-memory mock repository instead.
+jest.mock('./repositories/firestore-zikresource.repository', () => require('./repositories/mock-zikresource.repository'));
+
+import { authMiddleware } from '../application/middleware/google-auth.middleware';
+import * as mockRepo from './repositories/mock-zikresource.repository';
 
 describe('ZikresourceController Integration', () => {
     let app: express.Express;
-    let service: ZikresourceService;
-    let repository: MockZikresourceRepository;
 
     beforeEach(() => {
-        repository = new MockZikresourceRepository();
-        service = new ZikresourceService(repository);
-        const controller = new ZikresourceController(service);
-        const googleAuthMiddleware = new GoogleAuthMiddleware();
+        mockRepo.clearMockZikresources();
 
         app = express();
         app.use(express.json());
-        app.post('/zikresources', googleAuthMiddleware.authMiddleware, controller.create);
-        app.get('/zikresources', googleAuthMiddleware.authMiddleware, controller.getAll);
-        app.get('/zikresources/:id', googleAuthMiddleware.authMiddleware, controller.getById);
-        app.put('/zikresources/:id', googleAuthMiddleware.authMiddleware, controller.update);
-        app.delete('/zikresources/:id', googleAuthMiddleware.authMiddleware, controller.delete);
+        app.post('/zikresources', authMiddleware, createZikresourceHandler);
+        app.get('/zikresources', authMiddleware, getAllZikresourcesHandler);
+        app.get('/zikresources/:id', authMiddleware, getZikresourceByIdHandler);
+        app.put('/zikresources/:id', authMiddleware, updateZikresourceHandler);
+        app.delete('/zikresources/:id', authMiddleware, deleteZikresourceHandler);
         app.use(errorMiddleware);
     });
 
@@ -101,8 +97,8 @@ describe('ZikresourceController Integration', () => {
     });
 
     it('GET /zikresources should return all zikresources', async () => {
-        await repository.save({ id: '1', url: 'https://u1.com', artist: 'a1', title: 't1' });
-        await repository.save({ id: '2', url: 'https://u2.com', artist: 'a2', title: 't2' });
+        await mockRepo.saveZikresource({ id: '1', url: 'https://u1.com', artist: 'a1', title: 't1', type: 'video', tags: [] });
+        await mockRepo.saveZikresource({ id: '2', url: 'https://u2.com', artist: 'a2', title: 't2', type: 'video', tags: [] });
 
         const response = await request(app)
             .get('/zikresources')
@@ -114,11 +110,13 @@ describe('ZikresourceController Integration', () => {
     });
 
     it('PUT /zikresources/:id should update a zikresource', async () => {
-        await repository.save({ id: '123', url: 'https://old.com', artist: 'old', title: 'old' });
+        await mockRepo.saveZikresource({ id: '123', url: 'https://old.com', artist: 'old', title: 'old', type: 'video', tags: [] });
         const payload = {
             url: 'https://new.com',
             artist: 'new',
             title: 'new',
+            type: 'video',
+            tags: []
         };
 
         const response = await request(app)
@@ -133,14 +131,14 @@ describe('ZikresourceController Integration', () => {
     });
 
     it('DELETE /zikresources/:id should delete a zikresource', async () => {
-        await repository.save({ id: '123', url: 'https://ext.com', artist: 'ext', title: 'ext' });
+        await mockRepo.saveZikresource({ id: '123', url: 'https://ext.com', artist: 'ext', title: 'ext', type: 'video', tags: [] });
 
         const response = await request(app)
             .delete('/zikresources/123')
             .set('Authorization', `Bearer ${VALID_TOKEN}`);
 
         expect(response.status).toBe(204);
-        const found = await repository.findById('123');
+        const found = await mockRepo.findZikresourceById('123');
         expect(found).toBeNull();
     });
 

@@ -1,30 +1,34 @@
 import express from 'express';
-import { ZikresourceController } from './zikresources/api/zikresource.controller';
-import { HealthController } from './application/health.controller';
-import { ZikresourceService } from './zikresources/services/zikresource.service';
-import { FirestoreZikresourceRepository } from './zikresources/repositories/firestore-zikresource.repository';
+import {
+    createZikresourceHandler,
+    getAllZikresourcesHandler,
+    getZikresourceByIdHandler,
+    updateZikresourceHandler,
+    deleteZikresourceHandler
+} from './zikresources/api/zikresource.controller';
+import { healthCheck } from './application/health.controller';
 import { errorMiddleware } from './application/middleware/error.middleware';
-import { GoogleAuthMiddleware } from './application/middleware/google-auth.middleware';
+import {
+    initializeGoogleAuthStrategy,
+    authMiddleware
+} from './application/middleware/google-auth.middleware';
 
 const app = express();
 const port = process.env.PORT || 3000;
 
 app.use(express.json());
 
-const zikresourceRepository = new FirestoreZikresourceRepository();
-const zikresourceService = new ZikresourceService(zikresourceRepository);
-const zikresourceController = new ZikresourceController(zikresourceService);
-const healthController = new HealthController();
-const googleAuthMiddleware = new GoogleAuthMiddleware();
+// Initialize authentication strategy
+initializeGoogleAuthStrategy();
 
-app.get('/health', healthController.up);
+app.get('/health', healthCheck);
 
 // Zikresource Routes (protected — requires a valid Google ID token)
-app.post('/zikresources', googleAuthMiddleware.authMiddleware, zikresourceController.create);
-app.get('/zikresources', googleAuthMiddleware.authMiddleware, zikresourceController.getAll);
-app.get('/zikresources/:id', googleAuthMiddleware.authMiddleware, zikresourceController.getById);
-app.put('/zikresources/:id', googleAuthMiddleware.authMiddleware, zikresourceController.update);
-app.delete('/zikresources/:id', googleAuthMiddleware.authMiddleware, zikresourceController.delete);
+app.post('/zikresources', authMiddleware, createZikresourceHandler);
+app.get('/zikresources', authMiddleware, getAllZikresourcesHandler);
+app.get('/zikresources/:id', authMiddleware, getZikresourceByIdHandler);
+app.put('/zikresources/:id', authMiddleware, updateZikresourceHandler);
+app.delete('/zikresources/:id', authMiddleware, deleteZikresourceHandler);
 
 // Global Error Handler
 app.use(errorMiddleware);

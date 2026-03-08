@@ -1,50 +1,52 @@
 import { v4 as uuidv4 } from 'uuid';
 import { Zikresource } from '../models/zikresource.domain';
-import { ZikresourceRepository } from '../repositories/zikresource.repository';
+import {
+    saveZikresource,
+    findZikresourceById,
+    findAllZikresources,
+    updateZikresourceInDb,
+    deleteZikresourceFromDb
+} from '../repositories/firestore-zikresource.repository';
 import { AppError } from '../../application/middleware/error.middleware';
 import { StatusCodes } from 'http-status-codes';
 
-export class ZikresourceService {
-    constructor(private readonly zikresourceRepository: ZikresourceRepository) { }
+export const createZikresource = async (partial: Omit<Zikresource, 'id'>): Promise<Zikresource> => {
+    const zikresource: Zikresource = {
+        id: uuidv4(),
+        ...partial,
+    };
+    return saveZikresource(zikresource);
+};
 
-    async create(partial: Omit<Zikresource, 'id'>): Promise<Zikresource> {
-        const zikresource: Zikresource = {
-            id: uuidv4(),
-            ...partial,
-        };
-        return this.zikresourceRepository.save(zikresource);
+export const getZikresourceById = async (id: string): Promise<Zikresource> => {
+    const zikresource = await findZikresourceById(id);
+    if (!zikresource) {
+        throw new AppError(StatusCodes.NOT_FOUND, `Zikresource with id ${id} not found`);
     }
+    return zikresource;
+};
 
-    async getById(id: string): Promise<Zikresource> {
-        const zikresource = await this.zikresourceRepository.findById(id);
-        if (!zikresource) {
-            throw new AppError(StatusCodes.NOT_FOUND, `Zikresource with id ${id} not found`);
-        }
-        return zikresource;
-    }
+export const getAllZikresources = async (): Promise<Zikresource[]> => {
+    return findAllZikresources();
+};
 
-    async getAll(): Promise<Zikresource[]> {
-        return this.zikresourceRepository.findAll();
+export const updateZikresource = async (id: string, partial: Omit<Zikresource, 'id'>): Promise<Zikresource> => {
+    const existing = await findZikresourceById(id);
+    if (!existing) {
+        throw new AppError(StatusCodes.NOT_FOUND, `Zikresource with id ${id} not found`);
     }
+    const updated: Zikresource = {
+        ...existing,
+        ...partial,
+        id,
+    };
+    return updateZikresourceInDb(updated);
+};
 
-    async update(id: string, partial: Omit<Zikresource, 'id'>): Promise<Zikresource> {
-        const existing = await this.zikresourceRepository.findById(id);
-        if (!existing) {
-            throw new AppError(StatusCodes.NOT_FOUND, `Zikresource with id ${id} not found`);
-        }
-        const updated: Zikresource = {
-            ...existing,
-            ...partial,
-            id,
-        };
-        return this.zikresourceRepository.save(updated);
+export const deleteZikresource = async (id: string): Promise<void> => {
+    const existing = await findZikresourceById(id);
+    if (!existing) {
+        return;
     }
-
-    async delete(id: string): Promise<void> {
-        const existing = await this.zikresourceRepository.findById(id);
-        if (!existing) {
-            return;
-        }
-        await this.zikresourceRepository.delete(id);
-    }
-}
+    await deleteZikresourceFromDb(id);
+};

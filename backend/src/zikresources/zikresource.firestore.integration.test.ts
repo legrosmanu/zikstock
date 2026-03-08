@@ -1,9 +1,13 @@
 import request from 'supertest';
 import express from 'express';
 import * as admin from 'firebase-admin';
-import { ZikresourceController } from './api/zikresource.controller';
-import { ZikresourceService } from './services/zikresource.service';
-import { FirestoreZikresourceRepository } from './repositories/firestore-zikresource.repository';
+import {
+    createZikresourceHandler,
+    getAllZikresourcesHandler,
+    getZikresourceByIdHandler,
+    updateZikresourceHandler,
+    deleteZikresourceHandler
+} from './api/zikresource.controller';
 import { errorMiddleware } from '../application/middleware/error.middleware';
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from '@jest/globals';
 
@@ -24,8 +28,6 @@ import { describe, it, expect, beforeAll, afterAll, beforeEach } from '@jest/glo
 
 describe('ZikresourceController Firestore Integration', () => {
     let app: express.Express;
-    let service: ZikresourceService;
-    let repository: FirestoreZikresourceRepository;
     let db: admin.firestore.Firestore;
 
     beforeAll(() => {
@@ -53,18 +55,13 @@ describe('ZikresourceController Firestore Integration', () => {
         });
         await batch.commit();
 
-        // Set up the Express app with Firestore repository
-        repository = new FirestoreZikresourceRepository();
-        service = new ZikresourceService(repository);
-        const controller = new ZikresourceController(service);
-
         app = express();
         app.use(express.json());
-        app.post('/zikresources', controller.create);
-        app.get('/zikresources', controller.getAll);
-        app.get('/zikresources/:id', controller.getById);
-        app.put('/zikresources/:id', controller.update);
-        app.delete('/zikresources/:id', controller.delete);
+        app.post('/zikresources', createZikresourceHandler);
+        app.get('/zikresources', getAllZikresourcesHandler);
+        app.get('/zikresources/:id', getZikresourceByIdHandler);
+        app.put('/zikresources/:id', updateZikresourceHandler);
+        app.delete('/zikresources/:id', deleteZikresourceHandler);
         app.use(errorMiddleware);
     });
 
@@ -138,12 +135,16 @@ describe('ZikresourceController Firestore Integration', () => {
                 url: 'https://example.com/song1',
                 artist: 'Artist 1',
                 title: 'Song 1',
+                type: 'video',
+                tags: []
             };
 
             const payload2 = {
                 url: 'https://example.com/song2',
                 artist: 'Artist 2',
                 title: 'Song 2',
+                type: 'video',
+                tags: []
             };
 
             const response1 = await request(app)
@@ -171,14 +172,18 @@ describe('ZikresourceController Firestore Integration', () => {
                 id: 'test-id-1',
                 url: 'https://example.com/1',
                 artist: 'Artist 1',
-                title: 'Title 1'
+                title: 'Title 1',
+                type: 'video',
+                tags: []
             });
 
             await db.collection('zikresources').doc('test-id-2').set({
                 id: 'test-id-2',
                 url: 'https://example.com/2',
                 artist: 'Artist 2',
-                title: 'Title 2'
+                title: 'Title 2',
+                type: 'video',
+                tags: []
             });
 
             const response = await request(app)
@@ -206,7 +211,9 @@ describe('ZikresourceController Firestore Integration', () => {
                 id: testId,
                 url: 'https://example.com/specific',
                 artist: 'Specific Artist',
-                title: 'Specific Title'
+                title: 'Specific Title',
+                type: 'video',
+                tags: []
             });
 
             const response = await request(app)
@@ -234,14 +241,17 @@ describe('ZikresourceController Firestore Integration', () => {
                 id: testId,
                 url: 'https://example.com/old',
                 artist: 'Old Artist',
-                title: 'Old Title'
+                title: 'Old Title',
+                type: 'video',
+                tags: []
             });
 
             const updatePayload = {
                 url: 'https://example.com/new',
                 artist: 'New Artist',
                 title: 'New Title',
-                type: 'video'
+                type: 'video',
+                tags: []
             };
 
             const response = await request(app)
@@ -266,7 +276,9 @@ describe('ZikresourceController Firestore Integration', () => {
             const updatePayload = {
                 url: 'https://example.com/new',
                 artist: 'New Artist',
-                title: 'New Title'
+                title: 'New Title',
+                type: 'video',
+                tags: []
             };
 
             const response = await request(app)
@@ -282,7 +294,9 @@ describe('ZikresourceController Firestore Integration', () => {
                 id: testId,
                 url: 'https://example.com/valid',
                 artist: 'Artist',
-                title: 'Title'
+                title: 'Title',
+                type: 'video',
+                tags: []
             });
 
             const invalidPayload = {
@@ -311,7 +325,9 @@ describe('ZikresourceController Firestore Integration', () => {
                 id: testId,
                 url: 'https://example.com/delete',
                 artist: 'Delete Artist',
-                title: 'Delete Title'
+                title: 'Delete Title',
+                type: 'video',
+                tags: []
             });
 
             // Verify it exists before deletion
@@ -340,14 +356,18 @@ describe('ZikresourceController Firestore Integration', () => {
                 id: 'delete-1',
                 url: 'https://example.com/1',
                 artist: 'Artist 1',
-                title: 'Title 1'
+                title: 'Title 1',
+                type: 'video',
+                tags: []
             });
 
             await db.collection('zikresources').doc('delete-2').set({
                 id: 'delete-2',
                 url: 'https://example.com/2',
                 artist: 'Artist 2',
-                title: 'Title 2'
+                title: 'Title 2',
+                type: 'video',
+                tags: []
             });
 
             await request(app).delete('/zikresources/delete-1');
@@ -363,13 +383,17 @@ describe('ZikresourceController Firestore Integration', () => {
             const payload1 = {
                 url: 'https://example.com/concurrent1',
                 artist: 'Artist 1',
-                title: 'Title 1'
+                title: 'Title 1',
+                type: 'video',
+                tags: []
             };
 
             const payload2 = {
                 url: 'https://example.com/concurrent2',
                 artist: 'Artist 2',
-                title: 'Title 2'
+                title: 'Title 2',
+                type: 'video',
+                tags: []
             };
 
             // Create two resources concurrently
@@ -391,7 +415,9 @@ describe('ZikresourceController Firestore Integration', () => {
             const payload = {
                 url: 'https://example.com/persist',
                 artist: 'Persist Artist',
-                title: 'Persist Title'
+                title: 'Persist Title',
+                type: 'video',
+                tags: []
             };
 
             const createResponse = await request(app)
@@ -400,14 +426,10 @@ describe('ZikresourceController Firestore Integration', () => {
 
             const createdId = createResponse.body._id;
 
-            // Simulate service restart by creating new instances
-            const newRepository = new FirestoreZikresourceRepository();
-            const newService = new ZikresourceService(newRepository);
-            const newController = new ZikresourceController(newService);
-
+            // Simulate service restart by creating new app
             const newApp = express();
             newApp.use(express.json());
-            newApp.get('/zikresources/:id', newController.getById);
+            newApp.get('/zikresources/:id', getZikresourceByIdHandler);
 
             // Verify the resource still exists
             const getResponse = await request(newApp)
