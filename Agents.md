@@ -21,7 +21,7 @@ This document defines the specialized roles and responsibilities of the AI agent
 
 ## 🎨 Frontend Agent (React/TypeScript)
 **Goal**: Create a premium, "wow" factor user interface.
-- Build a responsive React application.
+- Build a responsive React application, and use zustand for state management.
 - Prioritize visual excellence, micro-animations, and smooth UX.
 - Implement reusable components following the design system.
 - Ensure SEO best practices and accessibility.

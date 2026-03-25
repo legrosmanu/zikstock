@@ -10,6 +10,8 @@ const tsJestTransformCfg = createDefaultPreset().transform;
 /** @type {import("jest").Config} **/
 module.exports = {
   testEnvironment: "node",
+  // Reduce test timeout from default 5000ms to fail faster when Firestore is not running
+  testTimeout: 1000,
   transform: {
     ...tsJestTransformCfg,
   },

@@ -74,6 +74,9 @@ describe('ZikresourceController Firestore Integration', () => {
         });
         await batch.commit();
 
+        // Terminate Firestore connections to allow Jest to exit gracefully
+        await db.terminate();
+
         // Delete the Firebase app
         await admin.app().delete();
     });
