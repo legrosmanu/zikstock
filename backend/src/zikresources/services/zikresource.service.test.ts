@@ -8,39 +8,22 @@ import {
 import { Zikresource } from '../models/zikresource.domain';
 import { describe, it, expect, beforeEach, jest } from '@jest/globals';
 
-jest.mock('../repositories/firestore-zikresource.repository', () => {
-    let resources: Map<string, Zikresource> = new Map();
-    return {
-        saveZikresource: jest.fn(async (zikresource: Zikresource) => {
-            resources.set(zikresource.id, zikresource);
-            return zikresource;
-        }),
-        findZikresourceById: jest.fn(async (id: string) => {
-            return resources.get(id) || null;
-        }),
-        findAllZikresources: jest.fn(async () => {
-            return Array.from(resources.values());
-        }),
-        updateZikresourceInDb: jest.fn(async (zikresource: Zikresource) => {
-            resources.set(zikresource.id, zikresource);
-            return zikresource;
-        }),
-        deleteZikresourceFromDb: jest.fn(async (id: string) => {
-            resources.delete(id);
-        }),
-        _clearMock: () => {
-            resources.clear();
-        }
-    };
-});
-
+import * as mockRepo from '../repositories/mock-zikresource.repository';
 import * as repo from '../repositories/firestore-zikresource.repository';
+
+jest.mock('../repositories/firestore-zikresource.repository');
 
 describe('ZikresourceService', () => {
 
     beforeEach(() => {
-        (repo as any)._clearMock();
+        mockRepo.clearMockZikresources();
         jest.clearAllMocks();
+
+        jest.mocked(repo.saveZikresource).mockImplementation(mockRepo.saveZikresource);
+        jest.mocked(repo.findZikresourceById).mockImplementation(mockRepo.findZikresourceById);
+        jest.mocked(repo.findAllZikresources).mockImplementation(mockRepo.findAllZikresources);
+        jest.mocked(repo.updateZikresourceInDb).mockImplementation(mockRepo.updateZikresourceInDb);
+        jest.mocked(repo.deleteZikresourceFromDb).mockImplementation(mockRepo.deleteZikresourceFromDb);
     });
 
     it('should create a zikresource', async () => {
@@ -93,5 +76,47 @@ describe('ZikresourceService', () => {
         const result = await getAllZikresources();
 
         expect(result).toHaveLength(2);
+    });
+
+    it('should update a zikresource', async () => {
+        const id = '123';
+        const original: Zikresource = {
+            id,
+            url: 'https://example.com/old',
+            artist: 'Old Artist',
+            title: 'Old Title',
+            type: 'video',
+            tags: [{ label: 'TO_PLAY', value: 'old' }]
+        };
+        await repo.saveZikresource(original);
+
+        const updates: Omit<Zikresource, 'id'> = {
+            url: 'https://example.com/new',
+            artist: 'New Artist',
+            title: 'New Title',
+            type: 'audio',
+            tags: [{ label: 'TO_PLAY', value: 'new' }]
+        };
+
+        const result = await updateZikresource(id, updates);
+
+        expect(result.id).toBe(id);
+        expect(result.url).toBe(updates.url);
+        expect(result.artist).toBe(updates.artist);
+        expect(result.title).toBe(updates.title);
+        expect(result.type).toBe(updates.type);
+        expect(result.tags).toEqual(updates.tags);
+        expect(repo.updateZikresourceInDb).toHaveBeenCalledWith(expect.objectContaining(updates));
+    });
+
+    it('should throw error if zikresource not found on update', async () => {
+        const updates: Omit<Zikresource, 'id'> = {
+            url: 'https://example.com/new',
+            artist: 'New Artist',
+            title: 'New Title',
+            type: 'audio',
+            tags: [{ label: 'TO_PLAY', value: 'new' }]
+        };
+        await expect(updateZikresource('non-existent', updates)).rejects.toThrow('Zikresource with id non-existent not found');
     });
 });
