@@ -24,6 +24,6 @@ export const deleteZikresourceFromDb = async (id: string): Promise<void> => {
     resources.delete(id);
 };
 
-export const clearMockZikresources = (): void => {
+export const clearData = (): void => {
     resources.clear();
 };

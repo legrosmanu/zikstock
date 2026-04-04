@@ -10,29 +10,40 @@ import {
 import { errorMiddleware } from '../application/middleware/error.middleware';
 import { describe, it, expect, beforeEach, jest } from '@jest/globals';
 import { VALID_TOKEN } from '../application/middleware/mock-auth.middleware';
-
-// Mock the auth middleware module so tests don't need a real Google token or network call.
-jest.mock('../application/middleware/google-auth.middleware', () => require('../application/middleware/mock-auth.middleware'));
-
-// Mock the firestore repository to use the in-memory mock repository instead.
-jest.mock('./repositories/firestore-zikresource.repository', () => require('./repositories/mock-zikresource.repository'));
-
-import { authMiddleware } from '../application/middleware/google-auth.middleware';
+import * as googleAuthMiddleware from '../application/middleware/google-auth.middleware';
+import * as mockAuthMiddleware from '../application/middleware/mock-auth.middleware';
+import * as firestoreRepo from './repositories/firestore-zikresource.repository';
 import * as mockRepo from './repositories/mock-zikresource.repository';
+
+// Mock the modules
+jest.mock('../application/middleware/google-auth.middleware');
+jest.mock('./repositories/firestore-zikresource.repository');
 
 describe('ZikresourceController Integration', () => {
     let app: express.Express;
 
     beforeEach(() => {
-        mockRepo.clearMockZikresources();
+        mockRepo.clearData();
+        jest.clearAllMocks();
+
+        // Map the mocked functions to the mock implementations
+        jest.mocked(googleAuthMiddleware.authMiddleware).mockImplementation(mockAuthMiddleware.authMiddleware);
+        
+        jest.mocked(firestoreRepo.saveZikresource).mockImplementation(mockRepo.saveZikresource);
+        jest.mocked(firestoreRepo.findZikresourceById).mockImplementation(mockRepo.findZikresourceById);
+        jest.mocked(firestoreRepo.findAllZikresources).mockImplementation(mockRepo.findAllZikresources);
+        jest.mocked(firestoreRepo.updateZikresourceInDb).mockImplementation(mockRepo.updateZikresourceInDb);
+        jest.mocked(firestoreRepo.deleteZikresourceFromDb).mockImplementation(mockRepo.deleteZikresourceFromDb);
+
 
         app = express();
         app.use(express.json());
-        app.post('/zikresources', authMiddleware, createZikresourceHandler);
-        app.get('/zikresources', authMiddleware, getAllZikresourcesHandler);
-        app.get('/zikresources/:id', authMiddleware, getZikresourceByIdHandler);
-        app.put('/zikresources/:id', authMiddleware, updateZikresourceHandler);
-        app.delete('/zikresources/:id', authMiddleware, deleteZikresourceHandler);
+        // Use the mocked middleware here directly or reference it from googleAuthMiddleware
+        app.post('/zikresources', googleAuthMiddleware.authMiddleware, createZikresourceHandler);
+        app.get('/zikresources', googleAuthMiddleware.authMiddleware, getAllZikresourcesHandler);
+        app.get('/zikresources/:id', googleAuthMiddleware.authMiddleware, getZikresourceByIdHandler);
+        app.put('/zikresources/:id', googleAuthMiddleware.authMiddleware, updateZikresourceHandler);
+        app.delete('/zikresources/:id', googleAuthMiddleware.authMiddleware, deleteZikresourceHandler);
         app.use(errorMiddleware);
     });
 

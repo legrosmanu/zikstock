@@ -16,7 +16,7 @@ jest.mock('../repositories/firestore-zikresource.repository');
 describe('ZikresourceService', () => {
 
     beforeEach(() => {
-        mockRepo.clearMockZikresources();
+        mockRepo.clearData();
         jest.clearAllMocks();
 
         jest.mocked(repo.saveZikresource).mockImplementation(mockRepo.saveZikresource);

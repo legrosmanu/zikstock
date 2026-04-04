@@ -12,7 +12,7 @@
     "dev": "nodemon src/index.ts",
     "build": "tsc -p tsconfig.build.json",
     "start": "node dist/index.js",
-    "test": "jest",
+    "test": "NODE_OPTIONS='--no-deprecation' jest",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix"
   },
