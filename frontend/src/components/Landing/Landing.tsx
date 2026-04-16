@@ -1,4 +1,4 @@
-import { Music, Search, ArrowRight, Activity, Disc, Users } from 'lucide-react';
+import { Music, Search, ArrowRight, BookOpen, Users, ListMusic } from 'lucide-react';
 import './Landing.css';
 
 export const Landing = () => {
@@ -14,7 +14,7 @@ export const Landing = () => {
         </div>
         <div className="navbar-links">
           <a href="#features">Features</a>
-          <a href="#catalog">Catalog</a>
+          <a href="#songbooks">Songbooks</a>
           <a href="#about">About</a>
         </div>
         <button className="btn-primary-outline">Sign In</button>
@@ -30,16 +30,16 @@ export const Landing = () => {
         <div className="hero-content animate-fade-in" style={{ animationDelay: '0.2s' }}>
           <div className="badge">
             <span className="badge-dot"></span>
-            <span>The New Era of Musical Assets</span>
+            <span>Your Musical Companion</span>
           </div>
           
           <h1 className="hero-title">
-            Discover Quality <br/>
-            <span className="text-gradient">Musical Resources</span>
+            Organize Your <br/>
+            <span className="text-gradient">Musical Journey</span>
           </h1>
           
           <p className="hero-subtitle">
-            A curated, high-quality collection of beats, samples, and scores for modern creators. Build your next masterpiece with Zikstock.
+            Store and organize the resources you need to learn new songs. The perfect companion to practice alone or build setlists to play with your friends.
           </p>
 
           <div className="search-container glass-panel">
@@ -47,28 +47,11 @@ export const Landing = () => {
             <input 
               type="text" 
               className="search-input" 
-              placeholder="Search for stems, samples, or scores..."
+              placeholder="Search for songs, tabs, or artists..."
             />
             <button className="btn-primary">
-              Discover <ArrowRight size={18} />
+              Get Started <ArrowRight size={18} />
             </button>
-          </div>
-          
-          <div className="stats-row">
-            <div className="stat-item">
-              <span className="stat-value">10k+</span>
-              <span className="stat-label">Tracks</span>
-            </div>
-            <div className="divider"></div>
-            <div className="stat-item">
-              <span className="stat-value">HD</span>
-              <span className="stat-label">Audio Quality</span>
-            </div>
-            <div className="divider"></div>
-            <div className="stat-item">
-              <span className="stat-value">Daily</span>
-              <span className="stat-label">Updates</span>
-            </div>
           </div>
         </div>
       </main>
@@ -78,24 +61,24 @@ export const Landing = () => {
         <div className="feature-grid">
           <div className="feature-card glass-panel" style={{ animationDelay: '0.4s' }}>
             <div className="feature-icon-wrapper">
-              <Activity size={24} className="feature-icon" />
+              <BookOpen size={24} className="feature-icon" />
             </div>
-            <h3>Pristine Quality</h3>
-            <p>Every sample and track is mastered to perfection, guaranteeing studio-grade sound.</p>
+            <h3>Learn New Songs</h3>
+            <p>Save links to tabs, video tutorials, and backing tracks all in one place. Never lose a resource again.</p>
           </div>
           <div className="feature-card glass-panel" style={{ animationDelay: '0.5s' }}>
             <div className="feature-icon-wrapper">
-              <Disc size={24} className="feature-icon" />
+              <Users size={24} className="feature-icon" />
             </div>
-            <h3>Vast Library</h3>
-            <p>From vintage vinyl rips to modern synth waves, find exactly what fits your vibe.</p>
+            <h3>Play With Friends</h3>
+            <p>Group your songs into shared songbooks. Easily decide which tracks to learn and play in your next jam session.</p>
           </div>
           <div className="feature-card glass-panel" style={{ animationDelay: '0.6s' }}>
             <div className="feature-icon-wrapper">
-              <Users size={24} className="feature-icon" />
+              <ListMusic size={24} className="feature-icon" />
             </div>
-            <h3>Creator Focused</h3>
-            <p>Built for artists, by artists. Clear licensing and seamless downloads.</p>
+            <h3>Organized Practice</h3>
+            <p>Focus on playing. Zikstock acts as your digital binder, keeping all your musical references neatly structured.</p>
           </div>
         </div>
       </section>
