@@ -309,9 +309,6 @@
   gap: 1rem;
   text-align: left;
   transition: transform var(--transition-normal), background var(--transition-normal);
-  animation: fadeIn 0.8s var(--transition-slow) forwards;
-  opacity: 0;
-  transform: translateY(20px);
 }
 
 .feature-card:hover {

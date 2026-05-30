@@ -70,7 +70,7 @@ a {
 }
 
 .animate-fade-in {
-  animation: fadeIn 0.8s var(--transition-slow) forwards;
+  /* Fade-in animation removed at user request */
 }
 
 .glass-panel {
