@@ -1,13 +1,18 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ArrowLeft, Music, ShieldAlert, Terminal } from 'lucide-react';
+import { useNavigate } from '@tanstack/react-router';
 import { useAuthStore } from '../../store/authStore';
 import './LoginPage.css';
 
-interface LoginPageProps {
-  onNavigateToLanding: () => void;
-}
+export const LoginPage: React.FC = () => {
+  const navigate = useNavigate();
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
-export const LoginPage: React.FC<LoginPageProps> = ({ onNavigateToLanding }) => {
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate({ to: '/dashboard', replace: true });
+    }
+  }, [isAuthenticated, navigate]);
   const login = useAuthStore((state) => state.login);
   const devLogin = useAuthStore((state) => state.devLogin);
   
@@ -97,7 +102,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onNavigateToLanding }) => 
     <div className="login-page-container animate-fade-in">
       {/* Desktop Left Branding Panel */}
       <div className="login-left-pane">
-        <div className="login-brand" onClick={onNavigateToLanding}>
+        <div className="login-brand" onClick={() => navigate({ to: '/' })}>
           <div className="login-brand-icon">
             <Music size={22} />
           </div>
@@ -124,7 +129,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onNavigateToLanding }) => 
       {/* Desktop Right / Mobile Card Login Panel */}
       <div className="login-right-pane">
         <div className="login-card glass-panel">
-          <button className="btn-back-landing" onClick={onNavigateToLanding}>
+          <button className="btn-back-landing" onClick={() => navigate({ to: '/' })}>
             <ArrowLeft size={16} />
             <span>Back to home</span>
           </button>

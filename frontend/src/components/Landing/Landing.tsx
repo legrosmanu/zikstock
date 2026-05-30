@@ -1,12 +1,19 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Music, Search, ArrowRight, BookOpen, Users, ListMusic } from 'lucide-react';
+import { useNavigate } from '@tanstack/react-router';
+import { useAuthStore } from '../../store/authStore';
 import './Landing.css';
 
-interface LandingProps {
-  onNavigateToLogin: () => void;
-}
+export const Landing: React.FC = () => {
+  const navigate = useNavigate();
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
-export const Landing: React.FC<LandingProps> = ({ onNavigateToLogin }) => {
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate({ to: '/dashboard', replace: true });
+    }
+  }, [isAuthenticated, navigate]);
+
   return (
     <div className="landing-container">
       {/* Navigation */}
@@ -17,7 +24,7 @@ export const Landing: React.FC<LandingProps> = ({ onNavigateToLogin }) => {
           </div>
           <span className="logo-text">Zikstock</span>
         </div>
-        <button className="btn-primary-outline" onClick={onNavigateToLogin}>Sign In</button>
+        <button className="btn-primary-outline" onClick={() => navigate({ to: '/login' })}>Sign In</button>
       </nav>
 
       {/* Hero Section */}
@@ -49,7 +56,7 @@ export const Landing: React.FC<LandingProps> = ({ onNavigateToLogin }) => {
               className="search-input" 
               placeholder="Search for songs, tabs, or artists..."
             />
-            <button className="btn-primary" onClick={onNavigateToLogin}>
+            <button className="btn-primary" onClick={() => navigate({ to: '/login' })}>
               Get Started <ArrowRight size={18} />
             </button>
           </div>

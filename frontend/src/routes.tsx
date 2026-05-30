@@ -1,16 +1,15 @@
-import { useEffect, useState } from 'react';
+/* eslint-disable react-refresh/only-export-components */
+import { createRootRoute, createRoute, createRouter, Outlet } from '@tanstack/react-router';
+import { useEffect } from 'react';
+import { useAuthStore } from './store/authStore';
 import { Landing } from './components/Landing/Landing';
 import { LoginPage } from './components/Auth/LoginPage';
 import { Dashboard } from './components/Dashboard/Dashboard';
-import { useAuthStore } from './store/authStore';
 
-function App() {
+// Root Route Component
+const RootComponent = () => {
   const initialize = useAuthStore((state) => state.initialize);
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const isInitializing = useAuthStore((state) => state.isInitializing);
-  
-  // Simple state router for unauthenticated paths
-  const [currentView, setCurrentView] = useState<'landing' | 'login'>('landing');
 
   useEffect(() => {
     initialize();
@@ -47,21 +46,49 @@ function App() {
     );
   }
 
-  // If authenticated, always show Dashboard
-  if (isAuthenticated) {
-    return <Dashboard />;
+  return <Outlet />;
+};
+
+export const rootRoute = createRootRoute({
+  component: RootComponent,
+});
+
+// Index Route (/)
+const indexRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/',
+  component: Landing,
+});
+
+// Login Route (/login)
+const loginRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/login',
+  component: LoginPage,
+});
+
+// Dashboard Route (/dashboard)
+const dashboardRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/dashboard',
+  component: Dashboard,
+});
+
+// Build the Route Tree
+const routeTree = rootRoute.addChildren([
+  indexRoute,
+  loginRoute,
+  dashboardRoute,
+]);
+
+// Create the Router
+export const router = createRouter({
+  routeTree,
+});
+
+// Register the router instance for type safety
+declare module '@tanstack/react-router' {
+  interface Register {
+    router: typeof router;
   }
-
-  // Otherwise, render requested unauthenticated view
-  return (
-    <>
-      {currentView === 'landing' ? (
-        <Landing onNavigateToLogin={() => setCurrentView('login')} />
-      ) : (
-        <LoginPage onNavigateToLanding={() => setCurrentView('landing')} />
-      )}
-    </>
-  );
 }
-
-export default App;

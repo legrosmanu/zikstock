@@ -34,9 +34,9 @@ export namespace google.accounts.id {
 
   export function initialize(config: InitializeConfig): void;
   export function renderButton(parent: HTMLElement, options: RenderButtonOptions): void;
-  export function prompt(callback?: (notification: any) => void): void;
+  export function prompt(callback?: (notification: unknown) => void): void;
   export function disableAutoSelect(): void;
-  export function revoke(hint: string, callback: (response: any) => void): void;
+  export function revoke(hint: string, callback: (response: unknown) => void): void;
 }
 
 export namespace google.accounts.oauth2 {
