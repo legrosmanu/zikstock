@@ -1,7 +1,12 @@
+import React from 'react';
 import { Music, Search, ArrowRight, BookOpen, Users, ListMusic } from 'lucide-react';
 import './Landing.css';
 
-export const Landing = () => {
+interface LandingProps {
+  onNavigateToLogin: () => void;
+}
+
+export const Landing: React.FC<LandingProps> = ({ onNavigateToLogin }) => {
   return (
     <div className="landing-container">
       {/* Navigation */}
@@ -12,12 +17,7 @@ export const Landing = () => {
           </div>
           <span className="logo-text">Zikstock</span>
         </div>
-        <div className="navbar-links">
-          <a href="#features">Features</a>
-          <a href="#songbooks">Songbooks</a>
-          <a href="#about">About</a>
-        </div>
-        <button className="btn-primary-outline">Sign In</button>
+        <button className="btn-primary-outline" onClick={onNavigateToLogin}>Sign In</button>
       </nav>
 
       {/* Hero Section */}
@@ -49,7 +49,7 @@ export const Landing = () => {
               className="search-input" 
               placeholder="Search for songs, tabs, or artists..."
             />
-            <button className="btn-primary">
+            <button className="btn-primary" onClick={onNavigateToLogin}>
               Get Started <ArrowRight size={18} />
             </button>
           </div>
