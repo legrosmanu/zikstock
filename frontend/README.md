@@ -1,73 +1,49 @@
-# React + TypeScript + Vite
+# 🎨 Zikstock Frontend Application
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A responsive and visually stunning React single-page application powered by Vite, Zustand for state management, and custom Vanilla CSS with modern glassmorphism design and micro-animations.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 🚀 Quick Start for Development
 
-## React Compiler
+### 1. Prerequisites
+Ensure you have the following installed on your machine:
+*   **Node.js** (version `>= 20`)
+*   **pnpm** (version `>= 10` - strictly enforced by package policies)
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### 2. Setup and Run the Frontend
+Go to the `frontend/` directory, install the dependencies, and start the Vite local development server:
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+cd frontend
+pnpm install
+pnpm dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+The app will start with hot-reloading (HMR) and can be accessed at:
+**`http://localhost:5173`** (or the URL printed in your terminal).
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+---
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## 🛠️ Available NPM Scripts
+
+All commands should be run using `pnpm` inside the `frontend/` folder:
+
+| Command | Description |
+| :--- | :--- |
+| `pnpm dev` | Starts the local Vite development server with Hot Module Replacement (HMR). |
+| `pnpm build` | Compiles TypeScript and builds an optimized, minified production package into the `dist/` directory. |
+| `pnpm preview` | Starts a local server to preview the built production bundle from the `dist/` directory. |
+| `pnpm lint` | Runs ESLint to check syntax, style rules, and types across the React/TypeScript files. |
+
+---
+
+## 🏗️ Architecture & Style Guidelines
+
+As per the project's [Agents.md](file:///Users/manu/workspace/zikstock/Agents.md) rules, the frontend is built with high standards of quality and modern designs:
+
+*   **Aesthetics**: Sleek design featuring rich glassmorphism, tailored color palettes (using CSS variables in `index.css`), modern typography (Inter/Outfit), and subtle interactive micro-animations for an elevated user experience.
+*   **Icons**: Supported by `lucide-react` for simple, vector-perfect iconography.
+*   **State Management**: Uses `zustand` to manage application state in a simple, decoupled, reactive, and highly performant way.
+*   **Only TypeScript**: No pure JavaScript, TypeScript type-checking is active on builds and lints.
+*   **Tailwind Policy**: Standard Vanilla CSS is preferred for visual control, keeping utility classes out of component templates unless explicitly requested.
