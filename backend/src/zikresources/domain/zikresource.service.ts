@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import { Zikresource } from '../models/zikresource.domain';
+import { Zikresource } from './zikresource.domain';
 import {
     saveZikresource,
     findZikresourceById,
@@ -34,6 +34,9 @@ export const updateZikresource = async (id: string, partial: Omit<Zikresource, '
     const existing = await findZikresourceById(id);
     if (!existing) {
         throw new AppError(StatusCodes.NOT_FOUND, `Zikresource with id ${id} not found`);
+    }
+    if (partial.createdBy !== existing?.createdBy) {
+        throw new AppError(StatusCodes.FORBIDDEN, `You cannot change the owner of the zikresource.`)
     }
     const updated: Zikresource = {
         ...existing,

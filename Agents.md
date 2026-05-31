@@ -16,7 +16,7 @@ This document defines the specialized roles and responsibilities of the AI agent
 **Goal**: Develop a robust and performant backend service.
 - Implement the domain logic for musical resources.
 - Create RESTful APIs.
-- Ensure decoupling from infrastructure (database, third-party APIs).
+- Ensure decoupling from infrastructure (database, third-party APIs). The business logic of a domain is in the domain directory.
 - Prepare the service for deployment on GCP Cloud Run.
 
 ## 🎨 Frontend Agent (React/TypeScript)

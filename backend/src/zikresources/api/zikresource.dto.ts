@@ -15,6 +15,7 @@ export type CreateZikresourceRequest = z.infer<typeof ZikresourceSchema>;
 
 export interface ZikresourceResponse {
     _id: string;
+    createdBy: string;
     url: string;
     artist: string;
     title: string;

@@ -5,14 +5,15 @@ import {
     getZikresourceById,
     updateZikresource,
     deleteZikresource
-} from '../services/zikresource.service';
+} from '../domain/zikresource.service';
 import { ZikresourceSchema, ZikresourceResponse } from './zikresource.dto';
-import { Zikresource } from '../models/zikresource.domain';
+import { Zikresource } from '../domain/zikresource.domain';
 import { StatusCodes } from 'http-status-codes';
 import { AppError } from '../../application/middleware/error.middleware';
 
 const toResponse = (domain: Zikresource): ZikresourceResponse => ({
     _id: domain.id,
+    createdBy: domain.createdBy,
     url: domain.url,
     artist: domain.artist,
     title: domain.title,
@@ -26,7 +27,11 @@ export const createZikresourceHandler = async (req: Request, res: Response, next
         if (!validation.success) {
             throw new AppError(StatusCodes.BAD_REQUEST, `Validation failed: ${validation.error.message}`);
         }
-        const domainModel = await createZikresource(validation.data);
+        const createdBy = req.user?.sub;
+        if (!createdBy) {
+            throw new AppError(StatusCodes.UNAUTHORIZED, 'User identity is missing from token');
+        }
+        const domainModel = await createZikresource({ ...validation.data, createdBy });
         res.status(StatusCodes.CREATED).json(toResponse(domainModel));
     } catch (error) {
         next(error);
@@ -57,7 +62,11 @@ export const updateZikresourceHandler = async (req: Request, res: Response, next
         if (!validation.success) {
             throw new AppError(StatusCodes.BAD_REQUEST, `Validation failed: ${validation.error.message}`);
         }
-        const result = await updateZikresource(req.params.id as string, validation.data);
+        const createdBy = req.user?.sub;
+        if (!createdBy) {
+            throw new AppError(StatusCodes.UNAUTHORIZED, 'User identity is missing from token');
+        }
+        const result = await updateZikresource(req.params.id as string, { ...validation.data, createdBy });
         res.json(toResponse(result));
     } catch (error) {
         next(error);

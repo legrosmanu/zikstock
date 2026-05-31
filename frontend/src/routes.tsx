@@ -5,6 +5,7 @@ import { useAuthStore } from './store/authStore';
 import { Landing } from './components/Landing/Landing';
 import { LoginPage } from './components/Auth/LoginPage';
 import { Dashboard } from './components/Dashboard/Dashboard';
+import { CreateZikresource } from './components/CreateZikresource/CreateZikresource';
 
 // Root Route Component
 const RootComponent = () => {
@@ -74,11 +75,19 @@ const dashboardRoute = createRoute({
   component: Dashboard,
 });
 
+// Create Zikresource Route (/zikresources/new)
+const createZikresourceRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/zikresources/new',
+  component: CreateZikresource,
+});
+
 // Build the Route Tree
 const routeTree = rootRoute.addChildren([
   indexRoute,
   loginRoute,
   dashboardRoute,
+  createZikresourceRoute,
 ]);
 
 // Create the Router

@@ -1,6 +1,6 @@
 import { Firestore } from 'firebase-admin/firestore';
 import * as admin from 'firebase-admin';
-import { Zikresource } from '../models/zikresource.domain';
+import { Zikresource } from '../domain/zikresource.domain';
 
 const collection = 'zikresources';
 

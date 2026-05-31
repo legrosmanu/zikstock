@@ -173,7 +173,7 @@ export const Dashboard: React.FC = () => {
             <p className="empty-state-subtitle">
               Save links to tabs, video tutorials, or audio tracks to build your practice space. Neatly group them under customizable tags.
             </p>
-            <button className="btn-primary-large">
+            <button className="btn-primary-large" onClick={() => navigate({ to: '/zikresources/new' })}>
               <Plus size={18} />
               <span>Add Your First Zikresource</span>
             </button>

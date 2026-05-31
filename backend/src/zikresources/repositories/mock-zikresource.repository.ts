@@ -1,4 +1,4 @@
-import { Zikresource } from '../models/zikresource.domain';
+import { Zikresource } from '../domain/zikresource.domain';
 
 const resources: Map<string, Zikresource> = new Map();
 

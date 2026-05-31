@@ -108,8 +108,8 @@ describe('ZikresourceController Integration', () => {
     });
 
     it('GET /zikresources should return all zikresources', async () => {
-        await mockRepo.saveZikresource({ id: '1', url: 'https://u1.com', artist: 'a1', title: 't1', type: 'video', tags: [] });
-        await mockRepo.saveZikresource({ id: '2', url: 'https://u2.com', artist: 'a2', title: 't2', type: 'video', tags: [] });
+        await mockRepo.saveZikresource({ id: '1', createdBy: 'user-123', url: 'https://u1.com', artist: 'a1', title: 't1', type: 'video', tags: [] });
+        await mockRepo.saveZikresource({ id: '2', createdBy: 'user-123', url: 'https://u2.com', artist: 'a2', title: 't2', type: 'video', tags: [] });
 
         const response = await request(app)
             .get('/zikresources')
@@ -121,7 +121,7 @@ describe('ZikresourceController Integration', () => {
     });
 
     it('PUT /zikresources/:id should update a zikresource', async () => {
-        await mockRepo.saveZikresource({ id: '123', url: 'https://old.com', artist: 'old', title: 'old', type: 'video', tags: [] });
+        await mockRepo.saveZikresource({ id: '123', createdBy: 'user-123', url: 'https://old.com', artist: 'old', title: 'old', type: 'video', tags: [] });
         const payload = {
             url: 'https://new.com',
             artist: 'new',
@@ -142,7 +142,7 @@ describe('ZikresourceController Integration', () => {
     });
 
     it('DELETE /zikresources/:id should delete a zikresource', async () => {
-        await mockRepo.saveZikresource({ id: '123', url: 'https://ext.com', artist: 'ext', title: 'ext', type: 'video', tags: [] });
+        await mockRepo.saveZikresource({ id: '123', createdBy: 'user-123', url: 'https://ext.com', artist: 'ext', title: 'ext', type: 'video', tags: [] });
 
         const response = await request(app)
             .delete('/zikresources/123')

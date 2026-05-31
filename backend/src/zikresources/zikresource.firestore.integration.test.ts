@@ -9,7 +9,12 @@ import {
     deleteZikresourceHandler
 } from './api/zikresource.controller';
 import { errorMiddleware } from '../application/middleware/error.middleware';
-import { describe, it, expect, beforeAll, afterAll, beforeEach } from '@jest/globals';
+import { VALID_TOKEN } from '../application/middleware/mock-auth.middleware';
+import * as googleAuthMiddleware from '../application/middleware/google-auth.middleware';
+import * as mockAuthMiddleware from '../application/middleware/mock-auth.middleware';
+import { describe, it, expect, beforeAll, afterAll, beforeEach, jest } from '@jest/globals';
+
+jest.mock('../application/middleware/google-auth.middleware');
 
 /**
  * Firestore Integration Tests
@@ -55,13 +60,16 @@ describe('ZikresourceController Firestore Integration', () => {
         });
         await batch.commit();
 
+        jest.clearAllMocks();
+        jest.mocked(googleAuthMiddleware.authMiddleware).mockImplementation(mockAuthMiddleware.authMiddleware);
+
         app = express();
         app.use(express.json());
-        app.post('/zikresources', createZikresourceHandler);
-        app.get('/zikresources', getAllZikresourcesHandler);
-        app.get('/zikresources/:id', getZikresourceByIdHandler);
-        app.put('/zikresources/:id', updateZikresourceHandler);
-        app.delete('/zikresources/:id', deleteZikresourceHandler);
+        app.post('/zikresources', googleAuthMiddleware.authMiddleware, createZikresourceHandler);
+        app.get('/zikresources', googleAuthMiddleware.authMiddleware, getAllZikresourcesHandler);
+        app.get('/zikresources/:id', googleAuthMiddleware.authMiddleware, getZikresourceByIdHandler);
+        app.put('/zikresources/:id', googleAuthMiddleware.authMiddleware, updateZikresourceHandler);
+        app.delete('/zikresources/:id', googleAuthMiddleware.authMiddleware, deleteZikresourceHandler);
         app.use(errorMiddleware);
     });
 
@@ -96,6 +104,7 @@ describe('ZikresourceController Firestore Integration', () => {
 
             const response = await request(app)
                 .post('/zikresources')
+                .set('Authorization', `Bearer ${VALID_TOKEN}`)
                 .send(payload);
 
             expect(response.status).toBe(201);
@@ -122,6 +131,7 @@ describe('ZikresourceController Firestore Integration', () => {
 
             const response = await request(app)
                 .post('/zikresources')
+                .set('Authorization', `Bearer ${VALID_TOKEN}`)
                 .send(payload);
 
             expect(response.status).toBe(400);
@@ -152,10 +162,12 @@ describe('ZikresourceController Firestore Integration', () => {
 
             const response1 = await request(app)
                 .post('/zikresources')
+                .set('Authorization', `Bearer ${VALID_TOKEN}`)
                 .send(payload1);
 
             const response2 = await request(app)
                 .post('/zikresources')
+                .set('Authorization', `Bearer ${VALID_TOKEN}`)
                 .send(payload2);
 
             expect(response1.status).toBe(201);
@@ -190,7 +202,8 @@ describe('ZikresourceController Firestore Integration', () => {
             });
 
             const response = await request(app)
-                .get('/zikresources');
+                .get('/zikresources')
+                .set('Authorization', `Bearer ${VALID_TOKEN}`);
 
             expect(response.status).toBe(200);
             expect(response.body).toHaveLength(2);
@@ -200,7 +213,8 @@ describe('ZikresourceController Firestore Integration', () => {
 
         it('should return empty array when no zikresources exist', async () => {
             const response = await request(app)
-                .get('/zikresources');
+                .get('/zikresources')
+                .set('Authorization', `Bearer ${VALID_TOKEN}`);
 
             expect(response.status).toBe(200);
             expect(response.body).toHaveLength(0);
@@ -220,7 +234,8 @@ describe('ZikresourceController Firestore Integration', () => {
             });
 
             const response = await request(app)
-                .get(`/zikresources/${testId}`);
+                .get(`/zikresources/${testId}`)
+                .set('Authorization', `Bearer ${VALID_TOKEN}`);
 
             expect(response.status).toBe(200);
             expect(response.body._id).toBe(testId);
@@ -229,7 +244,8 @@ describe('ZikresourceController Firestore Integration', () => {
 
         it('should return 404 if zikresource not found in Firestore', async () => {
             const response = await request(app)
-                .get('/zikresources/non-existent-id');
+                .get('/zikresources/non-existent-id')
+                .set('Authorization', `Bearer ${VALID_TOKEN}`);
 
             expect(response.status).toBe(404);
             expect(response.body.error).toBe('Not Found');
@@ -242,6 +258,7 @@ describe('ZikresourceController Firestore Integration', () => {
             const testId = 'test-update-id';
             await db.collection('zikresources').doc(testId).set({
                 id: testId,
+                createdBy: 'user-123',
                 url: 'https://example.com/old',
                 artist: 'Old Artist',
                 title: 'Old Title',
@@ -259,6 +276,7 @@ describe('ZikresourceController Firestore Integration', () => {
 
             const response = await request(app)
                 .put(`/zikresources/${testId}`)
+                .set('Authorization', `Bearer ${VALID_TOKEN}`)
                 .send(updatePayload);
 
             expect(response.status).toBe(200);
@@ -286,6 +304,7 @@ describe('ZikresourceController Firestore Integration', () => {
 
             const response = await request(app)
                 .put('/zikresources/non-existent-id')
+                .set('Authorization', `Bearer ${VALID_TOKEN}`)
                 .send(updatePayload);
 
             expect(response.status).toBe(404);
@@ -310,6 +329,7 @@ describe('ZikresourceController Firestore Integration', () => {
 
             const response = await request(app)
                 .put(`/zikresources/${testId}`)
+                .set('Authorization', `Bearer ${VALID_TOKEN}`)
                 .send(invalidPayload);
 
             expect(response.status).toBe(400);
@@ -338,7 +358,8 @@ describe('ZikresourceController Firestore Integration', () => {
             expect(doc.exists).toBe(true);
 
             const response = await request(app)
-                .delete(`/zikresources/${testId}`);
+                .delete(`/zikresources/${testId}`)
+                .set('Authorization', `Bearer ${VALID_TOKEN}`);
 
             expect(response.status).toBe(204);
 
@@ -349,7 +370,8 @@ describe('ZikresourceController Firestore Integration', () => {
 
         it('should be idempotent (deleting non-existent resource)', async () => {
             const response = await request(app)
-                .delete('/zikresources/non-existent-id');
+                .delete('/zikresources/non-existent-id')
+                .set('Authorization', `Bearer ${VALID_TOKEN}`);
 
             expect(response.status).toBe(204);
         });
@@ -357,6 +379,7 @@ describe('ZikresourceController Firestore Integration', () => {
         it('should handle multiple deletes', async () => {
             await db.collection('zikresources').doc('delete-1').set({
                 id: 'delete-1',
+                createdBy: 'user-123',
                 url: 'https://example.com/1',
                 artist: 'Artist 1',
                 title: 'Title 1',
@@ -366,6 +389,7 @@ describe('ZikresourceController Firestore Integration', () => {
 
             await db.collection('zikresources').doc('delete-2').set({
                 id: 'delete-2',
+                createdBy: 'user-123',
                 url: 'https://example.com/2',
                 artist: 'Artist 2',
                 title: 'Title 2',
@@ -373,8 +397,8 @@ describe('ZikresourceController Firestore Integration', () => {
                 tags: []
             });
 
-            await request(app).delete('/zikresources/delete-1');
-            await request(app).delete('/zikresources/delete-2');
+            await request(app).delete('/zikresources/delete-1').set('Authorization', `Bearer ${VALID_TOKEN}`);
+            await request(app).delete('/zikresources/delete-2').set('Authorization', `Bearer ${VALID_TOKEN}`);
 
             const snapshot = await db.collection('zikresources').get();
             expect(snapshot.empty).toBe(true);
@@ -401,8 +425,8 @@ describe('ZikresourceController Firestore Integration', () => {
 
             // Create two resources concurrently
             const [response1, response2] = await Promise.all([
-                request(app).post('/zikresources').send(payload1),
-                request(app).post('/zikresources').send(payload2)
+                request(app).post('/zikresources').set('Authorization', `Bearer ${VALID_TOKEN}`).send(payload1),
+                request(app).post('/zikresources').set('Authorization', `Bearer ${VALID_TOKEN}`).send(payload2)
             ]);
 
             expect(response1.status).toBe(201);
@@ -425,6 +449,7 @@ describe('ZikresourceController Firestore Integration', () => {
 
             const createResponse = await request(app)
                 .post('/zikresources')
+                .set('Authorization', `Bearer ${VALID_TOKEN}`)
                 .send(payload);
 
             const createdId = createResponse.body._id;

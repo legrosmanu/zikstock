@@ -5,7 +5,7 @@ import {
     updateZikresource,
     deleteZikresource
 } from './zikresource.service';
-import { Zikresource } from '../models/zikresource.domain';
+import { Zikresource } from './zikresource.domain';
 import { describe, it, expect, beforeEach, jest } from '@jest/globals';
 
 import * as mockRepo from '../repositories/mock-zikresource.repository';
@@ -28,6 +28,7 @@ describe('ZikresourceService', () => {
 
     it('should create a zikresource', async () => {
         const partial: Omit<Zikresource, 'id'> = {
+            createdBy: 'user-123',
             url: 'https://example.com',
             artist: 'Test Artist',
             title: 'Test Title',
@@ -47,6 +48,7 @@ describe('ZikresourceService', () => {
     it('should get a zikresource by id', async () => {
         const zikresource: Zikresource = {
             id: '123',
+            createdBy: 'user-123',
             url: 'https://example.com',
             artist: 'Test Artist',
             title: 'Test Title',
@@ -70,8 +72,8 @@ describe('ZikresourceService', () => {
     });
 
     it('should get all zikresources', async () => {
-        await repo.saveZikresource({ id: '1', url: 'u1', artist: 'a1', title: 't1', type: 'video', tags: [] });
-        await repo.saveZikresource({ id: '2', url: 'u2', artist: 'a2', title: 't2', type: 'video', tags: [] });
+        await repo.saveZikresource({ id: '1', createdBy: 'ELEGROS', url: 'u1', artist: 'a1', title: 't1', type: 'video', tags: [] });
+        await repo.saveZikresource({ id: '2', createdBy: 'ELEGROS', url: 'u2', artist: 'a2', title: 't2', type: 'video', tags: [] });
 
         const result = await getAllZikresources();
 
@@ -82,6 +84,7 @@ describe('ZikresourceService', () => {
         const id = '123';
         const original: Zikresource = {
             id,
+            createdBy: 'user-123',
             url: 'https://example.com/old',
             artist: 'Old Artist',
             title: 'Old Title',
@@ -91,6 +94,7 @@ describe('ZikresourceService', () => {
         await repo.saveZikresource(original);
 
         const updates: Omit<Zikresource, 'id'> = {
+            createdBy: 'user-123',
             url: 'https://example.com/new',
             artist: 'New Artist',
             title: 'New Title',
@@ -111,6 +115,7 @@ describe('ZikresourceService', () => {
 
     it('should throw error if zikresource not found on update', async () => {
         const updates: Omit<Zikresource, 'id'> = {
+            createdBy: 'user-123',
             url: 'https://example.com/new',
             artist: 'New Artist',
             title: 'New Title',

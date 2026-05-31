@@ -5,6 +5,7 @@ export interface Tag {
 
 export interface Zikresource {
     id: string;
+    createdBy: string;
     url: string;
     artist: string;
     title: string;
