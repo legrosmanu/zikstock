@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Music, ArrowLeft, Plus, X, Link, User, FileText, Tag, Loader2 } from 'lucide-react';
 import { useNavigate } from '@tanstack/react-router';
-import { useAuthStore } from '../../store/authStore';
+import { authenticatedPost } from '../../infra/httpClient';
 import './CreateZikresource.css';
 
 interface TagItem {
@@ -30,7 +30,6 @@ const PRESET_TAGS = ['beginner', 'intermediate', 'advanced', 'jazz', 'rock', 'bl
 
 export const CreateZikresource: React.FC = () => {
   const navigate = useNavigate();
-  const token = useAuthStore((state) => state.token);
 
   const [form, setForm] = useState<FormState>({
     url: '',
@@ -87,7 +86,6 @@ export const CreateZikresource: React.FC = () => {
     setError(null);
 
     try {
-      const apiUrl = import.meta.env.VITE_API_URL;
       const body: Record<string, unknown> = {
         url: form.url.trim(),
         artist: form.artist.trim(),
@@ -96,19 +94,8 @@ export const CreateZikresource: React.FC = () => {
       if (form.type) body.type = form.type;
       if (form.tags.length > 0) body.tags = form.tags;
 
-      const response = await fetch(`${apiUrl}/zikresources`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(body),
-      });
-
-      if (!response.ok) {
-        const data = await response.json().catch(() => ({}));
-        throw new Error(data?.message || `Server error: ${response.status}`);
-      }
+      const endpoint = '/zikresources';
+      await authenticatedPost(endpoint, body);
 
       setSuccess(true);
       setTimeout(() => navigate({ to: '/dashboard' }), 1200);
@@ -117,6 +104,7 @@ export const CreateZikresource: React.FC = () => {
     } finally {
       setIsSubmitting(false);
     }
+    setIsSubmitting(false);
   };
 
   return (

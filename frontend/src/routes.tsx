@@ -1,11 +1,32 @@
 /* eslint-disable react-refresh/only-export-components */
-import { createRootRoute, createRoute, createRouter, Outlet } from '@tanstack/react-router';
+import { createRootRoute, createRoute, createRouter, Outlet, redirect } from '@tanstack/react-router';
 import { useEffect } from 'react';
 import { useAuthStore } from './store/authStore';
 import { Landing } from './components/Landing/Landing';
 import { LoginPage } from './components/Auth/LoginPage';
 import { Dashboard } from './components/Dashboard/Dashboard';
 import { CreateZikresource } from './components/CreateZikresource/CreateZikresource';
+
+async function WittAuth<T>(apiCall?: () => Promise<T>): Promise<T | undefined> {
+  try {
+    const store = useAuthStore.getState();
+    const hasToken = !!store.token;
+    if (!hasToken) {
+      throw new Error('401 - Non authentifié')
+    }
+
+    if (apiCall) {
+      return await apiCall()
+    }
+
+    return undefined
+  } catch (error) {
+    if (error instanceof Error && error.message.includes('401')) {
+      throw redirect({ to: '/login' })
+    }
+    throw error
+  }
+}
 
 // Root Route Component
 const RootComponent = () => {
@@ -18,18 +39,18 @@ const RootComponent = () => {
 
   if (isInitializing) {
     return (
-      <div style={{ 
-        display: 'flex', 
-        height: '100vh', 
-        width: '100vw', 
-        alignItems: 'center', 
-        justifyContent: 'center', 
-        backgroundColor: '#0a0a0b', 
+      <div style={{
+        display: 'flex',
+        height: '100vh',
+        width: '100vw',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#0a0a0b',
         color: '#8b5cf6',
         fontFamily: "'Inter', sans-serif"
       }}>
-        <div style={{ 
-          fontSize: '1.15rem', 
+        <div style={{
+          fontSize: '1.15rem',
           fontWeight: 500,
           letterSpacing: '0.05em',
           textTransform: 'uppercase',
@@ -70,6 +91,7 @@ const loginRoute = createRoute({
 
 // Dashboard Route (/dashboard)
 const dashboardRoute = createRoute({
+  loader: () => WittAuth(),
   getParentRoute: () => rootRoute,
   path: '/dashboard',
   component: Dashboard,
@@ -77,6 +99,7 @@ const dashboardRoute = createRoute({
 
 // Create Zikresource Route (/zikresources/new)
 const createZikresourceRoute = createRoute({
+  loader: () => WittAuth(),
   getParentRoute: () => rootRoute,
   path: '/zikresources/new',
   component: CreateZikresource,
