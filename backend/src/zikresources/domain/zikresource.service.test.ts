@@ -80,6 +80,16 @@ describe('ZikresourceService', () => {
         expect(result).toHaveLength(2);
     });
 
+    it('should get all zikresources filtered by user', async () => {
+        await repo.saveZikresource({ id: '1', createdBy: 'ELEGROS', url: 'u1', artist: 'a1', title: 't1', type: 'video', tags: [] });
+        await repo.saveZikresource({ id: '2', createdBy: 'OTHER_USER', url: 'u2', artist: 'a2', title: 't2', type: 'video', tags: [] });
+
+        const result = await getAllZikresources('ELEGROS');
+
+        expect(result).toHaveLength(1);
+        expect(result[0].id).toBe('1');
+    });
+
     it('should update a zikresource', async () => {
         const id = '123';
         const original: Zikresource = {
@@ -98,7 +108,7 @@ describe('ZikresourceService', () => {
             url: 'https://example.com/new',
             artist: 'New Artist',
             title: 'New Title',
-            type: 'audio',
+            type: 'tablature',
             tags: [{ label: 'TO_PLAY', value: 'new' }]
         };
 
@@ -119,7 +129,7 @@ describe('ZikresourceService', () => {
             url: 'https://example.com/new',
             artist: 'New Artist',
             title: 'New Title',
-            type: 'audio',
+            type: 'tablature',
             tags: [{ label: 'TO_PLAY', value: 'new' }]
         };
         await expect(updateZikresource('non-existent', updates)).rejects.toThrow('Zikresource with id non-existent not found');

@@ -35,7 +35,7 @@ export const LoginPage: React.FC = () => {
   useEffect(() => {
     if (!hasClientId) return;
 
-    let checkInterval: NodeJS.Timeout;
+    let checkInterval: ReturnType<typeof setInterval>;
     let attempts = 0;
 
     const initGoogleGis = () => {

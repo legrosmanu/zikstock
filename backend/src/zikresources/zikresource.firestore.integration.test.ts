@@ -185,6 +185,7 @@ describe('ZikresourceController Firestore Integration', () => {
             // Directly insert test data into Firestore
             await db.collection('zikresources').doc('test-id-1').set({
                 id: 'test-id-1',
+                createdBy: 'user-123',
                 url: 'https://example.com/1',
                 artist: 'Artist 1',
                 title: 'Title 1',
@@ -194,6 +195,7 @@ describe('ZikresourceController Firestore Integration', () => {
 
             await db.collection('zikresources').doc('test-id-2').set({
                 id: 'test-id-2',
+                createdBy: 'user-123',
                 url: 'https://example.com/2',
                 artist: 'Artist 2',
                 title: 'Title 2',

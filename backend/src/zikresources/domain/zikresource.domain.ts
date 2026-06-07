@@ -1,3 +1,5 @@
+import { ZikresourceType } from '../api/zikresource.dto';
+
 export interface Tag {
     label: string;
     value: string;
@@ -9,6 +11,8 @@ export interface Zikresource {
     url: string;
     artist: string;
     title: string;
-    type?: string;
+    type: ZikresourceType;
     tags?: Tag[];
 }
+
+

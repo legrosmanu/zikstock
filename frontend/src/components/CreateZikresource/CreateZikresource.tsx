@@ -18,13 +18,13 @@ interface FormState {
 }
 
 const RESOURCE_TYPES = [
-  { value: 'tab', label: '🎸 Guitar Tab' },
-  { value: 'sheet', label: '🎼 Sheet Music' },
+  { value: 'tablature', label: '🎸 Tab / Sheet Music' },
   { value: 'video', label: '🎬 Video Tutorial' },
-  { value: 'audio', label: '🎵 Audio / Backing Track' },
-  { value: 'chord', label: '🎹 Chord Chart' },
+  { value: 'backing-track', label: '🎵 Backing Track' },
   { value: 'other', label: '📎 Other' },
 ];
+
+
 
 const PRESET_TAGS = ['beginner', 'intermediate', 'advanced', 'jazz', 'rock', 'blues', 'classical', 'fingerstyle'];
 
@@ -74,6 +74,7 @@ export const CreateZikresource: React.FC = () => {
     try { new URL(form.url); } catch { return 'Please enter a valid URL.'; }
     if (!form.artist.trim()) return 'Artist name is required.';
     if (!form.title.trim()) return 'Title is required.';
+    if (!form.type) return 'A resource type is required.';
     return null;
   };
 
@@ -90,12 +91,13 @@ export const CreateZikresource: React.FC = () => {
         url: form.url.trim(),
         artist: form.artist.trim(),
         title: form.title.trim(),
+        type: form.type,
       };
-      if (form.type) body.type = form.type;
       if (form.tags.length > 0) body.tags = form.tags;
 
       const endpoint = '/zikresources';
       await authenticatedPost(endpoint, body);
+
 
       setSuccess(true);
       setTimeout(() => navigate({ to: '/dashboard' }), 1200);
@@ -198,9 +200,10 @@ export const CreateZikresource: React.FC = () => {
           <div className="form-group">
             <label className="form-label" htmlFor="field-type">
               <FileText size={15} />
-              Resource Type
+              Resource Type <span className="form-required">*</span>
             </label>
             <div className="type-grid">
+
               {RESOURCE_TYPES.map(({ value, label }) => (
                 <button
                   key={value}

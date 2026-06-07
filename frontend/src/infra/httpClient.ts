@@ -57,7 +57,91 @@ export const authenticatedPost = async (
   }
 };
 
+export const authenticatedGet = async (
+  endpoint: string
+): Promise<any> => {
+  const store = useAuthStore.getState();
+  const token = store.token;
+  
+  if (!token) {
+    throw new Error('AUTHENTICATION_ERROR: Token is null or undefined.');
+  }
+
+  let fetchOptions = { 
+    method: 'GET',
+    headers: { 
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}` 
+    },
+  };
+
+  try {
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+    const response = await fetch(`${apiUrl}${endpoint}`, fetchOptions);
+
+    if (!response.ok) {
+      throw new Error(`HTTP Error: ${response.status} ${response.statusText || ''}`);
+    }
+
+    const text = await response.text();
+    try {
+        return JSON.parse(text);
+    } catch (e) {
+        console.warn("Could not parse response as JSON. Returning raw text.", e);
+        return text;
+    }
+
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const authenticatedDelete = async (
+  endpoint: string
+): Promise<any> => {
+  const store = useAuthStore.getState();
+  const token = store.token;
+  
+  if (!token) {
+    throw new Error('AUTHENTICATION_ERROR: Token is null or undefined.');
+  }
+
+  let fetchOptions = { 
+    method: 'DELETE',
+    headers: { 
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}` 
+    },
+  };
+
+  try {
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+    const response = await fetch(`${apiUrl}${endpoint}`, fetchOptions);
+
+    if (!response.ok) {
+      throw new Error(`HTTP Error: ${response.status} ${response.statusText || ''}`);
+    }
+
+    if (response.status === 204) {
+      return;
+    }
+
+    const text = await response.text();
+    if (!text) return;
+    try {
+        return JSON.parse(text);
+    } catch (e) {
+        console.warn("Could not parse response as JSON. Returning raw text.", e);
+        return text;
+    }
+
+  } catch (error) {
+    throw error;
+  }
+};
+
 // ---
 // NOTE TO SELF: The calling component MUST catch the error and trigger the logout/refresh flow
 // if the error message contains 'Unauthorized' or 'expired'.
 // ---
+

@@ -11,8 +11,12 @@ export const findZikresourceById = async (id: string): Promise<Zikresource | nul
     return resources.get(id) || null;
 };
 
-export const findAllZikresources = async (): Promise<Zikresource[]> => {
-    return Array.from(resources.values());
+export const findAllZikresources = async (userId?: string): Promise<Zikresource[]> => {
+    const all = Array.from(resources.values());
+    if (userId) {
+        return all.filter(r => r.createdBy === userId);
+    }
+    return all;
 };
 
 export const updateZikresourceInDb = async (zikresource: Zikresource): Promise<Zikresource> => {

@@ -4,12 +4,14 @@ import {
     getAllZikresources,
     getZikresourceById,
     updateZikresource,
-    deleteZikresource
+    deleteZikresource,
+    getZikresourceStats
 } from '../domain/zikresource.service';
 import { ZikresourceSchema, ZikresourceResponse } from './zikresource.dto';
 import { Zikresource } from '../domain/zikresource.domain';
 import { StatusCodes } from 'http-status-codes';
 import { AppError } from '../../application/middleware/error.middleware';
+
 
 const toResponse = (domain: Zikresource): ZikresourceResponse => ({
     _id: domain.id,
@@ -20,6 +22,20 @@ const toResponse = (domain: Zikresource): ZikresourceResponse => ({
     type: domain.type,
     tags: domain.tags,
 });
+
+export const getZikresourceStatsHandler = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const createdBy = req.user?.sub;
+        if (!createdBy) {
+            throw new AppError(StatusCodes.UNAUTHORIZED, 'User identity is missing from token');
+        }
+        const stats = await getZikresourceStats(createdBy);
+        res.json(stats);
+    } catch (error) {
+        next(error);
+    }
+};
+
 
 export const createZikresourceHandler = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -40,7 +56,8 @@ export const createZikresourceHandler = async (req: Request, res: Response, next
 
 export const getAllZikresourcesHandler = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const result = await getAllZikresources();
+        const createdBy = req.user?.sub;
+        const result = await getAllZikresources(createdBy);
         res.json(result.map(toResponse));
     } catch (error) {
         next(error);

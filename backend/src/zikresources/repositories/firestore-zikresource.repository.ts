@@ -24,8 +24,12 @@ export const findZikresourceById = async (id: string): Promise<Zikresource | nul
     return doc.data() as Zikresource;
 };
 
-export const findAllZikresources = async (): Promise<Zikresource[]> => {
-    const snapshot = await getDb().collection(collection).get();
+export const findAllZikresources = async (userId?: string): Promise<Zikresource[]> => {
+    let query: admin.firestore.Query = getDb().collection(collection);
+    if (userId) {
+        query = query.where('createdBy', '==', userId);
+    }
+    const snapshot = await query.get();
     return snapshot.docs.map(doc => doc.data() as Zikresource);
 };
 
