@@ -9,8 +9,8 @@ import {
 } from './zikresources/api/zikresource.controller';
 import { healthCheck } from './application/health.controller';
 import { errorMiddleware } from './application/middleware/error.middleware';
+import { loggingMiddleware } from './application/middleware/logging.middleware';
 import { logger } from './application/logger';
-import pinoHttp from 'pino-http';
 import {
     initializeGoogleAuthStrategy,
     authMiddleware
@@ -20,7 +20,7 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 app.use(express.json());
-app.use(pinoHttp({ logger }));
+app.use(loggingMiddleware);
 
 // CORS Middleware to support development frontend API requests
 app.use((req, res, next) => {
