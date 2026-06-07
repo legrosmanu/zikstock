@@ -13,8 +13,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  background: rgba(10, 10, 11, 0.8);
+  border-bottom: 1px solid var(--nav-border);
+  background: var(--nav-bg);
   backdrop-filter: blur(12px);
   position: sticky;
   top: 0;
@@ -43,14 +43,12 @@
   font-weight: 700;
   font-size: 1.25rem;
   letter-spacing: -0.025em;
-  background: linear-gradient(to right, #fff, var(--text-secondary));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: var(--text-primary);
 }
 
 .btn-back {
   background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border-subtle);
   color: var(--text-secondary);
   font-family: var(--font-family);
   font-size: 0.85rem;
@@ -91,7 +89,7 @@
   font-size: 2rem;
   font-weight: 800;
   letter-spacing: -0.025em;
-  background: linear-gradient(135deg, #fff 0%, var(--accent-primary) 60%, var(--accent-secondary) 100%);
+  background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent-primary) 60%, var(--accent-secondary) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   margin-bottom: 0.5rem;
@@ -147,8 +145,8 @@
 }
 
 .form-input {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-medium);
   border-radius: 12px;
   color: var(--text-primary);
   font-family: var(--font-family);
@@ -160,7 +158,8 @@
 }
 
 .form-input::placeholder {
-  color: rgba(161, 161, 170, 0.4);
+  color: var(--text-secondary);
+  opacity: 0.6;
 }
 
 .form-input:focus {
@@ -182,8 +181,8 @@
 }
 
 .type-chip {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.07);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
   border-radius: 10px;
   color: var(--text-secondary);
   font-family: var(--font-family);
@@ -222,8 +221,8 @@
 }
 
 .preset-tag {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.07);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
   border-radius: 9999px;
   color: var(--text-secondary);
   font-family: var(--font-family);
@@ -305,7 +304,7 @@
 .tag-pill button {
   background: none;
   border: none;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--text-secondary);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -343,12 +342,12 @@
   justify-content: flex-end;
   gap: 0.75rem;
   padding-top: 0.5rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  border-top: 1px solid var(--border-subtle);
 }
 
 .btn-cancel {
   background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border-medium);
   border-radius: 9999px;
   color: var(--text-secondary);
   cursor: pointer;
@@ -360,7 +359,7 @@
 }
 
 .btn-cancel:hover:not(:disabled) {
-  border-color: rgba(255, 255, 255, 0.2);
+  border-color: var(--accent-primary);
   color: var(--text-primary);
 }
 

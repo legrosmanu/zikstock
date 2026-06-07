@@ -7,10 +7,13 @@ import {
   FolderHeart, 
   Plus, 
   Activity, 
-  User 
+  User,
+  Sun,
+  Moon
 } from 'lucide-react';
 import { useNavigate } from '@tanstack/react-router';
 import { useAuthStore } from '../../store/authStore';
+import { useTheme } from '../../hooks/useTheme';
 import './Dashboard.css';
 
 export const Dashboard: React.FC = () => {
@@ -19,6 +22,7 @@ export const Dashboard: React.FC = () => {
   const logout = useAuthStore((state) => state.logout);
   const token = useAuthStore((state) => state.token);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const { theme, toggleTheme } = useTheme();
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -111,6 +115,14 @@ export const Dashboard: React.FC = () => {
               </div>
             </div>
           )}
+          <button
+            className="btn-theme-toggle"
+            onClick={toggleTheme}
+            aria-label={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
+            title={theme === 'light' ? 'Dark mode' : 'Light mode'}
+          >
+            {theme === 'light' ? <Moon size={16} /> : <Sun size={16} />}
+          </button>
           <button className="btn-signout" onClick={logout}>
             <LogOut size={16} />
             <span>Sign Out</span>

@@ -11,8 +11,8 @@
 .login-left-pane {
   flex: 1.2;
   position: relative;
-  background: linear-gradient(135deg, rgba(20, 15, 38, 0.6) 0%, rgba(10, 10, 11, 0.9) 100%);
-  border-right: 1px solid rgba(255, 255, 255, 0.03);
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.06) 0%, var(--bg-secondary) 100%);
+  border-right: 1px solid var(--border-subtle);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -72,9 +72,7 @@
   font-weight: 800;
   font-size: 1.4rem;
   letter-spacing: -0.025em;
-  background: linear-gradient(to right, #fff, var(--text-secondary));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: var(--text-primary);
 }
 
 .login-left-content {
@@ -101,7 +99,7 @@
 .login-left-footer {
   z-index: 10;
   font-size: 0.85rem;
-  color: rgba(255, 255, 255, 0.3);
+  color: var(--text-secondary);
 }
 
 .login-right-pane {
@@ -126,9 +124,9 @@
   width: 100%;
   max-width: 400px;
   padding: 3rem 2.5rem;
-  background: rgba(28, 28, 31, 0.4);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
+  background: var(--surface-card);
+  border: 1px solid var(--surface-glass-border);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
   text-align: center;
 }
 
@@ -204,7 +202,7 @@
   display: flex;
   align-items: center;
   text-align: center;
-  color: rgba(255, 255, 255, 0.15);
+  color: var(--text-secondary);
   font-size: 0.8rem;
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -215,7 +213,7 @@
 .login-divider::after {
   content: '';
   flex: 1;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid var(--border-subtle);
 }
 
 .login-divider:not(:empty)::before {

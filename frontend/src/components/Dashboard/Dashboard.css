@@ -11,8 +11,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  background: rgba(10, 10, 11, 0.8);
+  border-bottom: 1px solid var(--nav-border);
+  background: var(--nav-bg);
   backdrop-filter: blur(12px);
   position: sticky;
   top: 0;
@@ -41,9 +41,7 @@
   font-weight: 700;
   font-size: 1.25rem;
   letter-spacing: -0.025em;
-  background: linear-gradient(to right, #fff, var(--text-secondary));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: var(--text-primary);
 }
 
 .dashboard-profile-section {
@@ -58,14 +56,14 @@
   gap: 0.75rem;
   padding: 0.35rem 1rem 0.35rem 0.35rem;
   border-radius: 9999px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: var(--surface-card);
+  border: 1px solid var(--surface-card-border);
   transition: all var(--transition-normal);
 }
 
 .user-profile-card:hover {
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(139, 92, 246, 0.2);
+  background: var(--bg-tertiary);
+  border: 1px solid rgba(124, 58, 237, 0.2);
 }
 
 .user-avatar {
@@ -96,7 +94,7 @@
 
 .btn-signout {
   background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border-subtle);
   color: var(--text-secondary);
   font-family: var(--font-family);
   font-size: 0.85rem;
@@ -134,8 +132,8 @@
   border-radius: 24px;
   position: relative;
   overflow: hidden;
-  background: linear-gradient(135deg, rgba(28, 20, 48, 0.4) 0%, rgba(10, 10, 11, 0.4) 100%);
-  border: 1px solid rgba(139, 92, 246, 0.1);
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.06) 0%, var(--bg-secondary) 100%);
+  border: 1px solid rgba(124, 58, 237, 0.1);
 }
 
 .welcome-banner::before {
@@ -171,8 +169,8 @@
 
 .stat-card {
   padding: 1.75rem;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: var(--surface-card);
+  border: 1px solid var(--surface-card-border);
   border-radius: 18px;
   display: flex;
   align-items: center;
@@ -182,9 +180,9 @@
 
 .stat-card:hover {
   transform: translateY(-2px);
-  background: rgba(255, 255, 255, 0.04);
-  border-color: rgba(139, 92, 246, 0.15);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  background: var(--bg-tertiary);
+  border-color: rgba(124, 58, 237, 0.15);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
 }
 
 .stat-icon-wrapper {
@@ -301,8 +299,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.04);
+  background: var(--surface-card);
+  border: 1px solid var(--surface-card-border);
   border-radius: 12px;
   font-size: 0.85rem;
 }

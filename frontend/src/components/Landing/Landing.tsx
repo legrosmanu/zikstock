@@ -1,12 +1,14 @@
 import React, { useEffect } from 'react';
-import { Music, Search, ArrowRight, BookOpen, Users, ListMusic } from 'lucide-react';
+import { Music, Search, ArrowRight, BookOpen, Users, ListMusic, Sun, Moon } from 'lucide-react';
 import { useNavigate } from '@tanstack/react-router';
 import { useAuthStore } from '../../store/authStore';
+import { useTheme } from '../../hooks/useTheme';
 import './Landing.css';
 
 export const Landing: React.FC = () => {
   const navigate = useNavigate();
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const { theme, toggleTheme } = useTheme();
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -24,8 +26,19 @@ export const Landing: React.FC = () => {
           </div>
           <span className="logo-text">Zikstock</span>
         </div>
-        <button className="btn-primary-outline" onClick={() => navigate({ to: '/login' })}>Sign In</button>
+        <div className="navbar-actions">
+          <button
+            className="btn-theme-toggle"
+            onClick={toggleTheme}
+            aria-label={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
+            title={theme === 'light' ? 'Dark mode' : 'Light mode'}
+          >
+            {theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
+          </button>
+          <button className="btn-primary-outline" onClick={() => navigate({ to: '/login' })}>Sign In</button>
+        </div>
       </nav>
+
 
       {/* Hero Section */}
       <main className="hero-section">
