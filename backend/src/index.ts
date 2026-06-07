@@ -9,6 +9,8 @@ import {
 } from './zikresources/api/zikresource.controller';
 import { healthCheck } from './application/health.controller';
 import { errorMiddleware } from './application/middleware/error.middleware';
+import { logger } from './application/logger';
+import pinoHttp from 'pino-http';
 import {
     initializeGoogleAuthStrategy,
     authMiddleware
@@ -18,6 +20,7 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 app.use(express.json());
+app.use(pinoHttp({ logger }));
 
 // CORS Middleware to support development frontend API requests
 app.use((req, res, next) => {
@@ -53,5 +56,5 @@ app.delete('/zikresources/:id', authMiddleware, deleteZikresourceHandler);
 app.use(errorMiddleware);
 
 app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
+    logger.info(`Server is running on port ${port}`);
 });

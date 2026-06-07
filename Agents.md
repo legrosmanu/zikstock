@@ -44,3 +44,6 @@ This document defines the specialized roles and responsibilities of the AI agent
 - Enforce a high standard of coverage and reliability.
 - **Craftsmanship Focus**: Testing is not just checking correctness; it is verifying the *intent*. Tests must be designed to catch conceptual flaws, not just runtime errors, proving the system's robustness under various conditions.
 
+## 📂 Monorepository organization
+- The backend is in the `backend` folder
+- The fronted is in the `frontend`folder

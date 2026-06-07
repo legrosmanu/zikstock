@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { StatusCodes, getReasonPhrase } from 'http-status-codes';
+import { logger } from '../logger';
 
 export interface ApiError {
     timestamp: string;
@@ -24,6 +25,10 @@ export const errorMiddleware = (
     _next: NextFunction
 ) => {
     const status = error instanceof AppError ? error.statusCode : StatusCodes.INTERNAL_SERVER_ERROR;
+
+    if (!(error instanceof AppError)) {
+        logger.error({ err: error, method: req.method, url: req.originalUrl }, 'Unexpected server error');
+    }
     const message = error.message || 'An unexpected error occurred';
     const errorPhrase = getReasonPhrase(status);
 
