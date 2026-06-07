@@ -3,17 +3,15 @@ import { logger } from '../logger';
 
 export const loggingMiddleware = pinoHttp({
     logger,
-    // Masquer les informations sensibles
+    // Remove "secret" information
     redact: {
         paths: ['req.headers.authorization', 'req.headers.cookie'],
         censor: '[REDACTED]'
     },
-    // Déterminer le niveau de log : 'silent' pour les succès (pas de log), 'error' pour les erreurs
     customLogLevel: (req, res, err) => {
         if (res.statusCode >= 400 || err) return 'error';
         return 'silent';
     },
-    // Personnaliser ce qui est loggué pour éviter la surcharge d'informations
     serializers: {
         req: (req: any) => ({
             method: req.method,

@@ -6,7 +6,9 @@ const collection = 'zikresources';
 
 const getDb = (): Firestore => {
     if (!admin.apps.length) {
-        admin.initializeApp();
+        admin.initializeApp({
+            projectId: process.env.GCLOUD_PROJECT ?? 'zikstock-local',
+        });
     }
     return admin.firestore();
 };
