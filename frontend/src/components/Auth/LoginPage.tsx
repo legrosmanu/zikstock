@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { ArrowLeft, Music, ShieldAlert, Terminal } from 'lucide-react';
+import { ArrowLeft, Music, ShieldAlert } from 'lucide-react';
 import { useNavigate } from '@tanstack/react-router';
 import { useAuthStore } from '../../store/authStore';
 import './LoginPage.css';
@@ -14,7 +14,6 @@ export const LoginPage: React.FC = () => {
     }
   }, [isAuthenticated, navigate]);
   const login = useAuthStore((state) => state.login);
-  const devLogin = useAuthStore((state) => state.devLogin);
   
   const [gisLoaded, setGisLoaded] = useState<boolean>(false);
   const [hasClientId, setHasClientId] = useState<boolean>(true);
@@ -94,9 +93,6 @@ export const LoginPage: React.FC = () => {
     };
   }, [hasClientId, clientId, login]);
 
-  const handleDevLogin = () => {
-    devLogin();
-  };
 
   return (
     <div className="login-page-container animate-fade-in">
@@ -165,13 +161,6 @@ export const LoginPage: React.FC = () => {
               </div>
             )}
 
-            <div className="login-divider">or use dev sandbox</div>
-
-            <button className="btn-login-dev" onClick={handleDevLogin}>
-              <Terminal size={18} />
-              <span>Developer Mode Login</span>
-              <span className="login-dev-badge">Bypass</span>
-            </button>
           </div>
         </div>
       </div>

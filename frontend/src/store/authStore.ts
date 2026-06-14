@@ -14,7 +14,6 @@ interface AuthState {
   isAuthenticated: boolean;
   isInitializing: boolean;
   login: (token: string) => boolean;
-  devLogin: () => void;
   logout: () => void;
   initialize: () => void;
 }
@@ -63,24 +62,6 @@ export const useAuthStore = create<AuthState>((set) => ({
     return true;
   },
 
-  devLogin: () => {
-    const mockToken = 'valid-test-token';
-    const mockUser: UserProfile = {
-      sub: 'dev-user-999',
-      email: 'rockstar.developer@zikstock.dev',
-      name: 'Rockstar Developer',
-      picture: 'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&w=150&h=150&q=80',
-    };
-
-    localStorage.setItem('zikstock_token', mockToken);
-    localStorage.setItem('zikstock_mock_user', JSON.stringify(mockUser));
-    
-    set({
-      token: mockToken,
-      user: mockUser,
-      isAuthenticated: true,
-    });
-  },
 
   logout: () => {
     localStorage.removeItem('zikstock_token');
@@ -109,25 +90,6 @@ export const useAuthStore = create<AuthState>((set) => ({
       return;
     }
 
-    if (savedToken === 'valid-test-token') {
-      // Restore developer login session
-      const savedMockUser = localStorage.getItem('zikstock_mock_user');
-      const mockUser = savedMockUser 
-        ? JSON.parse(savedMockUser) 
-        : {
-            sub: 'dev-user-999',
-            email: 'rockstar.developer@zikstock.dev',
-            name: 'Rockstar Developer',
-            picture: 'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&w=150&h=150&q=80',
-          };
-      set({
-        token: savedToken,
-        user: mockUser,
-        isAuthenticated: true,
-        isInitializing: false,
-      });
-      return;
-    }
 
     // Restore real Google Sign In session
     const decoded = decodeJwt(savedToken);
