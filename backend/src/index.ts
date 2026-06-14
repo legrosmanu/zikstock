@@ -8,6 +8,20 @@ import {
     deleteZikresourceHandler,
     getZikresourceStatsHandler
 } from './zikresources/api/zikresource.controller';
+import {
+    createSongHandler,
+    getAllSongsHandler,
+    getSongByIdHandler,
+    updateSongHandler,
+    deleteSongHandler
+} from './songs/api/song.controller';
+import {
+    createPlaylistHandler,
+    getAllPlaylistsHandler,
+    getPlaylistByIdHandler,
+    updatePlaylistHandler,
+    deletePlaylistHandler
+} from './playlists/api/playlist.controller';
 import { healthCheck } from './application/health.controller';
 import { errorMiddleware } from './application/middleware/error.middleware';
 import { loggingMiddleware } from './application/middleware/logging.middleware';
@@ -16,6 +30,7 @@ import {
     initializeGoogleAuthStrategy,
     authMiddleware
 } from './application/middleware/google-auth.middleware';
+
 
 
 const app = express();
@@ -54,6 +69,21 @@ app.get('/zikresources/stats', authMiddleware, getZikresourceStatsHandler);
 app.get('/zikresources/:id', authMiddleware, getZikresourceByIdHandler);
 app.put('/zikresources/:id', authMiddleware, updateZikresourceHandler);
 app.delete('/zikresources/:id', authMiddleware, deleteZikresourceHandler);
+
+// Song Routes (protected)
+app.post('/songs', authMiddleware, createSongHandler);
+app.get('/songs', authMiddleware, getAllSongsHandler);
+app.get('/songs/:id', authMiddleware, getSongByIdHandler);
+app.put('/songs/:id', authMiddleware, updateSongHandler);
+app.delete('/songs/:id', authMiddleware, deleteSongHandler);
+
+// Playlist Routes (protected)
+app.post('/playlists', authMiddleware, createPlaylistHandler);
+app.get('/playlists', authMiddleware, getAllPlaylistsHandler);
+app.get('/playlists/:id', authMiddleware, getPlaylistByIdHandler);
+app.put('/playlists/:id', authMiddleware, updatePlaylistHandler);
+app.delete('/playlists/:id', authMiddleware, deletePlaylistHandler);
+
 
 
 // Global Error Handler
