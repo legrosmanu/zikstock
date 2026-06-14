@@ -3,6 +3,7 @@ import { Music, Search, ArrowRight, BookOpen, Users, ListMusic, Sun, Moon } from
 import { useNavigate } from '@tanstack/react-router';
 import { useAuthStore } from '../../store/authStore';
 import { useTheme } from '../../hooks/useTheme';
+import liveConcertImage from '../../assets/live_concert_stage.png';
 import './Landing.css';
 
 export const Landing: React.FC = () => {
@@ -73,6 +74,10 @@ export const Landing: React.FC = () => {
               Get Started <ArrowRight size={18} />
             </button>
           </div>
+        </div>
+
+        <div className="hero-image-container animate-fade-in" style={{ animationDelay: '0.4s' }}>
+          <img src={liveConcertImage} alt="Live Music Concert" className="hero-live-img" />
         </div>
       </main>
 
