@@ -6,6 +6,8 @@ import { Landing } from './components/Landing/Landing';
 import { LoginPage } from './components/Auth/LoginPage';
 import { Dashboard } from './components/Dashboard/Dashboard';
 import { CreateZikresource } from './components/CreateZikresource/CreateZikresource';
+import { CreateSong } from './components/CreateSong/CreateSong';
+import { CreatePlaylist } from './components/CreatePlaylist/CreatePlaylist';
 
 async function WittAuth<T>(apiCall?: () => Promise<T>): Promise<T | undefined> {
   try {
@@ -105,6 +107,13 @@ const dashboardRoute = createRoute({
   loader: () => WittAuth(),
   getParentRoute: () => rootRoute,
   path: '/dashboard',
+  validateSearch: (search: Record<string, unknown>): { tab?: 'resources' | 'songs' | 'playlists' } => {
+    const tab = search.tab as string | undefined;
+    if (tab === 'resources' || tab === 'songs' || tab === 'playlists') {
+      return { tab };
+    }
+    return {};
+  },
   component: Dashboard,
 });
 
@@ -116,12 +125,30 @@ const createZikresourceRoute = createRoute({
   component: CreateZikresource,
 });
 
+// Create Song Route (/songs/new)
+const createSongRoute = createRoute({
+  loader: () => WittAuth(),
+  getParentRoute: () => rootRoute,
+  path: '/songs/new',
+  component: CreateSong,
+});
+
+// Create Playlist Route (/playlists/new)
+const createPlaylistRoute = createRoute({
+  loader: () => WittAuth(),
+  getParentRoute: () => rootRoute,
+  path: '/playlists/new',
+  component: CreatePlaylist,
+});
+
 // Build the Route Tree
 const routeTree = rootRoute.addChildren([
   indexRoute,
   loginRoute,
   dashboardRoute,
   createZikresourceRoute,
+  createSongRoute,
+  createPlaylistRoute,
 ]);
 
 // Create the Router

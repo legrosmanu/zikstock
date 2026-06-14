@@ -4,6 +4,7 @@ export type ZikresourceStats = {
   songs: number;
   tabs: number;
   videos: number;
+  tracks: number;
 };
 
 export type ZikresourceType = 'tablature' | 'video' | 'backing-track' | 'other';

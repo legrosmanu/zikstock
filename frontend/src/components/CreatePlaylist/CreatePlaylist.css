@@ -1,0 +1,16 @@
+.form-textarea-field {
+  resize: vertical;
+  min-height: 80px;
+  font-family: inherit;
+}
+
+.playlist-item-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.725rem;
+  color: var(--text-secondary, #9ca3af);
+  background: rgba(255, 255, 255, 0.05);
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+}

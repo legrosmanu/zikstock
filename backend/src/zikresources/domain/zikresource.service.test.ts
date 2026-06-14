@@ -3,7 +3,8 @@ import {
     getZikresourceById,
     getAllZikresources,
     updateZikresource,
-    deleteZikresource
+    deleteZikresource,
+    getZikresourceStats
 } from './zikresource.service';
 import { Zikresource } from './zikresource.domain';
 import { describe, it, expect, beforeEach, jest } from '@jest/globals';
@@ -133,5 +134,25 @@ describe('ZikresourceService', () => {
             tags: [{ label: 'TO_PLAY', value: 'new' }]
         };
         await expect(updateZikresource('non-existent', updates)).rejects.toThrow('Zikresource with id non-existent not found');
+    });
+
+    describe('getZikresourceStats', () => {
+        it('should return correct stats counting songs, tabs, videos, and backing-tracks', async () => {
+            const userId = 'user-stats';
+            await repo.saveZikresource({ id: '1', createdBy: userId, url: 'u1', artist: 'Artist A', title: 'Song 1', type: 'video', tags: [] });
+            await repo.saveZikresource({ id: '2', createdBy: userId, url: 'u2', artist: 'Artist A', title: 'Song 1', type: 'tablature', tags: [] });
+            await repo.saveZikresource({ id: '3', createdBy: userId, url: 'u3', artist: 'Artist B', title: 'Song 2', type: 'backing-track', tags: [] });
+            await repo.saveZikresource({ id: '4', createdBy: userId, url: 'u4', artist: 'Artist B', title: 'Song 2', type: 'backing-track', tags: [] });
+            await repo.saveZikresource({ id: '5', createdBy: 'other-user', url: 'u5', artist: 'Artist C', title: 'Song 3', type: 'tablature', tags: [] });
+
+            const stats = await getZikresourceStats(userId);
+
+            expect(stats).toEqual({
+                songs: 2, // 'Artist A - Song 1' and 'Artist B - Song 2' (case-insensitive and trimmed)
+                tabs: 1,
+                videos: 1,
+                tracks: 2
+            });
+        });
     });
 });

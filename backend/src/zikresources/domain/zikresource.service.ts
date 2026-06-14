@@ -58,6 +58,7 @@ export type ZikresourceStats = {
     songs: number;
     tabs: number;
     videos: number;
+    tracks: number;
 };
 
 export const getZikresourceStats = async (userId: string): Promise<ZikresourceStats> => {
@@ -69,11 +70,13 @@ export const getZikresourceStats = async (userId: string): Promise<ZikresourceSt
 
     const tabsCount = userResources.filter(r => r.type === 'tablature').length;
     const videosCount = userResources.filter(r => r.type === 'video').length;
+    const tracksCount = userResources.filter(r => r.type === 'backing-track').length;
 
     return {
         songs: uniqueSongs,
         tabs: tabsCount,
         videos: videosCount,
+        tracks: tracksCount,
     };
 };
 

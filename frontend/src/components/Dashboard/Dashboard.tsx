@@ -4,7 +4,6 @@ import {
   LogOut, 
   BookOpen, 
   Video, 
-  FolderHeart, 
   Plus, 
   Activity, 
   User,
@@ -15,15 +14,21 @@ import {
   ExternalLink,
   FileText,
   X,
-  Loader2
+  Loader2,
+  Folder,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
-import { useNavigate } from '@tanstack/react-router';
+import { useNavigate, useSearch } from '@tanstack/react-router';
 import { useAuthStore } from '../../store/authStore';
 import { useTheme } from '../../hooks/useTheme';
 import { fetchZikresourceStats, fetchZikresources, deleteZikresource } from '../../infra/zikresource.api';
 import type { ZikresourceStats, Zikresource } from '../../infra/zikresource.api';
+import { fetchSongs, deleteSong } from '../../infra/song.api';
+import type { Song } from '../../infra/song.api';
+import { fetchPlaylists, deletePlaylist } from '../../infra/playlist.api';
+import type { Playlist } from '../../infra/playlist.api';
 import './Dashboard.css';
-
 
 export const Dashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -36,10 +41,26 @@ export const Dashboard: React.FC = () => {
   const [greeting, setGreeting] = useState<string>('Welcome back');
   const [stats, setStats] = useState<ZikresourceStats | null>(null);
   
-  // Zikresources state
+  const search = useSearch({ from: '/dashboard' });
+
+  // Tab control
+  const [activeTab, setActiveTab] = useState<'resources' | 'songs' | 'playlists'>(search.tab || 'resources');
+
+  // Sync tab from search parameter
+  useEffect(() => {
+    if (search.tab) {
+      setActiveTab(search.tab);
+    }
+  }, [search.tab]);
+
+  // Lists states
   const [zikresources, setZikresources] = useState<Zikresource[]>([]);
-  const [isLoadingZikresources, setIsLoadingZikresources] = useState<boolean>(true);
-  const [errorZikresources, setErrorZikresources] = useState<string | null>(null);
+  const [songs, setSongs] = useState<Song[]>([]);
+  const [playlists, setPlaylists] = useState<Playlist[]>([]);
+
+  // Loading states
+  const [isLoadingData, setIsLoadingData] = useState<boolean>(true);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   // Search & filter state
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -48,6 +69,12 @@ export const Dashboard: React.FC = () => {
   // Delete status state
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [isDeletingId, setIsDeletingId] = useState<string | null>(null);
+
+  // Playlist detail expander
+  const [expandedPlaylistId, setExpandedPlaylistId] = useState<string | null>(null);
+
+  // Song detail expander
+  const [expandedSongId, setExpandedSongId] = useState<string | null>(null);
 
   // Compute greeting based on local time
   useEffect(() => {
@@ -64,51 +91,84 @@ export const Dashboard: React.FC = () => {
   const fetchAllData = async () => {
     if (!token) {
       setConnectionStatus('error');
-      setIsLoadingZikresources(false);
+      setIsLoadingData(false);
       return;
     }
 
     try {
       setConnectionStatus('checking');
-      setIsLoadingZikresources(true);
-      setErrorZikresources(null);
+      setIsLoadingData(true);
+      setErrorMsg(null);
 
-      const [statsData, resourcesData] = await Promise.all([
+      const [statsData, resourcesData, songsData, playlistsData] = await Promise.all([
         fetchZikresourceStats(),
-        fetchZikresources()
+        fetchZikresources(),
+        fetchSongs(),
+        fetchPlaylists()
       ]);
 
       setStats(statsData);
       setZikresources(resourcesData);
+      setSongs(songsData);
+      setPlaylists(playlistsData);
       setConnectionStatus('active');
     } catch (err) {
-      console.error('Error connecting to backend API or fetching stats:', err);
+      console.error('Error fetching data from backend API:', err);
       setConnectionStatus('error');
-      setErrorZikresources('Failed to retrieve your practice resources.');
+      setErrorMsg('Failed to retrieve your practice workspace data.');
     } finally {
-      setIsLoadingZikresources(false);
+      setIsLoadingData(false);
     }
   };
 
-  // Live integration check: Call stats API to verify auth token and fetch real data
   useEffect(() => {
     fetchAllData();
   }, [token]);
 
-  const handleDelete = async (id: string) => {
+  const handleDeleteResource = async (id: string) => {
     setIsDeletingId(id);
     try {
       await deleteZikresource(id);
       setZikresources(prev => prev.filter(r => r._id !== id));
       
-      // Refresh stats dynamically
+      // Refresh stats and dependent elements
       const statsData = await fetchZikresourceStats();
       setStats(statsData);
-      
       setConfirmDeleteId(null);
     } catch (err) {
       console.error('Error deleting zikresource:', err);
-      alert('Failed to delete resource. Please try again.');
+      alert('Failed to delete resource. It might be referenced by a song.');
+    } finally {
+      setIsDeletingId(null);
+    }
+  };
+
+  const handleDeleteSong = async (id: string) => {
+    setIsDeletingId(id);
+    try {
+      await deleteSong(id);
+      setSongs(prev => prev.filter(s => s._id !== id));
+      setConfirmDeleteId(null);
+      // Refresh stats
+      const statsData = await fetchZikresourceStats();
+      setStats(statsData);
+    } catch (err) {
+      console.error('Error deleting song:', err);
+      alert('Failed to delete song. It might be referenced by a playlist.');
+    } finally {
+      setIsDeletingId(null);
+    }
+  };
+
+  const handleDeletePlaylist = async (id: string) => {
+    setIsDeletingId(id);
+    try {
+      await deletePlaylist(id);
+      setPlaylists(prev => prev.filter(p => p._id !== id));
+      setConfirmDeleteId(null);
+    } catch (err) {
+      console.error('Error deleting playlist:', err);
+      alert('Failed to delete playlist.');
     } finally {
       setIsDeletingId(null);
     }
@@ -132,6 +192,7 @@ export const Dashboard: React.FC = () => {
     }
   };
 
+  // Filter zikresources
   const filteredResources = zikresources.filter((resource) => {
     if (selectedType !== 'all') {
       if (selectedType === 'tabs' && resource.type !== 'tablature') return false;
@@ -149,10 +210,34 @@ export const Dashboard: React.FC = () => {
       );
       return matchesTitle || matchesArtist || matchesTag;
     }
-
     return true;
   });
 
+  // Filter songs
+  const filteredSongs = songs.filter((song) => {
+    if (searchQuery.trim() !== '') {
+      const q = searchQuery.toLowerCase();
+      return song.title.toLowerCase().includes(q) || song.artist.toLowerCase().includes(q);
+    }
+    return true;
+  });
+
+  // Filter playlists
+  const filteredPlaylists = playlists.filter((pl) => {
+    if (searchQuery.trim() !== '') {
+      const q = searchQuery.toLowerCase();
+      return pl.name.toLowerCase().includes(q) || (pl.description && pl.description.toLowerCase().includes(q));
+    }
+    return true;
+  });
+
+  const togglePlaylistExpansion = (id: string) => {
+    setExpandedPlaylistId(prev => (prev === id ? null : id));
+  };
+
+  const toggleSongExpansion = (id: string) => {
+    setExpandedSongId(prev => (prev === id ? null : id));
+  };
 
   return (
     <div className="dashboard-container">
@@ -174,7 +259,6 @@ export const Dashboard: React.FC = () => {
                   alt={user.name || 'User avatar'} 
                   className="user-avatar"
                   onError={(e) => {
-                    // Fallback if image fails to load
                     (e.target as HTMLImageElement).src = '';
                     (e.target as HTMLImageElement).style.display = 'none';
                   }}
@@ -207,8 +291,8 @@ export const Dashboard: React.FC = () => {
 
       {/* Main Content Dashboard */}
       <main className="dashboard-main animate-fade-in">
-        {/* Welcome Banner / Simple Header */}
-        {!isLoadingZikresources && zikresources.length === 0 ? (
+        {/* Welcome Banner */}
+        {!isLoadingData && zikresources.length === 0 ? (
           <section className="welcome-banner glass-panel">
             <h1 className="welcome-title">
               {greeting}
@@ -227,24 +311,6 @@ export const Dashboard: React.FC = () => {
         <section className="overview-grid">
           <div className="stat-card glass-panel">
             <div className="stat-icon-wrapper">
-              <Music size={24} />
-            </div>
-            <div className="stat-info">
-              <span className="stat-value">
-                {connectionStatus === 'checking' ? (
-                  <span className="stat-shimmer" />
-                ) : connectionStatus === 'error' || stats === null ? (
-                  '—'
-                ) : (
-                  stats.songs
-                )}
-              </span>
-              <span className="stat-label">Songs saved</span>
-            </div>
-          </div>
-
-          <div className="stat-card glass-panel">
-            <div className="stat-icon-wrapper">
               <BookOpen size={24} />
             </div>
             <div className="stat-info">
@@ -257,7 +323,7 @@ export const Dashboard: React.FC = () => {
                   stats.tabs
                 )}
               </span>
-              <span className="stat-label">Tabs & sheets</span>
+              <span className="stat-label">Tabs & Sheets</span>
             </div>
           </div>
 
@@ -275,15 +341,57 @@ export const Dashboard: React.FC = () => {
                   stats.videos
                 )}
               </span>
-              <span className="stat-label">Video tutorials</span>
+              <span className="stat-label">Video Tutorials</span>
+            </div>
+          </div>
+
+          <div className="stat-card glass-panel">
+            <div className="stat-icon-wrapper">
+              <Music size={24} />
+            </div>
+            <div className="stat-info">
+              <span className="stat-value">
+                {connectionStatus === 'checking' ? (
+                  <span className="stat-shimmer" />
+                ) : connectionStatus === 'error' || stats === null ? (
+                  '—'
+                ) : (
+                  stats.tracks
+                )}
+              </span>
+              <span className="stat-label">Backing tracks</span>
             </div>
           </div>
         </section>
 
+        {/* Tab Selection */}
+        <div className="dashboard-tabs-container">
+          <button 
+            className={`dashboard-tab ${activeTab === 'resources' ? 'active' : ''}`}
+            onClick={() => { setActiveTab('resources'); setSearchQuery(''); }}
+          >
+            <FileText size={16} />
+            <span>Zikresources ({zikresources.length})</span>
+          </button>
+          <button 
+            className={`dashboard-tab ${activeTab === 'songs' ? 'active' : ''}`}
+            onClick={() => { setActiveTab('songs'); setSearchQuery(''); }}
+          >
+            <Music size={16} />
+            <span>Songs ({songs.length})</span>
+          </button>
+          <button 
+            className={`dashboard-tab ${activeTab === 'playlists' ? 'active' : ''}`}
+            onClick={() => { setActiveTab('playlists'); setSearchQuery(''); }}
+          >
+            <Folder size={16} />
+            <span>Playlists ({playlists.length})</span>
+          </button>
+        </div>
 
         {/* Dashboard Content & Zikresources List / Empty State */}
         <section className="dashboard-content-area">
-          {isLoadingZikresources ? (
+          {isLoadingData ? (
             <div className="resources-loading-grid">
               {[1, 2, 3].map((n) => (
                 <div key={n} className="resource-card-skeleton glass-panel">
@@ -302,36 +410,45 @@ export const Dashboard: React.FC = () => {
                 </div>
               ))}
             </div>
-          ) : errorZikresources ? (
+          ) : errorMsg ? (
             <div className="error-state-panel glass-panel">
-              <p className="error-message">{errorZikresources}</p>
+              <p className="error-message">{errorMsg}</p>
               <button className="btn-secondary animate-hover" onClick={fetchAllData}>Retry</button>
-            </div>
-          ) : zikresources.length === 0 ? (
-            <div className="empty-state-panel glass-panel animate-fade-in">
-              <div className="empty-state-icon-wrapper">
-                <FolderHeart size={36} />
-              </div>
-              <h3 className="empty-state-title">Your digital binder is empty</h3>
-              <p className="empty-state-subtitle">
-                Save links to tabs, video tutorials, or audio tracks to build your practice space. Neatly group them under customizable tags.
-              </p>
-              <button className="btn-primary-large" onClick={() => navigate({ to: '/zikresources/new' })}>
-                <Plus size={18} />
-                <span>Add Your First Zikresource</span>
-              </button>
             </div>
           ) : (
             <div className="resources-section">
               <div className="resources-header">
                 <div>
-                  <h2 className="resources-title">Your Zikresources</h2>
-                  <p className="resources-subtitle">Access your saved references ({zikresources.length})</p>
+                  <h2 className="resources-title">
+                    {activeTab === 'resources' && 'Your Zikresources'}
+                    {activeTab === 'songs' && 'Your Compiled Songs'}
+                    {activeTab === 'playlists' && 'Your Playlists'}
+                  </h2>
+                  <p className="resources-subtitle">
+                    {activeTab === 'resources' && `Access your saved references (${zikresources.length})`}
+                    {activeTab === 'songs' && `Grouped resources by song title (${songs.length})`}
+                    {activeTab === 'playlists' && `Grouped songs into playlists (${playlists.length})`}
+                  </p>
                 </div>
-                <button className="btn-primary-large btn-add-zik" onClick={() => navigate({ to: '/zikresources/new' })}>
-                  <Plus size={16} />
-                  <span>Add Zikresource</span>
-                </button>
+                
+                {activeTab === 'resources' && (
+                  <button className="btn-primary-large btn-add-zik" onClick={() => navigate({ to: '/zikresources/new' })}>
+                    <Plus size={16} />
+                    <span>Add Zikresource</span>
+                  </button>
+                )}
+                {activeTab === 'songs' && (
+                  <button className="btn-primary-large btn-add-zik" onClick={() => navigate({ to: '/songs/new' })}>
+                    <Plus size={16} />
+                    <span>Create Song</span>
+                  </button>
+                )}
+                {activeTab === 'playlists' && (
+                  <button className="btn-primary-large btn-add-zik" onClick={() => navigate({ to: '/playlists/new' })}>
+                    <Plus size={16} />
+                    <span>Create Playlist</span>
+                  </button>
+                )}
               </div>
 
               {/* Filters & Search */}
@@ -340,7 +457,11 @@ export const Dashboard: React.FC = () => {
                   <Search size={16} className="search-icon" />
                   <input
                     type="text"
-                    placeholder="Search title, artist, or tags..."
+                    placeholder={
+                      activeTab === 'resources' 
+                        ? "Search title, artist, or tags..." 
+                        : "Search by title or artist..."
+                    }
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="search-input"
@@ -352,111 +473,333 @@ export const Dashboard: React.FC = () => {
                   )}
                 </div>
 
-                <div className="filter-chips">
-                  {[
-                    { id: 'all', label: 'All' },
-                    { id: 'tabs', label: '🎸 Tabs' },
-                    { id: 'videos', label: '🎬 Videos' },
-                    { id: 'backing-tracks', label: '🎵 Tracks' },
-                    { id: 'other', label: '📎 Other' }
-                  ].map((chip) => (
-                    <button
-                      key={chip.id}
-                      className={`filter-chip ${selectedType === chip.id ? 'active' : ''}`}
-                      onClick={() => setSelectedType(chip.id)}
-                    >
-                      {chip.label}
-                    </button>
-                  ))}
-                </div>
+                {activeTab === 'resources' && (
+                  <div className="filter-chips">
+                    {[
+                      { id: 'all', label: 'All' },
+                      { id: 'tabs', label: '🎸 Tabs' },
+                      { id: 'videos', label: '🎬 Videos' },
+                      { id: 'backing-tracks', label: '🎵 Tracks' },
+                      { id: 'other', label: '📎 Other' }
+                    ].map((chip) => (
+                      <button
+                        key={chip.id}
+                        className={`filter-chip ${selectedType === chip.id ? 'active' : ''}`}
+                        onClick={() => setSelectedType(chip.id)}
+                      >
+                        {chip.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
 
-              {/* Cards Grid */}
-              {filteredResources.length === 0 ? (
-                <div className="no-results-panel glass-panel">
-                  <p>No resources match your filters or search query.</p>
-                </div>
-              ) : (
-                <div className="resources-grid">
-                  {filteredResources.map((resource) => {
-                    const isDeleting = isDeletingId === resource._id;
-                    const isConfirming = confirmDeleteId === resource._id;
+              {/* Resources Tab View */}
+              {activeTab === 'resources' && (
+                filteredResources.length === 0 ? (
+                  <div className="no-results-panel glass-panel">
+                    <p>No resources match your filters or search query.</p>
+                  </div>
+                ) : (
+                  <div className="playlists-list" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                    {filteredResources.map((resource) => {
+                      const isDeleting = isDeletingId === resource._id;
+                      const isConfirming = confirmDeleteId === resource._id;
 
-                    return (
-                      <div key={resource._id} className="resource-card glass-panel animate-card">
-                        <div className="card-header">
-                          <div className={`card-icon-wrapper type-${resource.type}`}>
-                            {getTypeIcon(resource.type)}
-                          </div>
-                          <div className="card-titles">
-                            <h3 className="card-title" title={resource.title}>
-                              {resource.title}
-                            </h3>
-                            <p className="card-artist" title={resource.artist}>
-                              {resource.artist}
-                            </p>
-                          </div>
-                        </div>
-
-                        <div className="card-body">
-                          <span className={`card-type-badge type-${resource.type}`}>
-                            {getTypeLabel(resource.type)}
-                          </span>
-
-                          <a
-                            href={resource.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="card-link"
-                          >
-                            <span>Open Reference</span>
-                            <ExternalLink size={13} />
-                          </a>
-                        </div>
-
-                        {resource.tags && resource.tags.length > 0 && (
-                          <div className="card-tags">
-                            {resource.tags.map((tag, idx) => (
-                              <span key={idx} className="card-tag">
-                                {tag.label}: {tag.value}
-                              </span>
-                            ))}
-                          </div>
-                        )}
-
-                        <div className="card-actions">
-                          {isConfirming ? (
-                            <div className="confirm-delete-actions">
-                              <span className="confirm-delete-label">Delete this?</span>
-                              <button
-                                className="btn-confirm-delete"
-                                disabled={isDeleting}
-                                onClick={() => handleDelete(resource._id)}
-                              >
-                                {isDeleting ? <Loader2 size={13} className="spinning" /> : 'Yes'}
-                              </button>
-                              <button
-                                className="btn-cancel-delete"
-                                disabled={isDeleting}
-                                onClick={() => setConfirmDeleteId(null)}
-                              >
-                                No
-                              </button>
+                      return (
+                        <div key={resource._id} className="playlist-row-card glass-panel" style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.75rem', position: 'relative' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                              <div className={`card-icon-wrapper type-${resource.type}`} style={{ padding: '0.5rem', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                {getTypeIcon(resource.type)}
+                              </div>
+                              <div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                                  <h3 className="playlist-row-title" style={{ margin: 0, fontSize: '1.1rem', fontWeight: '600' }}>{resource.title}</h3>
+                                  <span className={`card-type-badge type-${resource.type}`} style={{ fontSize: '0.75rem' }}>
+                                    {getTypeLabel(resource.type)}
+                                  </span>
+                                </div>
+                                <p className="playlist-row-desc" style={{ margin: '0.25rem 0 0 0', fontSize: '0.85rem', color: 'var(--text-muted, #9ca3af)' }}>
+                                  {resource.artist || 'Unknown Artist'}
+                                </p>
+                              </div>
                             </div>
-                          ) : (
-                            <button
-                              className="btn-card-delete"
-                              onClick={() => setConfirmDeleteId(resource._id)}
-                              aria-label="Delete resource"
-                            >
-                              <Trash2 size={14} />
-                            </button>
+
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                              <a
+                                href={resource.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="card-link"
+                                style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', textDecoration: 'none' }}
+                              >
+                                <span>Open Reference</span>
+                                <ExternalLink size={13} />
+                              </a>
+
+                              <div className="playlist-actions">
+                                {isConfirming ? (
+                                  <div className="confirm-delete-actions" style={{ position: 'static' }}>
+                                    <button
+                                      className="btn-confirm-delete"
+                                      disabled={isDeleting}
+                                      onClick={() => handleDeleteResource(resource._id)}
+                                    >
+                                      {isDeleting ? <Loader2 size={13} className="spinning" /> : 'Confirm'}
+                                    </button>
+                                    <button
+                                      className="btn-cancel-delete"
+                                      disabled={isDeleting}
+                                      onClick={() => setConfirmDeleteId(null)}
+                                    >
+                                      Cancel
+                                    </button>
+                                  </div>
+                                ) : (
+                                  <button
+                                    className="btn-card-delete"
+                                    onClick={() => setConfirmDeleteId(resource._id)}
+                                    aria-label="Delete resource"
+                                    style={{ background: 'transparent', border: 'none', color: 'var(--text-muted, #9ca3af)', cursor: 'pointer' }}
+                                  >
+                                    <Trash2 size={16} />
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+
+                          {resource.tags && resource.tags.length > 0 && (
+                            <div className="card-tags" style={{ paddingLeft: '3.25rem', margin: 0, display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                              {resource.tags.map((tag, idx) => (
+                                <span key={idx} className="card-tag" style={{ margin: 0 }}>
+                                  {tag.label}: {tag.value}
+                                </span>
+                              ))}
+                            </div>
                           )}
                         </div>
-                      </div>
-                    );
-                  })}
-                </div>
+                      );
+                    })}
+                  </div>
+                )
+              )}
+
+              {/* Songs Tab View */}
+              {activeTab === 'songs' && (
+                filteredSongs.length === 0 ? (
+                  <div className="no-results-panel glass-panel">
+                    <p>No songs found. Create a Song to group Zikresources together.</p>
+                  </div>
+                ) : (
+                  <div className="playlists-list" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                    {filteredSongs.map((song) => {
+                      const isDeleting = isDeletingId === song._id;
+                      const isConfirming = confirmDeleteId === song._id;
+                      const isExpanded = expandedSongId === song._id;
+
+                      // Get associated zikresources
+                      const songResources = zikresources.filter(r => song.zikresourceIds.includes(r._id));
+
+                      return (
+                        <div key={song._id} className="playlist-row-card glass-panel" style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.75rem', position: 'relative' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer' }} onClick={() => toggleSongExpansion(song._id)}>
+                              <div className="playlist-icon-wrapper" style={{ background: '#8b5cf6', color: '#fff', padding: '0.5rem', borderRadius: '8px' }}>
+                                <Music size={20} />
+                              </div>
+                              <div>
+                                <h3 className="playlist-row-title" style={{ margin: 0, fontSize: '1.1rem', fontWeight: '600' }}>{song.title}</h3>
+                                <p className="playlist-row-desc" style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-muted, #9ca3af)' }}>
+                                  {song.artist || 'Unknown Artist'} • {song.zikresourceIds.length} Resources
+                                </p>
+                              </div>
+                            </div>
+
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                              <button 
+                                onClick={() => toggleSongExpansion(song._id)} 
+                                style={{ background: 'transparent', border: 'none', color: 'var(--text-muted, #9ca3af)', cursor: 'pointer' }}
+                              >
+                                {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+                              </button>
+
+                              <div className="playlist-actions">
+                                {isConfirming ? (
+                                  <div className="confirm-delete-actions" style={{ position: 'static' }}>
+                                    <button
+                                      className="btn-confirm-delete"
+                                      disabled={isDeleting}
+                                      onClick={() => handleDeleteSong(song._id)}
+                                    >
+                                      {isDeleting ? <Loader2 size={13} className="spinning" /> : 'Confirm'}
+                                    </button>
+                                    <button
+                                      className="btn-cancel-delete"
+                                      disabled={isDeleting}
+                                      onClick={() => setConfirmDeleteId(null)}
+                                    >
+                                      Cancel
+                                    </button>
+                                  </div>
+                                ) : (
+                                  <button
+                                    className="btn-card-delete"
+                                    onClick={() => setConfirmDeleteId(song._id)}
+                                    aria-label="Delete song"
+                                    style={{ background: 'transparent', border: 'none', color: 'var(--text-muted, #9ca3af)', cursor: 'pointer' }}
+                                  >
+                                    <Trash2 size={16} />
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Expanded song details */}
+                          {isExpanded && (
+                            <div className="playlist-expanded-content" style={{ marginTop: '0.5rem', paddingLeft: '3rem', borderLeft: '2px solid rgba(139, 92, 246, 0.2)', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                              {songResources.length === 0 ? (
+                                <p style={{ fontSize: '0.85rem', color: 'var(--text-muted, #9ca3af)' }}>No resources in this song.</p>
+                              ) : (
+                                songResources.map((res, index) => (
+                                  <div key={res._id} style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                      <span style={{ fontSize: '0.85rem', color: '#8b5cf6', fontWeight: 600 }}>{index + 1}.</span>
+                                      <a 
+                                        href={res.url} 
+                                        target="_blank" 
+                                        rel="noopener noreferrer"
+                                        style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.9rem', color: 'var(--text-primary, #f3f4f6)', textDecoration: 'none' }}
+                                      >
+                                        {getTypeIcon(res.type)}
+                                        <span style={{ textDecoration: 'underline' }}>{res.title}</span>
+                                        <span style={{ fontSize: '0.8rem', color: 'var(--text-muted, #9ca3af)', marginLeft: '0.25rem' }}>({getTypeLabel(res.type)})</span>
+                                      </a>
+                                    </div>
+                                  </div>
+                                ))
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )
+              )}
+
+              {/* Playlists Tab View */}
+              {activeTab === 'playlists' && (
+                filteredPlaylists.length === 0 ? (
+                  <div className="no-results-panel glass-panel">
+                    <p>No playlists found. Create a Playlist to organize your practice repertoire.</p>
+                  </div>
+                ) : (
+                  <div className="playlists-list" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                    {filteredPlaylists.map((playlist) => {
+                      const isDeleting = isDeletingId === playlist._id;
+                      const isConfirming = confirmDeleteId === playlist._id;
+                      const isExpanded = expandedPlaylistId === playlist._id;
+                      const playlistSongs = songs.filter(s => playlist.songIds.includes(s._id));
+
+                      return (
+                        <div key={playlist._id} className="playlist-row-card glass-panel" style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.75rem', position: 'relative' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer' }} onClick={() => togglePlaylistExpansion(playlist._id)}>
+                              <div className="playlist-icon-wrapper" style={{ background: '#8b5cf6', color: '#fff', padding: '0.5rem', borderRadius: '8px' }}>
+                                <Folder size={20} />
+                              </div>
+                              <div>
+                                <h3 className="playlist-row-title" style={{ margin: 0, fontSize: '1.1rem', fontWeight: '600' }}>{playlist.name}</h3>
+                                <p className="playlist-row-desc" style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-muted, #9ca3af)' }}>
+                                  {playlist.description || 'No description'} • {playlist.songIds.length} Songs
+                                </p>
+                              </div>
+                            </div>
+                            
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                              <button 
+                                onClick={() => togglePlaylistExpansion(playlist._id)} 
+                                style={{ background: 'transparent', border: 'none', color: 'var(--text-muted, #9ca3af)', cursor: 'pointer' }}
+                              >
+                                {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+                              </button>
+                              
+                              <div className="playlist-actions">
+                                {isConfirming ? (
+                                  <div className="confirm-delete-actions" style={{ position: 'static' }}>
+                                    <button
+                                      className="btn-confirm-delete"
+                                      disabled={isDeleting}
+                                      onClick={() => handleDeletePlaylist(playlist._id)}
+                                    >
+                                      {isDeleting ? <Loader2 size={13} className="spinning" /> : 'Confirm'}
+                                    </button>
+                                    <button
+                                      className="btn-cancel-delete"
+                                      disabled={isDeleting}
+                                      onClick={() => setConfirmDeleteId(null)}
+                                    >
+                                      Cancel
+                                    </button>
+                                  </div>
+                                ) : (
+                                  <button
+                                    className="btn-card-delete"
+                                    onClick={() => setConfirmDeleteId(playlist._id)}
+                                    aria-label="Delete playlist"
+                                    style={{ background: 'transparent', border: 'none', color: 'var(--text-muted, #9ca3af)', cursor: 'pointer' }}
+                                  >
+                                    <Trash2 size={16} />
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Expanded playlist details */}
+                          {isExpanded && (
+                            <div className="playlist-expanded-content" style={{ marginTop: '0.5rem', paddingLeft: '3rem', borderLeft: '2px solid rgba(139, 92, 246, 0.2)', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                              {playlistSongs.length === 0 ? (
+                                <p style={{ fontSize: '0.85rem', color: 'var(--text-muted, #9ca3af)' }}>No songs in this playlist.</p>
+                              ) : (
+                                playlistSongs.map((s, index) => {
+                                  const sResources = zikresources.filter(r => s.zikresourceIds.includes(r._id));
+                                  return (
+                                    <div key={s._id} style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                        <span style={{ fontSize: '0.85rem', color: '#8b5cf6', fontWeight: 600 }}>{index + 1}.</span>
+                                        <span style={{ fontSize: '0.9rem', fontWeight: 500 }}>{s.title}</span>
+                                        <span style={{ fontSize: '0.8rem', color: 'var(--text-muted, #9ca3af)' }}>by {s.artist}</span>
+                                      </div>
+                                      
+                                      <div style={{ display: 'flex', gap: '0.75rem', paddingLeft: '1rem', flexWrap: 'wrap' }}>
+                                        {sResources.map(res => (
+                                          <a 
+                                            key={res._id} 
+                                            href={res.url} 
+                                            target="_blank" 
+                                            rel="noopener noreferrer"
+                                            style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.75rem', color: '#8b5cf6', textDecoration: 'none' }}
+                                          >
+                                            {getTypeIcon(res.type)}
+                                            <span style={{ textDecoration: 'underline' }}>{res.title}</span>
+                                          </a>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  );
+                                })
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )
               )}
             </div>
           )}
@@ -490,6 +833,7 @@ export const Dashboard: React.FC = () => {
           </div>
         </section>
       </main>
+
     </div>
   );
 };
