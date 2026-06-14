@@ -207,15 +207,21 @@ export const Dashboard: React.FC = () => {
 
       {/* Main Content Dashboard */}
       <main className="dashboard-main animate-fade-in">
-        {/* Welcome Banner */}
-        <section className="welcome-banner glass-panel">
-          <h1 className="welcome-title">
-            {greeting}
-          </h1>
-          <p className="welcome-subtitle">
-            Welcome to your music space, {user?.name?.split(' ')[0] || 'Musician'}. Zikstock connects your tutorials, sheets, and backing tracks so you can focus on mastering your instrument.
-          </p>
-        </section>
+        {/* Welcome Banner / Simple Header */}
+        {!isLoadingZikresources && zikresources.length === 0 ? (
+          <section className="welcome-banner glass-panel">
+            <h1 className="welcome-title">
+              {greeting}
+            </h1>
+            <p className="welcome-subtitle">
+              Welcome to your music space, {user?.name?.split(' ')[0] || 'Musician'}. Zikstock connects your tutorials, sheets, and backing tracks so you can focus on mastering your instrument.
+            </p>
+          </section>
+        ) : (
+          <div className="dashboard-header-simple">
+            <h1 className="dashboard-title-simple">Dashboard</h1>
+          </div>
+        )}
 
         {/* Overview Stats */}
         <section className="overview-grid">

@@ -126,6 +126,22 @@
   gap: 2rem;
 }
 
+/* Simple Dashboard Header */
+.dashboard-header-simple {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+}
+
+.dashboard-title-simple {
+  font-size: 2.25rem;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  color: var(--text-primary);
+  margin: 0;
+}
+
 /* Greeting Section */
 .welcome-banner {
   padding: 2.5rem;
