@@ -30,14 +30,7 @@ export const Dashboard: React.FC = () => {
   const user = useAuthStore((state) => state.user);
   const logout = useAuthStore((state) => state.logout);
   const token = useAuthStore((state) => state.token);
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const { theme, toggleTheme } = useTheme();
-
-  useEffect(() => {
-    if (!isAuthenticated) {
-      navigate({ to: '/login', replace: true });
-    }
-  }, [isAuthenticated, navigate]);
 
   const [connectionStatus, setConnectionStatus] = useState<'checking' | 'active' | 'error'>('checking');
   const [greeting, setGreeting] = useState<string>('Welcome back');

@@ -38,6 +38,9 @@ export const authenticatedPost = async (
     const response = await fetch(`${apiUrl}${endpoint}`, fetchOptions);
 
     if (!response.ok) {
+      if (response.status === 401) {
+        useAuthStore.getState().logout();
+      }
       throw new Error(`HTTP Error: ${response.status} ${response.statusText || ''}`);
     }
 
@@ -80,6 +83,9 @@ export const authenticatedGet = async (
     const response = await fetch(`${apiUrl}${endpoint}`, fetchOptions);
 
     if (!response.ok) {
+      if (response.status === 401) {
+        useAuthStore.getState().logout();
+      }
       throw new Error(`HTTP Error: ${response.status} ${response.statusText || ''}`);
     }
 
@@ -119,6 +125,9 @@ export const authenticatedDelete = async (
     const response = await fetch(`${apiUrl}${endpoint}`, fetchOptions);
 
     if (!response.ok) {
+      if (response.status === 401) {
+        useAuthStore.getState().logout();
+      }
       throw new Error(`HTTP Error: ${response.status} ${response.statusText || ''}`);
     }
 

@@ -149,3 +149,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     }
   },
 }));
+
+// Initialize the store synchronously on load to recover any session immediately
+useAuthStore.getState().initialize();
+

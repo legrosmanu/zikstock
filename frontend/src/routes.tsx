@@ -1,5 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
-import { createRootRoute, createRoute, createRouter, Outlet, redirect } from '@tanstack/react-router';
+import { createRootRoute, createRoute, createRouter, Outlet, redirect, useNavigate, useRouterState } from '@tanstack/react-router';
 import { useEffect } from 'react';
 import { useAuthStore } from './store/authStore';
 import { Landing } from './components/Landing/Landing';
@@ -32,10 +32,21 @@ async function WittAuth<T>(apiCall?: () => Promise<T>): Promise<T | undefined> {
 const RootComponent = () => {
   const initialize = useAuthStore((state) => state.initialize);
   const isInitializing = useAuthStore((state) => state.isInitializing);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const navigate = useNavigate();
+  const routerState = useRouterState();
+  const currentPath = routerState.location.pathname;
 
   useEffect(() => {
     initialize();
   }, [initialize]);
+
+  useEffect(() => {
+    const isPublicRoute = currentPath === '/' || currentPath === '/login';
+    if (!isInitializing && !isAuthenticated && !isPublicRoute) {
+      navigate({ to: '/login', replace: true });
+    }
+  }, [isInitializing, isAuthenticated, currentPath, navigate]);
 
   if (isInitializing) {
     return (
