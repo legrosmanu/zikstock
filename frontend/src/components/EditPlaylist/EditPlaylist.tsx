@@ -107,12 +107,6 @@ export const EditPlaylist: React.FC = () => {
     <div className="create-page-container">
       {/* Nav */}
       <nav className="create-page-nav">
-        <div className="create-page-logo">
-          <div className="create-page-logo-icon">
-            <Music size={20} />
-          </div>
-          <span className="create-page-logo-text">Zikstock</span>
-        </div>
         <button
           className="btn-back-dashboard"
           onClick={() => navigate({ to: `/playlists/${id}` as any })}
@@ -120,6 +114,12 @@ export const EditPlaylist: React.FC = () => {
           <ArrowLeft size={16} />
           <span>Back to View</span>
         </button>
+        <div className="create-page-logo">
+          <div className="create-page-logo-icon">
+            <Music size={20} />
+          </div>
+          <span className="create-page-logo-text">Zikstock</span>
+        </div>
       </nav>
 
       {/* Page Content */}

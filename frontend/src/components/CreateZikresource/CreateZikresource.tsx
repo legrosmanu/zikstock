@@ -112,12 +112,6 @@ export const CreateZikresource: React.FC = () => {
     <div className="create-container">
       {/* Nav */}
       <nav className="create-nav">
-        <div className="create-logo">
-          <div className="create-logo-icon">
-            <Music size={20} />
-          </div>
-          <span className="create-logo-text">Zikstock</span>
-        </div>
         <button
           id="btn-back-to-dashboard"
           className="btn-back"
@@ -126,6 +120,12 @@ export const CreateZikresource: React.FC = () => {
           <ArrowLeft size={16} />
           <span>Back to Home</span>
         </button>
+        <div className="create-logo">
+          <div className="create-logo-icon">
+            <Music size={20} />
+          </div>
+          <span className="create-logo-text">Zikstock</span>
+        </div>
       </nav>
 
       {/* Page */}

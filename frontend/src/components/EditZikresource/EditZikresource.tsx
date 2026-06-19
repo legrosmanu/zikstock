@@ -149,12 +149,6 @@ export const EditZikresource: React.FC = () => {
     <div className="create-container">
       {/* Nav */}
       <nav className="create-nav">
-        <div className="create-logo">
-          <div className="create-logo-icon">
-            <Music size={20} />
-          </div>
-          <span className="create-logo-text">Zikstock</span>
-        </div>
         <button
           className="btn-back"
           onClick={() => navigate({ to: `/zikresources/${id}` as any })}
@@ -162,6 +156,12 @@ export const EditZikresource: React.FC = () => {
           <ArrowLeft size={16} />
           <span>Back to View</span>
         </button>
+        <div className="create-logo">
+          <div className="create-logo-icon">
+            <Music size={20} />
+          </div>
+          <span className="create-logo-text">Zikstock</span>
+        </div>
       </nav>
 
       {/* Page */}
