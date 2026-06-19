@@ -13,7 +13,7 @@ export const Landing: React.FC = () => {
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigate({ to: '/dashboard', replace: true });
+      navigate({ to: '/home' as any, replace: true });
     }
   }, [isAuthenticated, navigate]);
 

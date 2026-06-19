@@ -54,31 +54,5 @@ export const deleteZikresource = async (id: string): Promise<void> => {
     await deleteZikresourceFromDb(id);
 };
 
-export type ZikresourceStats = {
-    songs: number;
-    tabs: number;
-    videos: number;
-    tracks: number;
-};
-
-export const getZikresourceStats = async (userId: string): Promise<ZikresourceStats> => {
-    const userResources = await findAllZikresources(userId);
-
-    const uniqueSongs = new Set(
-        userResources.map(r => `${r.artist.trim().toLowerCase()}||${r.title.trim().toLowerCase()}`)
-    ).size;
-
-    const tabsCount = userResources.filter(r => r.type === 'tablature').length;
-    const videosCount = userResources.filter(r => r.type === 'video').length;
-    const tracksCount = userResources.filter(r => r.type === 'backing-track').length;
-
-    return {
-        songs: uniqueSongs,
-        tabs: tabsCount,
-        videos: videosCount,
-        tracks: tracksCount,
-    };
-};
-
 
 

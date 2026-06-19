@@ -1,12 +1,5 @@
 import { authenticatedGet, authenticatedDelete } from './httpClient';
 
-export type ZikresourceStats = {
-  songs: number;
-  tabs: number;
-  videos: number;
-  tracks: number;
-};
-
 export type ZikresourceType = 'tablature' | 'video' | 'backing-track' | 'other';
 
 export interface ZikresourceTag {
@@ -23,10 +16,6 @@ export interface Zikresource {
   type: ZikresourceType;
   tags?: ZikresourceTag[];
 }
-
-export const fetchZikresourceStats = (): Promise<ZikresourceStats> => {
-  return authenticatedGet('/zikresources/stats');
-};
 
 export const fetchZikresources = (): Promise<Zikresource[]> => {
   return authenticatedGet('/zikresources');

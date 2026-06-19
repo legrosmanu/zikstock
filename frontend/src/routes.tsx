@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import { useAuthStore } from './store/authStore';
 import { Landing } from './components/Landing/Landing';
 import { LoginPage } from './components/Auth/LoginPage';
-import { Dashboard } from './components/Dashboard/Dashboard';
+import { Home } from './components/Home/Home';
 import { CreateZikresource } from './components/CreateZikresource/CreateZikresource';
 import { CreateSong } from './components/CreateSong/CreateSong';
 import { CreatePlaylist } from './components/CreatePlaylist/CreatePlaylist';
@@ -102,11 +102,11 @@ const loginRoute = createRoute({
   component: LoginPage,
 });
 
-// Dashboard Route (/dashboard)
-const dashboardRoute = createRoute({
+// Home Route (/home)
+const homeRoute = createRoute({
   loader: () => WittAuth(),
   getParentRoute: () => rootRoute,
-  path: '/dashboard',
+  path: '/home',
   validateSearch: (search: Record<string, unknown>): { tab?: 'resources' | 'songs' | 'playlists' } => {
     const tab = search.tab as string | undefined;
     if (tab === 'resources' || tab === 'songs' || tab === 'playlists') {
@@ -114,7 +114,7 @@ const dashboardRoute = createRoute({
     }
     return {};
   },
-  component: Dashboard,
+  component: Home,
 });
 
 // Create Zikresource Route (/zikresources/new)
@@ -145,7 +145,7 @@ const createPlaylistRoute = createRoute({
 const routeTree = rootRoute.addChildren([
   indexRoute,
   loginRoute,
-  dashboardRoute,
+  homeRoute,
   createZikresourceRoute,
   createSongRoute,
   createPlaylistRoute,

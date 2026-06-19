@@ -62,7 +62,7 @@ export const CreatePlaylist: React.FC = () => {
         description: description.trim() || undefined,
         songIds: selectedSongIds,
       });
-      navigate({ to: '/dashboard', search: { tab: 'playlists' } });
+      navigate({ to: '/home' as any, search: { tab: 'playlists' } });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create playlist.');
     } finally {
@@ -82,10 +82,10 @@ export const CreatePlaylist: React.FC = () => {
         </div>
         <button
           className="btn-back-dashboard"
-          onClick={() => navigate({ to: '/dashboard' })}
+          onClick={() => navigate({ to: '/home' as any })}
         >
           <ArrowLeft size={16} />
-          <span>Back to Dashboard</span>
+          <span>Back to Home</span>
         </button>
       </nav>
 
@@ -176,7 +176,7 @@ export const CreatePlaylist: React.FC = () => {
             <button
               type="button"
               className="btn-secondary-action"
-              onClick={() => navigate({ to: '/dashboard' })}
+              onClick={() => navigate({ to: '/home' as any })}
               disabled={isSubmitting}
             >
               Cancel

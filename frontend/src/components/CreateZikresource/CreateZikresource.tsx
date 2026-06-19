@@ -100,13 +100,12 @@ export const CreateZikresource: React.FC = () => {
 
 
       setSuccess(true);
-      setTimeout(() => navigate({ to: '/dashboard', search: { tab: 'resources' } }), 1200);
+      setTimeout(() => navigate({ to: '/home' as any, search: { tab: 'resources' } }), 1200);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
-    setIsSubmitting(false);
   };
 
   return (
@@ -122,10 +121,10 @@ export const CreateZikresource: React.FC = () => {
         <button
           id="btn-back-to-dashboard"
           className="btn-back"
-          onClick={() => navigate({ to: '/dashboard' })}
+          onClick={() => navigate({ to: '/home' as any })}
         >
           <ArrowLeft size={16} />
-          <span>Back to Dashboard</span>
+          <span>Back to Home</span>
         </button>
       </nav>
 
@@ -304,7 +303,7 @@ export const CreateZikresource: React.FC = () => {
               type="button"
               id="btn-cancel"
               className="btn-cancel"
-              onClick={() => navigate({ to: '/dashboard' })}
+              onClick={() => navigate({ to: '/home' as any })}
               disabled={isSubmitting}
             >
               Cancel

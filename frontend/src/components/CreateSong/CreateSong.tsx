@@ -85,7 +85,7 @@ export const CreateSong: React.FC = () => {
         artist: artist.trim(),
         zikresourceIds: selectedZikresourceIds,
       });
-      navigate({ to: '/dashboard', search: { tab: 'songs' } });
+      navigate({ to: '/home' as any, search: { tab: 'songs' } });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create song.');
     } finally {
@@ -105,10 +105,10 @@ export const CreateSong: React.FC = () => {
         </div>
         <button
           className="btn-back-dashboard"
-          onClick={() => navigate({ to: '/dashboard' })}
+          onClick={() => navigate({ to: '/home' as any })}
         >
           <ArrowLeft size={16} />
-          <span>Back to Dashboard</span>
+          <span>Back to Home</span>
         </button>
       </nav>
 
@@ -201,7 +201,7 @@ export const CreateSong: React.FC = () => {
             <button
               type="button"
               className="btn-secondary-action"
-              onClick={() => navigate({ to: '/dashboard' })}
+              onClick={() => navigate({ to: '/home' as any })}
               disabled={isSubmitting}
             >
               Cancel

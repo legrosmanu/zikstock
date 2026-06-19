@@ -5,8 +5,7 @@ import {
     getAllZikresourcesHandler,
     getZikresourceByIdHandler,
     updateZikresourceHandler,
-    deleteZikresourceHandler,
-    getZikresourceStatsHandler
+    deleteZikresourceHandler
 } from './zikresources/api/zikresource.controller';
 import {
     createSongHandler,
@@ -65,7 +64,6 @@ app.get('/health', healthCheck);
 // Zikresource Routes (protected — requires a valid Google ID token)
 app.post('/zikresources', authMiddleware, createZikresourceHandler);
 app.get('/zikresources', authMiddleware, getAllZikresourcesHandler);
-app.get('/zikresources/stats', authMiddleware, getZikresourceStatsHandler);
 app.get('/zikresources/:id', authMiddleware, getZikresourceByIdHandler);
 app.put('/zikresources/:id', authMiddleware, updateZikresourceHandler);
 app.delete('/zikresources/:id', authMiddleware, deleteZikresourceHandler);

@@ -22,15 +22,15 @@ import {
 import { useNavigate, useSearch } from '@tanstack/react-router';
 import { useAuthStore } from '../../store/authStore';
 import { useTheme } from '../../hooks/useTheme';
-import { fetchZikresourceStats, fetchZikresources, deleteZikresource } from '../../infra/zikresource.api';
-import type { ZikresourceStats, Zikresource } from '../../infra/zikresource.api';
+import { fetchZikresources, deleteZikresource } from '../../infra/zikresource.api';
+import type { Zikresource } from '../../infra/zikresource.api';
 import { fetchSongs, deleteSong } from '../../infra/song.api';
 import type { Song } from '../../infra/song.api';
 import { fetchPlaylists, deletePlaylist } from '../../infra/playlist.api';
 import type { Playlist } from '../../infra/playlist.api';
-import './Dashboard.css';
+import './Home.css';
 
-export const Dashboard: React.FC = () => {
+export const Home: React.FC = () => {
   const navigate = useNavigate();
   const user = useAuthStore((state) => state.user);
   const logout = useAuthStore((state) => state.logout);
@@ -38,10 +38,8 @@ export const Dashboard: React.FC = () => {
   const { theme, toggleTheme } = useTheme();
 
   const [connectionStatus, setConnectionStatus] = useState<'checking' | 'active' | 'error'>('checking');
-  const [greeting, setGreeting] = useState<string>('Welcome back');
-  const [stats, setStats] = useState<ZikresourceStats | null>(null);
   
-  const search = useSearch({ from: '/dashboard' });
+  const search = useSearch({ from: '/home' as any });
 
   // Tab control
   const [activeTab, setActiveTab] = useState<'resources' | 'songs' | 'playlists'>(search.tab || 'resources');
@@ -76,18 +74,6 @@ export const Dashboard: React.FC = () => {
   // Song detail expander
   const [expandedSongId, setExpandedSongId] = useState<string | null>(null);
 
-  // Compute greeting based on local time
-  useEffect(() => {
-    const hour = new Date().getHours();
-    if (hour < 12) {
-      setGreeting('Good morning, time to practice!');
-    } else if (hour < 18) {
-      setGreeting('Good afternoon, time to practice!');
-    } else {
-      setGreeting('Good evening, ready for a jam session?');
-    }
-  }, []);
-
   const fetchAllData = async () => {
     if (!token) {
       setConnectionStatus('error');
@@ -100,14 +86,12 @@ export const Dashboard: React.FC = () => {
       setIsLoadingData(true);
       setErrorMsg(null);
 
-      const [statsData, resourcesData, songsData, playlistsData] = await Promise.all([
-        fetchZikresourceStats(),
+      const [resourcesData, songsData, playlistsData] = await Promise.all([
         fetchZikresources(),
         fetchSongs(),
         fetchPlaylists()
       ]);
 
-      setStats(statsData);
       setZikresources(resourcesData);
       setSongs(songsData);
       setPlaylists(playlistsData);
@@ -130,10 +114,6 @@ export const Dashboard: React.FC = () => {
     try {
       await deleteZikresource(id);
       setZikresources(prev => prev.filter(r => r._id !== id));
-      
-      // Refresh stats and dependent elements
-      const statsData = await fetchZikresourceStats();
-      setStats(statsData);
       setConfirmDeleteId(null);
     } catch (err) {
       console.error('Error deleting zikresource:', err);
@@ -149,9 +129,6 @@ export const Dashboard: React.FC = () => {
       await deleteSong(id);
       setSongs(prev => prev.filter(s => s._id !== id));
       setConfirmDeleteId(null);
-      // Refresh stats
-      const statsData = await fetchZikresourceStats();
-      setStats(statsData);
     } catch (err) {
       console.error('Error deleting song:', err);
       alert('Failed to delete song. It might be referenced by a playlist.');
@@ -289,77 +266,47 @@ export const Dashboard: React.FC = () => {
         </div>
       </nav>
 
-      {/* Main Content Dashboard */}
+      {/* Main Content Home */}
       <main className="dashboard-main animate-fade-in">
-        {/* Welcome Banner */}
-        {!isLoadingData && zikresources.length === 0 ? (
-          <section className="welcome-banner glass-panel">
-            <h1 className="welcome-title">
-              {greeting}
-            </h1>
-            <p className="welcome-subtitle">
-              Welcome to your music space, {user?.name?.split(' ')[0] || 'Musician'}. Zikstock connects your tutorials, sheets, and backing tracks so you can focus on mastering your instrument.
-            </p>
-          </section>
-        ) : (
-          <div className="dashboard-header-simple">
-            <h1 className="dashboard-title-simple">Dashboard</h1>
-          </div>
-        )}
-
-        {/* Overview Stats */}
-        <section className="overview-grid">
-          <div className="stat-card glass-panel">
-            <div className="stat-icon-wrapper">
-              <BookOpen size={24} />
+        
+        {/* Workspace Intro Section */}
+        <section className="welcome-banner glass-panel">
+          <h1 className="welcome-title">
+            Manage your repertoire
+          </h1>
+          <p className="welcome-subtitle">
+            Welcome to your musical workspace. Use this space to organize your practice material at three levels of hierarchy:
+          </p>
+          
+          <div className="concept-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.25rem', marginTop: '1.5rem' }}>
+            <div className="concept-card" style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '12px', padding: '1rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', color: 'var(--accent-primary, #8b5cf6)' }}>
+                <FileText size={18} />
+                <h4 style={{ margin: 0, fontWeight: 700 }}>1. Zikresources</h4>
+              </div>
+              <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-secondary, #9ca3af)' }}>
+                Save links to tabs, sheet music, video tutorials, or backing tracks.
+              </p>
             </div>
-            <div className="stat-info">
-              <span className="stat-value">
-                {connectionStatus === 'checking' ? (
-                  <span className="stat-shimmer" />
-                ) : connectionStatus === 'error' || stats === null ? (
-                  '—'
-                ) : (
-                  stats.tabs
-                )}
-              </span>
-              <span className="stat-label">Tabs & Sheets</span>
+            
+            <div className="concept-card" style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '12px', padding: '1rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', color: 'var(--accent-secondary, #d946ef)' }}>
+                <Music size={18} />
+                <h4 style={{ margin: 0, fontWeight: 700 }}>2. Songs</h4>
+              </div>
+              <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-secondary, #9ca3af)' }}>
+                Group your saved resources under unified song titles.
+              </p>
             </div>
-          </div>
-
-          <div className="stat-card glass-panel">
-            <div className="stat-icon-wrapper">
-              <Video size={24} />
-            </div>
-            <div className="stat-info">
-              <span className="stat-value">
-                {connectionStatus === 'checking' ? (
-                  <span className="stat-shimmer" />
-                ) : connectionStatus === 'error' || stats === null ? (
-                  '—'
-                ) : (
-                  stats.videos
-                )}
-              </span>
-              <span className="stat-label">Video Tutorials</span>
-            </div>
-          </div>
-
-          <div className="stat-card glass-panel">
-            <div className="stat-icon-wrapper">
-              <Music size={24} />
-            </div>
-            <div className="stat-info">
-              <span className="stat-value">
-                {connectionStatus === 'checking' ? (
-                  <span className="stat-shimmer" />
-                ) : connectionStatus === 'error' || stats === null ? (
-                  '—'
-                ) : (
-                  stats.tracks
-                )}
-              </span>
-              <span className="stat-label">Backing tracks</span>
+            
+            <div className="concept-card" style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '12px', padding: '1rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', color: '#10b981' }}>
+                <Folder size={18} />
+                <h4 style={{ margin: 0, fontWeight: 700 }}>3. Playlists</h4>
+              </div>
+              <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-secondary, #9ca3af)' }}>
+                Organize songs into custom playlists for gigs or focused practice sessions.
+              </p>
             </div>
           </div>
         </section>
