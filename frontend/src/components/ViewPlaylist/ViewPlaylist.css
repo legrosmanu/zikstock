@@ -18,29 +18,6 @@
   flex-wrap: wrap;
 }
 
-.btn-open-reference {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  background: rgba(139, 92, 246, 0.1);
-  border: 1px solid rgba(139, 92, 246, 0.2);
-  color: var(--accent-primary);
-  padding: 0.6rem 1.2rem;
-  border-radius: 8px;
-  font-size: 0.9rem;
-  font-weight: 500;
-  cursor: pointer;
-  text-decoration: none;
-  transition: all var(--transition-normal);
-}
-
-.btn-open-reference:hover {
-  background: var(--accent-primary);
-  color: #fff;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.2);
-}
-
 .btn-delete-resource {
   display: inline-flex;
   align-items: center;
@@ -109,4 +86,84 @@
 .delete-confirm-group .btn-cancel-delete:hover {
   background: rgba(255, 255, 255, 0.05);
   color: var(--text-primary);
+}
+
+.btn-edit-playlist {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(139, 92, 246, 0.2);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  color: var(--accent-primary);
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+}
+
+.btn-edit-playlist:hover {
+  background: var(--accent-primary);
+  color: #fff;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+}
+
+.playlist-detail-panel {
+  padding: 2rem;
+  border-radius: 12px;
+  background: rgba(30, 30, 35, 0.4);
+  border: 1px solid var(--border-subtle);
+  backdrop-filter: blur(12px);
+}
+
+.no-songs-message {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+}
+
+.associated-songs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.song-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all var(--transition-normal);
+}
+
+.song-card:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(139, 92, 246, 0.2);
+  transform: translateY(-1px);
+}
+
+.song-card-left {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.song-card-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.song-card-artist {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.song-card-right {
+  display: flex;
+  align-items: center;
 }

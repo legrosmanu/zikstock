@@ -4,7 +4,7 @@ import { useNavigate, useParams } from '@tanstack/react-router';
 import { fetchZikresourceById, updateZikresource, deleteZikresource } from '../../infra/zikresource.api';
 import type { ZikresourceTag } from '../../infra/zikresource.api';
 import '../CreateZikresource/CreateZikresource.css';
-import './ManageZikresource.css';
+import '../ViewZikresource/ViewZikresource.css';
 
 const RESOURCE_TYPES = [
   { value: 'tablature', label: '🎸 Tab / Sheet Music' },
@@ -15,9 +15,9 @@ const RESOURCE_TYPES = [
 
 const PRESET_TAGS = ['beginner', 'intermediate', 'advanced', 'jazz', 'rock', 'blues', 'classical', 'fingerstyle'];
 
-export const ManageZikresource: React.FC = () => {
+export const EditZikresource: React.FC = () => {
   const navigate = useNavigate();
-  const { id } = useParams({ from: '/zikresources/$id' as any }) as { id: string };
+  const { id } = useParams({ from: '/zikresources/$id/edit' as any }) as { id: string };
 
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -115,7 +115,7 @@ export const ManageZikresource: React.FC = () => {
       });
 
       setSuccess(true);
-      setTimeout(() => navigate({ to: '/home', search: { tab: 'resources' } }), 1200);
+      setTimeout(() => navigate({ to: `/zikresources/${id}` as any }), 1200);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
     } finally {
@@ -128,7 +128,7 @@ export const ManageZikresource: React.FC = () => {
     setError(null);
     try {
       await deleteZikresource(id);
-      navigate({ to: '/home', search: { tab: 'resources' } });
+      navigate({ to: '/home', search: { tab: 'zikresources' } });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to delete resource.');
       setIsDeleting(false);
@@ -157,19 +157,19 @@ export const ManageZikresource: React.FC = () => {
         </div>
         <button
           className="btn-back"
-          onClick={() => navigate({ to: '/home' as any })}
+          onClick={() => navigate({ to: `/zikresources/${id}` as any })}
         >
           <ArrowLeft size={16} />
-          <span>Back to Home</span>
+          <span>Back to View</span>
         </button>
       </nav>
 
       {/* Page */}
       <main className="create-main">
         <div className="create-header">
-          <h1 className="create-title">Manage Zikresource</h1>
+          <h1 className="create-title">Edit Zikresource</h1>
           <p className="create-subtitle">
-            Update this reference or view its content.
+            Update this reference's properties.
           </p>
         </div>
 
@@ -357,20 +357,32 @@ export const ManageZikresource: React.FC = () => {
             )}
           </div>
 
-          <button
-            type="submit"
-            className="btn-submit"
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? (
-              <>
-                <Loader2 size={16} className="spinning" />
-                <span>Saving changes...</span>
-              </>
-            ) : (
-              <span>Save Changes</span>
-            )}
-          </button>
+          <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem' }}>
+            <button
+              type="button"
+              className="btn-submit"
+              style={{ background: 'transparent', border: '1px solid var(--border-subtle)', color: 'var(--text-secondary)' }}
+              onClick={() => navigate({ to: `/zikresources/${id}` as any })}
+              disabled={isSubmitting}
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="btn-submit"
+              disabled={isSubmitting}
+              style={{ flex: 1 }}
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 size={16} className="spinning" />
+                  <span>Saving changes...</span>
+                </>
+              ) : (
+                <span>Save Changes</span>
+              )}
+            </button>
+          </div>
         </form>
       </main>
     </div>

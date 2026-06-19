@@ -1,0 +1,184 @@
+import React, { useState, useEffect } from 'react';
+import { Music, ArrowLeft, Loader2, Trash2, Edit } from 'lucide-react';
+import { useNavigate, useParams } from '@tanstack/react-router';
+import { fetchPlaylistById, deletePlaylist } from '../../infra/playlist.api';
+import { fetchSongs } from '../../infra/song.api';
+import type { Playlist } from '../../infra/playlist.api';
+import type { Song } from '../../infra/song.api';
+import '../CreateSong/CreateSong.css';
+import './ViewPlaylist.css';
+
+export const ViewPlaylist: React.FC = () => {
+  const navigate = useNavigate();
+  const { id } = useParams({ from: '/playlists/$id' as any }) as { id: string };
+
+  const [isLoading, setIsLoading] = useState(true);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [playlist, setPlaylist] = useState<Playlist | null>(null);
+  const [associatedSongs, setAssociatedSongs] = useState<Song[]>([]);
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const [playlistData, allSongs] = await Promise.all([
+          fetchPlaylistById(id),
+          fetchSongs(),
+        ]);
+        setPlaylist(playlistData);
+        
+        const songIds = playlistData.songIds || [];
+        const matched = allSongs.filter(s => songIds.includes(s._id));
+        setAssociatedSongs(matched);
+      } catch (err) {
+        console.error('Failed to load playlist data', err);
+        setError('Failed to load playlist details.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    loadData();
+  }, [id]);
+
+  const handleDelete = async () => {
+    setIsDeleting(true);
+    setError(null);
+    try {
+      await deletePlaylist(id);
+      navigate({ to: '/home', search: { tab: 'playlists' } });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to delete playlist.');
+      setIsDeleting(false);
+      setShowDeleteConfirm(false);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="manage-loading-container">
+        <Loader2 size={36} className="spinning" style={{ color: 'var(--accent-primary)' }} />
+        <p style={{ marginTop: '1rem', color: 'var(--text-secondary)' }}>Loading playlist details...</p>
+      </div>
+    );
+  }
+
+  if (!playlist) {
+    return (
+      <div className="manage-loading-container">
+        <p style={{ color: '#ef4444' }}>Playlist not found.</p>
+        <button className="btn-back-dashboard" onClick={() => navigate({ to: '/home' as any })} style={{ marginTop: '1rem' }}>
+          <ArrowLeft size={16} />
+          <span>Back to Home</span>
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="create-page-container">
+      {/* Nav */}
+      <nav className="create-page-nav">
+        <div className="create-page-logo">
+          <div className="create-page-logo-icon">
+            <Music size={20} />
+          </div>
+          <span className="create-page-logo-text">Zikstock</span>
+        </div>
+        <button
+          className="btn-back-dashboard"
+          onClick={() => navigate({ to: '/home' as any })}
+        >
+          <ArrowLeft size={16} />
+          <span>Back to Home</span>
+        </button>
+      </nav>
+
+      {/* Page Content */}
+      <main className="create-page-main animate-fade-in">
+        <div className="create-page-header">
+          <h1 className="create-page-title">{playlist.name}</h1>
+          {playlist.description && (
+            <p className="create-page-subtitle">
+              {playlist.description}
+            </p>
+          )}
+        </div>
+
+        {error && <div className="create-page-error" style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)', color: '#ef4444', padding: '1rem', borderRadius: '8px', marginBottom: '1.5rem', fontSize: '0.9rem' }}>{error}</div>}
+
+        <div className="manage-top-actions" style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <button
+            type="button"
+            className="btn-edit-playlist"
+            onClick={() => navigate({ to: `/playlists/${id}/edit` as any })}
+          >
+            <Edit size={14} />
+            <span>Edit Playlist</span>
+          </button>
+
+          {!showDeleteConfirm ? (
+            <button
+              type="button"
+              className="btn-delete-resource"
+              onClick={() => setShowDeleteConfirm(true)}
+            >
+              <Trash2 size={14} />
+              <span>Delete Playlist</span>
+            </button>
+          ) : (
+            <div className="delete-confirm-group">
+              <span className="delete-confirm-text">Are you sure?</span>
+              <button
+                type="button"
+                className="btn-confirm-delete"
+                onClick={handleDelete}
+                disabled={isDeleting}
+              >
+                {isDeleting ? <Loader2 size={12} className="spinning" /> : 'Yes, Delete'}
+              </button>
+              <button
+                type="button"
+                className="btn-cancel-delete"
+                onClick={() => setShowDeleteConfirm(false)}
+                disabled={isDeleting}
+              >
+                Cancel
+              </button>
+            </div>
+          )}
+        </div>
+
+        <div className="playlist-detail-panel glass-panel">
+          <h2 className="section-title">Songs in Playlist</h2>
+          
+          {associatedSongs.length === 0 ? (
+            <p className="no-songs-message">No songs in this playlist yet.</p>
+          ) : (
+            <div className="associated-songs-list">
+              {associatedSongs.map((song) => (
+                <div
+                  key={song._id}
+                  className="song-card glass-panel"
+                  onClick={() => navigate({ to: `/songs/${song._id}` as any })}
+                  style={{ cursor: 'pointer' }}
+                >
+                  <div className="song-card-left">
+                    <span className="song-card-title">{song.title}</span>
+                    <span className="song-card-artist">by {song.artist}</span>
+                  </div>
+                  <div className="song-card-right">
+                    <span className="playlist-item-badge">
+                      <Music size={12} />
+                      <span>{song.zikresourceIds?.length || 0} resources</span>
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </main>
+    </div>
+  );
+};

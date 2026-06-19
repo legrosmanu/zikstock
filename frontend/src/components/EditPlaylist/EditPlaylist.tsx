@@ -5,11 +5,11 @@ import { fetchSongs } from '../../infra/song.api';
 import type { Song } from '../../infra/song.api';
 import { fetchPlaylistById, updatePlaylist, deletePlaylist } from '../../infra/playlist.api';
 import '../CreateSong/CreateSong.css';
-import './ManagePlaylist.css';
+import '../ViewPlaylist/ViewPlaylist.css';
 
-export const ManagePlaylist: React.FC = () => {
+export const EditPlaylist: React.FC = () => {
   const navigate = useNavigate();
-  const { id } = useParams({ from: '/playlists/$id' as any }) as { id: string };
+  const { id } = useParams({ from: '/playlists/$id/edit' as any }) as { id: string };
 
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -73,7 +73,7 @@ export const ManagePlaylist: React.FC = () => {
         songIds: selectedSongIds,
       });
       setSuccess(true);
-      setTimeout(() => navigate({ to: '/home', search: { tab: 'playlists' } }), 1200);
+      setTimeout(() => navigate({ to: `/playlists/${id}` as any }), 1200);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to update playlist.');
     } finally {
@@ -115,17 +115,17 @@ export const ManagePlaylist: React.FC = () => {
         </div>
         <button
           className="btn-back-dashboard"
-          onClick={() => navigate({ to: '/home' as any })}
+          onClick={() => navigate({ to: `/playlists/${id}` as any })}
         >
           <ArrowLeft size={16} />
-          <span>Back to Home</span>
+          <span>Back to View</span>
         </button>
       </nav>
 
       {/* Page Content */}
       <main className="create-page-main animate-fade-in">
         <div className="create-page-header">
-          <h1 className="create-page-title">Manage Playlist</h1>
+          <h1 className="create-page-title">Edit Playlist</h1>
           <p className="create-page-subtitle">
             Update playlist settings and select songs.
           </p>
@@ -241,7 +241,7 @@ export const ManagePlaylist: React.FC = () => {
             <button
               type="button"
               className="btn-secondary-action"
-              onClick={() => navigate({ to: '/home' as any })}
+              onClick={() => navigate({ to: `/playlists/${id}` as any })}
               disabled={isSubmitting}
             >
               Cancel

@@ -41,7 +41,7 @@ export const Home: React.FC = () => {
   const search = useSearch({ from: '/home' as any });
 
   // Tab control
-  const [activeTab, setActiveTab] = useState<'resources' | 'songs' | 'playlists'>(search.tab || 'resources');
+  const [activeTab, setActiveTab] = useState<'zikresources' | 'songs' | 'playlists'>(search.tab || 'zikresources');
 
   // Sync tab from search parameter
   useEffect(() => {
@@ -298,8 +298,8 @@ export const Home: React.FC = () => {
         {/* Tab Selection */}
         <div className="dashboard-tabs-container">
           <button 
-            className={`dashboard-tab ${activeTab === 'resources' ? 'active' : ''}`}
-            onClick={() => { setActiveTab('resources'); setSearchQuery(''); }}
+            className={`dashboard-tab ${activeTab === 'zikresources' ? 'active' : ''}`}
+            onClick={() => { setActiveTab('zikresources'); setSearchQuery(''); }}
           >
             <FileText size={16} />
             <span>Zikresources ({zikresources.length})</span>
@@ -351,18 +351,18 @@ export const Home: React.FC = () => {
               <div className="resources-header">
                 <div>
                   <h2 className="resources-title">
-                    {activeTab === 'resources' && 'Your Zikresources'}
+                    {activeTab === 'zikresources' && 'Your Zikresources'}
                     {activeTab === 'songs' && 'Your Compiled Songs'}
                     {activeTab === 'playlists' && 'Your Playlists'}
                   </h2>
                   <p className="resources-subtitle">
-                    {activeTab === 'resources' && `Access your saved references (${zikresources.length})`}
+                    {activeTab === 'zikresources' && `Access your saved references (${zikresources.length})`}
                     {activeTab === 'songs' && `Grouped resources by song title (${songs.length})`}
                     {activeTab === 'playlists' && `Grouped songs into playlists (${playlists.length})`}
                   </p>
                 </div>
                 
-                {activeTab === 'resources' && (
+                {activeTab === 'zikresources' && (
                   <button className="btn-primary-large btn-add-zik" onClick={() => navigate({ to: '/zikresources/new' })}>
                     <Plus size={16} />
                     <span>Add Zikresource</span>
@@ -389,9 +389,11 @@ export const Home: React.FC = () => {
                   <input
                     type="text"
                     placeholder={
-                      activeTab === 'resources' 
+                      activeTab === 'zikresources' 
                         ? "Search title, artist, or tags..." 
-                        : "Search by title or artist..."
+                        : activeTab === 'playlists'
+                          ? "Search by playlist name or description..."
+                          : "Search by title or artist..."
                     }
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
@@ -404,7 +406,7 @@ export const Home: React.FC = () => {
                   )}
                 </div>
 
-                {activeTab === 'resources' && (
+                {activeTab === 'zikresources' && (
                   <div className="filter-chips">
                     {[
                       { id: 'all', label: 'All' },
@@ -426,7 +428,7 @@ export const Home: React.FC = () => {
               </div>
 
               {/* Resources Tab View */}
-              {activeTab === 'resources' && (
+              {activeTab === 'zikresources' && (
                 filteredResources.length === 0 ? (
                   <div className="no-results-panel glass-panel">
                     <p>No resources match your filters or search query.</p>
@@ -471,7 +473,7 @@ export const Home: React.FC = () => {
                                 onClick={(e) => e.stopPropagation()}
                                 style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', textDecoration: 'none' }}
                               >
-                                <span>Open Reference</span>
+                                <span>Go to Zikresource</span>
                                 <ExternalLink size={13} />
                               </a>
 

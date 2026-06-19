@@ -5,11 +5,11 @@ import { fetchZikresources } from '../../infra/zikresource.api';
 import type { Zikresource } from '../../infra/zikresource.api';
 import { fetchSongById, updateSong, deleteSong } from '../../infra/song.api';
 import '../CreateSong/CreateSong.css';
-import './ManageSong.css';
+import '../ViewSong/ViewSong.css';
 
-export const ManageSong: React.FC = () => {
+export const EditSong: React.FC = () => {
   const navigate = useNavigate();
-  const { id } = useParams({ from: '/songs/$id' as any }) as { id: string };
+  const { id } = useParams({ from: '/songs/$id/edit' as any }) as { id: string };
 
   const [title, setTitle] = useState('');
   const [artist, setArtist] = useState('');
@@ -97,7 +97,7 @@ export const ManageSong: React.FC = () => {
         zikresourceIds: selectedZikresourceIds,
       });
       setSuccess(true);
-      setTimeout(() => navigate({ to: '/home', search: { tab: 'songs' } }), 1200);
+      setTimeout(() => navigate({ to: `/songs/${id}` as any }), 1200);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to update song.');
     } finally {
@@ -139,17 +139,17 @@ export const ManageSong: React.FC = () => {
         </div>
         <button
           className="btn-back-dashboard"
-          onClick={() => navigate({ to: '/home' as any })}
+          onClick={() => navigate({ to: `/songs/${id}` as any })}
         >
           <ArrowLeft size={16} />
-          <span>Back to Home</span>
+          <span>Back to View</span>
         </button>
       </nav>
 
       {/* Page Content */}
       <main className="create-page-main animate-fade-in">
         <div className="create-page-header">
-          <h1 className="create-page-title">Manage Song</h1>
+          <h1 className="create-page-title">Edit Song</h1>
           <p className="create-page-subtitle">
             Update song details and resource associations.
           </p>
@@ -267,7 +267,7 @@ export const ManageSong: React.FC = () => {
             <button
               type="button"
               className="btn-secondary-action"
-              onClick={() => navigate({ to: '/home' as any })}
+              onClick={() => navigate({ to: `/songs/${id}` as any })}
               disabled={isSubmitting}
             >
               Cancel

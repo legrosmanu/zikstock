@@ -8,9 +8,12 @@ import { Home } from './components/Home/Home';
 import { CreateZikresource } from './components/CreateZikresource/CreateZikresource';
 import { CreateSong } from './components/CreateSong/CreateSong';
 import { CreatePlaylist } from './components/CreatePlaylist/CreatePlaylist';
-import { ManageZikresource } from './components/ManageZikresource/ManageZikresource';
-import { ManageSong } from './components/ManageSong/ManageSong';
-import { ManagePlaylist } from './components/ManagePlaylist/ManagePlaylist';
+import { ViewZikresource } from './components/ViewZikresource/ViewZikresource';
+import { EditZikresource } from './components/EditZikresource/EditZikresource';
+import { ViewSong } from './components/ViewSong/ViewSong';
+import { EditSong } from './components/EditSong/EditSong';
+import { ViewPlaylist } from './components/ViewPlaylist/ViewPlaylist';
+import { EditPlaylist } from './components/EditPlaylist/EditPlaylist';
 
 async function WittAuth<T>(apiCall?: () => Promise<T>): Promise<T | undefined> {
   try {
@@ -110,9 +113,9 @@ const homeRoute = createRoute({
   loader: () => WittAuth(),
   getParentRoute: () => rootRoute,
   path: '/home',
-  validateSearch: (search: Record<string, unknown>): { tab?: 'resources' | 'songs' | 'playlists' } => {
+  validateSearch: (search: Record<string, unknown>): { tab?: 'zikresources' | 'songs' | 'playlists' } => {
     const tab = search.tab as string | undefined;
-    if (tab === 'resources' || tab === 'songs' || tab === 'playlists') {
+    if (tab === 'zikresources' || tab === 'songs' || tab === 'playlists') {
       return { tab };
     }
     return {};
@@ -144,28 +147,52 @@ const createPlaylistRoute = createRoute({
   component: CreatePlaylist,
 });
 
-// Manage Zikresource Route (/zikresources/$id)
-const manageZikresourceRoute = createRoute({
+// View Zikresource Route (/zikresources/$id)
+const viewZikresourceRoute = createRoute({
   loader: () => WittAuth(),
   getParentRoute: () => rootRoute,
   path: '/zikresources/$id',
-  component: ManageZikresource,
+  component: ViewZikresource,
 });
 
-// Manage Song Route (/songs/$id)
-const manageSongRoute = createRoute({
+// Edit Zikresource Route (/zikresources/$id/edit)
+const editZikresourceRoute = createRoute({
+  loader: () => WittAuth(),
+  getParentRoute: () => rootRoute,
+  path: '/zikresources/$id/edit',
+  component: EditZikresource,
+});
+
+// View Song Route (/songs/$id)
+const viewSongRoute = createRoute({
   loader: () => WittAuth(),
   getParentRoute: () => rootRoute,
   path: '/songs/$id',
-  component: ManageSong,
+  component: ViewSong,
 });
 
-// Manage Playlist Route (/playlists/$id)
-const managePlaylistRoute = createRoute({
+// Edit Song Route (/songs/$id/edit)
+const editSongRoute = createRoute({
+  loader: () => WittAuth(),
+  getParentRoute: () => rootRoute,
+  path: '/songs/$id/edit',
+  component: EditSong,
+});
+
+// View Playlist Route (/playlists/$id)
+const viewPlaylistRoute = createRoute({
   loader: () => WittAuth(),
   getParentRoute: () => rootRoute,
   path: '/playlists/$id',
-  component: ManagePlaylist,
+  component: ViewPlaylist,
+});
+
+// Edit Playlist Route (/playlists/$id/edit)
+const editPlaylistRoute = createRoute({
+  loader: () => WittAuth(),
+  getParentRoute: () => rootRoute,
+  path: '/playlists/$id/edit',
+  component: EditPlaylist,
 });
 
 // Build the Route Tree
@@ -176,9 +203,12 @@ const routeTree = rootRoute.addChildren([
   createZikresourceRoute,
   createSongRoute,
   createPlaylistRoute,
-  manageZikresourceRoute,
-  manageSongRoute,
-  managePlaylistRoute,
+  viewZikresourceRoute,
+  editZikresourceRoute,
+  viewSongRoute,
+  editSongRoute,
+  viewPlaylistRoute,
+  editPlaylistRoute,
 ]);
 
 // Create the Router

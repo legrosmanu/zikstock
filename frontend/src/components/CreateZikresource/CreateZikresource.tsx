@@ -100,7 +100,7 @@ export const CreateZikresource: React.FC = () => {
 
 
       setSuccess(true);
-      setTimeout(() => navigate({ to: '/home', search: { tab: 'resources' } }), 1200);
+      setTimeout(() => navigate({ to: '/home', search: { tab: 'zikresources' } }), 1200);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
     } finally {
