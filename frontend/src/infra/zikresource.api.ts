@@ -1,4 +1,4 @@
-import { authenticatedGet, authenticatedDelete } from './httpClient';
+import { authenticatedGet, authenticatedDelete, authenticatedPut } from './httpClient';
 
 export type ZikresourceType = 'tablature' | 'video' | 'backing-track' | 'other';
 
@@ -19,6 +19,14 @@ export interface Zikresource {
 
 export const fetchZikresources = (): Promise<Zikresource[]> => {
   return authenticatedGet('/zikresources');
+};
+
+export const fetchZikresourceById = (id: string): Promise<Zikresource> => {
+  return authenticatedGet(`/zikresources/${id}`);
+};
+
+export const updateZikresource = (id: string, resource: Omit<Zikresource, '_id' | 'createdBy'>): Promise<Zikresource> => {
+  return authenticatedPut(`/zikresources/${id}`, resource);
 };
 
 export const deleteZikresource = (id: string): Promise<void> => {

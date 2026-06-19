@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { Music, ArrowLeft, Search, Check, Loader2 } from 'lucide-react';
-import { useNavigate } from '@tanstack/react-router';
+import { Music, ArrowLeft, Search, Check, Loader2, Trash2 } from 'lucide-react';
+import { useNavigate, useParams } from '@tanstack/react-router';
 import { fetchSongs } from '../../infra/song.api';
 import type { Song } from '../../infra/song.api';
-import { createPlaylist } from '../../infra/playlist.api';
+import { fetchPlaylistById, updatePlaylist, deletePlaylist } from '../../infra/playlist.api';
 import '../CreateSong/CreateSong.css';
-import './CreatePlaylist.css';
+import './ManagePlaylist.css';
 
-export const CreatePlaylist: React.FC = () => {
+export const ManagePlaylist: React.FC = () => {
   const navigate = useNavigate();
+  const { id } = useParams({ from: '/playlists/$id' as any }) as { id: string };
 
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -17,26 +18,35 @@ export const CreatePlaylist: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
 
   useEffect(() => {
-    const loadSongs = async () => {
+    const loadData = async () => {
       try {
-        const data = await fetchSongs();
-        setSongs(data);
+        const [playlistData, songsData] = await Promise.all([
+          fetchPlaylistById(id),
+          fetchSongs(),
+        ]);
+        setName(playlistData.name);
+        setDescription(playlistData.description || '');
+        setSelectedSongIds(playlistData.songIds || []);
+        setSongs(songsData);
       } catch (err) {
-        console.error('Failed to load songs', err);
-        setError('Failed to load Songs.');
+        console.error('Failed to load playlist details', err);
+        setError('Failed to load playlist details.');
       } finally {
         setIsLoading(false);
       }
     };
-    loadSongs();
-  }, []);
+    loadData();
+  }, [id]);
 
-  const toggleSong = (id: string) => {
+  const toggleSong = (songId: string) => {
     setSelectedSongIds((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+      prev.includes(songId) ? prev.filter((item) => item !== songId) : [...prev, songId]
     );
   };
 
@@ -57,18 +67,41 @@ export const CreatePlaylist: React.FC = () => {
 
     setIsSubmitting(true);
     try {
-      await createPlaylist({
+      await updatePlaylist(id, {
         name: name.trim(),
         description: description.trim() || undefined,
         songIds: selectedSongIds,
       });
-      navigate({ to: '/home', search: { tab: 'playlists' } });
+      setSuccess(true);
+      setTimeout(() => navigate({ to: '/home', search: { tab: 'playlists' } }), 1200);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create playlist.');
+      setError(err instanceof Error ? err.message : 'Failed to update playlist.');
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  const handleDelete = async () => {
+    setIsDeleting(true);
+    setError(null);
+    try {
+      await deletePlaylist(id);
+      navigate({ to: '/home', search: { tab: 'playlists' } });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to delete playlist.');
+      setIsDeleting(false);
+      setShowDeleteConfirm(false);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="manage-loading-container">
+        <Loader2 size={36} className="spinning" style={{ color: 'var(--accent-primary)' }} />
+        <p style={{ marginTop: '1rem', color: 'var(--text-secondary)' }}>Loading playlist details...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="create-page-container">
@@ -92,13 +125,47 @@ export const CreatePlaylist: React.FC = () => {
       {/* Page Content */}
       <main className="create-page-main animate-fade-in">
         <div className="create-page-header">
-          <h1 className="create-page-title">Create a Playlist</h1>
+          <h1 className="create-page-title">Manage Playlist</h1>
           <p className="create-page-subtitle">
-            Group your songs together to plan practice sessions or build a performance setlist.
+            Update playlist settings and select songs.
           </p>
         </div>
 
-        {error && <div className="create-page-error">{error}</div>}
+        {error && <div className="create-page-error" style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)', color: '#ef4444', padding: '1rem', borderRadius: '8px', marginBottom: '1.5rem', fontSize: '0.9rem' }}>{error}</div>}
+        {success && <div style={{ backgroundColor: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.2)', color: '#10b981', padding: '1rem', borderRadius: '8px', marginBottom: '1.5rem', fontSize: '0.9rem' }}>Playlist updated successfully! Redirecting...</div>}
+
+        <div className="manage-top-actions" style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'flex-end' }}>
+          {!showDeleteConfirm ? (
+            <button
+              type="button"
+              className="btn-delete-resource"
+              onClick={() => setShowDeleteConfirm(true)}
+            >
+              <Trash2 size={14} />
+              <span>Delete Playlist</span>
+            </button>
+          ) : (
+            <div className="delete-confirm-group">
+              <span className="delete-confirm-text">Are you sure?</span>
+              <button
+                type="button"
+                className="btn-confirm-delete"
+                onClick={handleDelete}
+                disabled={isDeleting}
+              >
+                {isDeleting ? <Loader2 size={12} className="spinning" /> : 'Yes, Delete'}
+              </button>
+              <button
+                type="button"
+                className="btn-cancel-delete"
+                onClick={() => setShowDeleteConfirm(false)}
+                disabled={isDeleting}
+              >
+                Cancel
+              </button>
+            </div>
+          )}
+        </div>
 
         <form onSubmit={handleSubmit} className="create-page-form glass-panel">
           <div className="form-group-flex">
@@ -140,10 +207,8 @@ export const CreatePlaylist: React.FC = () => {
               />
             </div>
 
-            {isLoading ? (
-              <div className="resources-loading-msg">Loading songs...</div>
-            ) : filteredSongs.length === 0 ? (
-              <div className="no-resources-msg">No songs found. Create a Song first!</div>
+            {filteredSongs.length === 0 ? (
+              <div className="no-resources-msg">No songs found matching query.</div>
             ) : (
               <div className="selection-list-container">
                 {filteredSongs.map((song) => {
@@ -184,11 +249,11 @@ export const CreatePlaylist: React.FC = () => {
             <button type="submit" className="btn-primary-action" disabled={isSubmitting}>
               {isSubmitting ? (
                 <>
-                  <Loader2 size={16} className="animate-spin" />
-                  <span>Saving Playlist...</span>
+                  <Loader2 size={16} className="spinning" />
+                  <span>Saving changes...</span>
                 </>
               ) : (
-                <span>Save Playlist</span>
+                <span>Save Changes</span>
               )}
             </button>
           </div>

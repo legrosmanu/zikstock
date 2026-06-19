@@ -14,6 +14,10 @@ export const fetchPlaylists = (): Promise<Playlist[]> => {
   return authenticatedGet('/playlists');
 };
 
+export const fetchPlaylistById = (id: string): Promise<Playlist> => {
+  return authenticatedGet(`/playlists/${id}`);
+};
+
 export const createPlaylist = (playlist: Omit<Playlist, '_id' | 'createdBy' | 'createdAt' | 'updatedAt'>): Promise<Playlist> => {
   return authenticatedPost('/playlists', playlist);
 };

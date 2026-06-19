@@ -10,7 +10,7 @@ export const LoginPage: React.FC = () => {
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigate({ to: '/dashboard', replace: true });
+      navigate({ to: '/home', replace: true });
     }
   }, [isAuthenticated, navigate]);
   const login = useAuthStore((state) => state.login);

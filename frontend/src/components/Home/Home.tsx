@@ -16,8 +16,7 @@ import {
   X,
   Loader2,
   Folder,
-  ChevronDown,
-  ChevronUp
+  ChevronRight
 } from 'lucide-react';
 import { useNavigate, useSearch } from '@tanstack/react-router';
 import { useAuthStore } from '../../store/authStore';
@@ -67,12 +66,6 @@ export const Home: React.FC = () => {
   // Delete status state
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [isDeletingId, setIsDeletingId] = useState<string | null>(null);
-
-  // Playlist detail expander
-  const [expandedPlaylistId, setExpandedPlaylistId] = useState<string | null>(null);
-
-  // Song detail expander
-  const [expandedSongId, setExpandedSongId] = useState<string | null>(null);
 
   const fetchAllData = async () => {
     if (!token) {
@@ -207,15 +200,6 @@ export const Home: React.FC = () => {
     }
     return true;
   });
-
-  const togglePlaylistExpansion = (id: string) => {
-    setExpandedPlaylistId(prev => (prev === id ? null : id));
-  };
-
-  const toggleSongExpansion = (id: string) => {
-    setExpandedSongId(prev => (prev === id ? null : id));
-  };
-
   return (
     <div className="dashboard-container">
       {/* Navigation */}
@@ -454,7 +438,12 @@ export const Home: React.FC = () => {
                       const isConfirming = confirmDeleteId === resource._id;
 
                       return (
-                        <div key={resource._id} className="playlist-row-card glass-panel" style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.75rem', position: 'relative' }}>
+                        <div 
+                          key={resource._id} 
+                          className="playlist-row-card glass-panel" 
+                          style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.75rem', position: 'relative', cursor: 'pointer' }}
+                          onClick={() => navigate({ to: `/zikresources/${resource._id}` as any })}
+                        >
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                               <div className={`card-icon-wrapper type-${resource.type}`} style={{ padding: '0.5rem', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -479,13 +468,14 @@ export const Home: React.FC = () => {
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="card-link"
+                                onClick={(e) => e.stopPropagation()}
                                 style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', textDecoration: 'none' }}
                               >
                                 <span>Open Reference</span>
                                 <ExternalLink size={13} />
                               </a>
 
-                              <div className="playlist-actions">
+                              <div className="playlist-actions" onClick={(e) => e.stopPropagation()}>
                                 {isConfirming ? (
                                   <div className="confirm-delete-actions" style={{ position: 'static' }}>
                                     <button
@@ -513,6 +503,10 @@ export const Home: React.FC = () => {
                                     <Trash2 size={16} />
                                   </button>
                                 )}
+                              </div>
+
+                              <div style={{ color: 'var(--text-muted, #9ca3af)', display: 'flex', alignItems: 'center', paddingLeft: '0.5rem' }}>
+                                <ChevronRight size={20} />
                               </div>
                             </div>
                           </div>
@@ -544,15 +538,16 @@ export const Home: React.FC = () => {
                     {filteredSongs.map((song) => {
                       const isDeleting = isDeletingId === song._id;
                       const isConfirming = confirmDeleteId === song._id;
-                      const isExpanded = expandedSongId === song._id;
-
-                      // Get associated zikresources
-                      const songResources = zikresources.filter(r => song.zikresourceIds.includes(r._id));
 
                       return (
-                        <div key={song._id} className="playlist-row-card glass-panel" style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.75rem', position: 'relative' }}>
+                        <div 
+                          key={song._id} 
+                          className="playlist-row-card glass-panel" 
+                          style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.75rem', position: 'relative', cursor: 'pointer' }}
+                          onClick={() => navigate({ to: `/songs/${song._id}` as any })}
+                        >
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer' }} onClick={() => toggleSongExpansion(song._id)}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                               <div className="playlist-icon-wrapper" style={{ background: '#8b5cf6', color: '#fff', padding: '0.5rem', borderRadius: '8px' }}>
                                 <Music size={20} />
                               </div>
@@ -565,14 +560,7 @@ export const Home: React.FC = () => {
                             </div>
 
                             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                              <button 
-                                onClick={() => toggleSongExpansion(song._id)} 
-                                style={{ background: 'transparent', border: 'none', color: 'var(--text-muted, #9ca3af)', cursor: 'pointer' }}
-                              >
-                                {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
-                              </button>
-
-                              <div className="playlist-actions">
+                              <div className="playlist-actions" onClick={(e) => e.stopPropagation()}>
                                 {isConfirming ? (
                                   <div className="confirm-delete-actions" style={{ position: 'static' }}>
                                     <button
@@ -601,35 +589,12 @@ export const Home: React.FC = () => {
                                   </button>
                                 )}
                               </div>
+
+                              <div style={{ color: 'var(--text-muted, #9ca3af)', display: 'flex', alignItems: 'center', paddingLeft: '0.5rem' }}>
+                                <ChevronRight size={20} />
+                              </div>
                             </div>
                           </div>
-
-                          {/* Expanded song details */}
-                          {isExpanded && (
-                            <div className="playlist-expanded-content" style={{ marginTop: '0.5rem', paddingLeft: '3rem', borderLeft: '2px solid rgba(139, 92, 246, 0.2)', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                              {songResources.length === 0 ? (
-                                <p style={{ fontSize: '0.85rem', color: 'var(--text-muted, #9ca3af)' }}>No resources in this song.</p>
-                              ) : (
-                                songResources.map((res, index) => (
-                                  <div key={res._id} style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                      <span style={{ fontSize: '0.85rem', color: '#8b5cf6', fontWeight: 600 }}>{index + 1}.</span>
-                                      <a 
-                                        href={res.url} 
-                                        target="_blank" 
-                                        rel="noopener noreferrer"
-                                        style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.9rem', color: 'var(--text-primary, #f3f4f6)', textDecoration: 'none' }}
-                                      >
-                                        {getTypeIcon(res.type)}
-                                        <span style={{ textDecoration: 'underline' }}>{res.title}</span>
-                                        <span style={{ fontSize: '0.8rem', color: 'var(--text-muted, #9ca3af)', marginLeft: '0.25rem' }}>({getTypeLabel(res.type)})</span>
-                                      </a>
-                                    </div>
-                                  </div>
-                                ))
-                              )}
-                            </div>
-                          )}
                         </div>
                       );
                     })}
@@ -641,20 +606,23 @@ export const Home: React.FC = () => {
               {activeTab === 'playlists' && (
                 filteredPlaylists.length === 0 ? (
                   <div className="no-results-panel glass-panel">
-                    <p>No playlists found. Create a Playlist to organize your practice repertoire.</p>
+                    <p>No playlists found. Create a Playlist to organize your repertoire.</p>
                   </div>
                 ) : (
                   <div className="playlists-list" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                     {filteredPlaylists.map((playlist) => {
                       const isDeleting = isDeletingId === playlist._id;
                       const isConfirming = confirmDeleteId === playlist._id;
-                      const isExpanded = expandedPlaylistId === playlist._id;
-                      const playlistSongs = songs.filter(s => playlist.songIds.includes(s._id));
 
                       return (
-                        <div key={playlist._id} className="playlist-row-card glass-panel" style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.75rem', position: 'relative' }}>
+                        <div 
+                          key={playlist._id} 
+                          className="playlist-row-card glass-panel" 
+                          style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.75rem', position: 'relative', cursor: 'pointer' }}
+                          onClick={() => navigate({ to: `/playlists/${playlist._id}` as any })}
+                        >
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer' }} onClick={() => togglePlaylistExpansion(playlist._id)}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                               <div className="playlist-icon-wrapper" style={{ background: '#8b5cf6', color: '#fff', padding: '0.5rem', borderRadius: '8px' }}>
                                 <Folder size={20} />
                               </div>
@@ -665,16 +633,9 @@ export const Home: React.FC = () => {
                                 </p>
                               </div>
                             </div>
-                            
+
                             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                              <button 
-                                onClick={() => togglePlaylistExpansion(playlist._id)} 
-                                style={{ background: 'transparent', border: 'none', color: 'var(--text-muted, #9ca3af)', cursor: 'pointer' }}
-                              >
-                                {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
-                              </button>
-                              
-                              <div className="playlist-actions">
+                              <div className="playlist-actions" onClick={(e) => e.stopPropagation()}>
                                 {isConfirming ? (
                                   <div className="confirm-delete-actions" style={{ position: 'static' }}>
                                     <button
@@ -703,45 +664,12 @@ export const Home: React.FC = () => {
                                   </button>
                                 )}
                               </div>
+
+                              <div style={{ color: 'var(--text-muted, #9ca3af)', display: 'flex', alignItems: 'center', paddingLeft: '0.5rem' }}>
+                                <ChevronRight size={20} />
+                              </div>
                             </div>
                           </div>
-
-                          {/* Expanded playlist details */}
-                          {isExpanded && (
-                            <div className="playlist-expanded-content" style={{ marginTop: '0.5rem', paddingLeft: '3rem', borderLeft: '2px solid rgba(139, 92, 246, 0.2)', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                              {playlistSongs.length === 0 ? (
-                                <p style={{ fontSize: '0.85rem', color: 'var(--text-muted, #9ca3af)' }}>No songs in this playlist.</p>
-                              ) : (
-                                playlistSongs.map((s, index) => {
-                                  const sResources = zikresources.filter(r => s.zikresourceIds.includes(r._id));
-                                  return (
-                                    <div key={s._id} style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-                                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                        <span style={{ fontSize: '0.85rem', color: '#8b5cf6', fontWeight: 600 }}>{index + 1}.</span>
-                                        <span style={{ fontSize: '0.9rem', fontWeight: 500 }}>{s.title}</span>
-                                        <span style={{ fontSize: '0.8rem', color: 'var(--text-muted, #9ca3af)' }}>by {s.artist}</span>
-                                      </div>
-                                      
-                                      <div style={{ display: 'flex', gap: '0.75rem', paddingLeft: '1rem', flexWrap: 'wrap' }}>
-                                        {sResources.map(res => (
-                                          <a 
-                                            key={res._id} 
-                                            href={res.url} 
-                                            target="_blank" 
-                                            rel="noopener noreferrer"
-                                            style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.75rem', color: '#8b5cf6', textDecoration: 'none' }}
-                                          >
-                                            {getTypeIcon(res.type)}
-                                            <span style={{ textDecoration: 'underline' }}>{res.title}</span>
-                                          </a>
-                                        ))}
-                                      </div>
-                                    </div>
-                                  );
-                                })
-                              )}
-                            </div>
-                          )}
                         </div>
                       );
                     })}
