@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Music, Search, ArrowRight, BookOpen, Users, ListMusic, Sun, Moon } from 'lucide-react';
+import { Music, ArrowRight, BookOpen, Users, ListMusic, Sun, Moon } from 'lucide-react';
 import { useNavigate } from '@tanstack/react-router';
 import { useAuthStore } from '../../store/authStore';
 import { useTheme } from '../../hooks/useTheme';
@@ -63,16 +63,13 @@ export const Landing: React.FC = () => {
             Store and organize the resources you need to learn new songs. The perfect companion to practice alone or build setlists to play with your friends.
           </p>
 
-          <div className="search-container glass-panel">
-            <Search className="search-icon" size={20} />
-            <input 
-              type="text" 
-              className="search-input" 
-              placeholder="Search for songs, tabs, or artists..."
-            />
+          <div className="hero-cta-group">
             <button className="btn-primary" onClick={() => navigate({ to: '/login' })}>
               Get Started <ArrowRight size={18} />
             </button>
+            <a href="#features" className="btn-secondary">
+              Discover Features
+            </a>
           </div>
         </div>
 
