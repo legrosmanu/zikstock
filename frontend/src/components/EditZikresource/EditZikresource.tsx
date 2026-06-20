@@ -109,7 +109,7 @@ export const EditZikresource: React.FC = () => {
         artist: form.artist.trim(),
         title: form.title.trim(),
         type: (form.type || 'other') as any,
-        tags: form.tags.length > 0 ? form.tags : undefined,
+        tags: form.tags,
       });
 
       setSuccess(true);

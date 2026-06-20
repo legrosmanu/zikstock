@@ -83,17 +83,6 @@ export const ZikresourceList: React.FC<ZikresourceListProps> = ({ resources, onD
               </div>
 
               <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                <a
-                  href={resource.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="card-link"
-                  onClick={(e) => e.stopPropagation()}
-                  style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', textDecoration: 'none' }}
-                >
-                  <span>Go to Zikresource</span>
-                  <ExternalLink size={13} />
-                </a>
 
                 <div className="playlist-actions" onClick={(e) => e.stopPropagation()}>
                   {isConfirming ? (
