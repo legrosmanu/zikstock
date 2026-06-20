@@ -11,9 +11,11 @@ import { describe, it, expect, beforeEach, jest } from '@jest/globals';
 import * as mockPlaylistRepo from '../repositories/mock-playlist.repository';
 import * as playlistRepo from '../repositories/firestore-playlist.repository';
 import * as songRepo from '../../songs/repositories/firestore-song.repository';
+import * as zikresourceRepo from '../../zikresources/repositories/firestore-zikresource.repository';
 
 jest.mock('../repositories/firestore-playlist.repository');
 jest.mock('../../songs/repositories/firestore-song.repository');
+jest.mock('../../zikresources/repositories/firestore-zikresource.repository');
 
 describe('PlaylistService', () => {
     beforeEach(() => {
@@ -25,26 +27,40 @@ describe('PlaylistService', () => {
         jest.mocked(playlistRepo.findAllPlaylists).mockImplementation(mockPlaylistRepo.findAllPlaylists);
         jest.mocked(playlistRepo.updatePlaylistInDb).mockImplementation(mockPlaylistRepo.updatePlaylistInDb);
         jest.mocked(playlistRepo.deletePlaylistFromDb).mockImplementation(mockPlaylistRepo.deletePlaylistFromDb);
+        
+        // Default mock for zikresource checks
+        jest.mocked(zikresourceRepo.findZikresourceById).mockResolvedValue(null);
     });
 
-    it('should create a playlist if songs belong to the user', async () => {
+    it('should create a playlist if songs and zikresources belong to the user', async () => {
         const userId = 'user-123';
         const songId = 'song-999';
+        const zikId = 'zik-1';
 
         jest.mocked(songRepo.findSongById).mockResolvedValue({
             id: songId,
             createdBy: userId,
             title: 'Come As You Are',
             artist: 'Nirvana',
-            zikresourceIds: ['zik-1'],
+            zikresourceIds: [zikId],
             createdAt: '2026-06-14T00:00:00Z',
             updatedAt: '2026-06-14T00:00:00Z',
+        });
+
+        jest.mocked(zikresourceRepo.findZikresourceById).mockResolvedValue({
+            id: zikId,
+            createdBy: userId,
+            url: 'https://example.com',
+            artist: 'Nirvana',
+            title: 'Come As You Are',
+            type: 'tablature',
         });
 
         const partial: Omit<Playlist, 'id' | 'createdAt' | 'updatedAt'> = {
             name: 'My Grunge List',
             description: 'Nirvana and more',
             songIds: [songId],
+            zikresourceIds: [zikId],
             createdBy: userId,
         };
 
@@ -52,6 +68,7 @@ describe('PlaylistService', () => {
         expect(result.id).toBeDefined();
         expect(result.name).toBe(partial.name);
         expect(result.songIds).toEqual([songId]);
+        expect(result.zikresourceIds).toEqual([zikId]);
         expect(playlistRepo.savePlaylist).toHaveBeenCalledWith(expect.objectContaining({ name: 'My Grunge List' }));
     });
 

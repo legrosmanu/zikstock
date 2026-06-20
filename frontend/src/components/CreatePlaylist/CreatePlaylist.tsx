@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Music, ArrowLeft, Search, Check, Loader2 } from 'lucide-react';
+import { Music, ArrowLeft, Search, Check, Loader2, BookOpen, Video, HelpCircle } from 'lucide-react';
 import { useNavigate } from '@tanstack/react-router';
 import { fetchSongs } from '../../infra/song.api';
 import type { Song } from '../../infra/song.api';
+import { fetchZikresources } from '../../infra/zikresource.api';
+import type { Zikresource } from '../../infra/zikresource.api';
 import { createPlaylist } from '../../infra/playlist.api';
 import '../CreateSong/CreateSong.css';
 import './CreatePlaylist.css';
@@ -13,25 +15,32 @@ export const CreatePlaylist: React.FC = () => {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [selectedSongIds, setSelectedSongIds] = useState<string[]>([]);
+  const [selectedZikresourceIds, setSelectedZikresourceIds] = useState<string[]>([]);
   const [songs, setSongs] = useState<Song[]>([]);
+  const [zikresources, setZikresources] = useState<Zikresource[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [zikSearchQuery, setZikSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const loadSongs = async () => {
+    const loadData = async () => {
       try {
-        const data = await fetchSongs();
-        setSongs(data);
+        const [songsData, zikData] = await Promise.all([
+          fetchSongs(),
+          fetchZikresources(),
+        ]);
+        setSongs(songsData);
+        setZikresources(zikData);
       } catch (err) {
-        console.error('Failed to load songs', err);
-        setError('Failed to load Songs.');
+        console.error('Failed to load data', err);
+        setError('Failed to load songs and zikresources.');
       } finally {
         setIsLoading(false);
       }
     };
-    loadSongs();
+    loadData();
   }, []);
 
   const toggleSong = (id: string) => {
@@ -40,10 +49,22 @@ export const CreatePlaylist: React.FC = () => {
     );
   };
 
+  const toggleZikresource = (id: string) => {
+    setSelectedZikresourceIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
+  };
+
   const filteredSongs = songs.filter(
     (s) =>
       s.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       s.artist.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const filteredZikresources = zikresources.filter(
+    (z) =>
+      z.title.toLowerCase().includes(zikSearchQuery.toLowerCase()) ||
+      z.artist.toLowerCase().includes(zikSearchQuery.toLowerCase())
   );
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -61,6 +82,7 @@ export const CreatePlaylist: React.FC = () => {
         name: name.trim(),
         description: description.trim() || undefined,
         songIds: selectedSongIds,
+        zikresourceIds: selectedZikresourceIds,
       });
       navigate({ to: '/home', search: { tab: 'playlists' } });
     } catch (err) {
@@ -94,7 +116,7 @@ export const CreatePlaylist: React.FC = () => {
         <div className="create-page-header">
           <h1 className="create-page-title">Create a Playlist</h1>
           <p className="create-page-subtitle">
-            Group your songs together to plan practice sessions or build a performance setlist.
+            Group your zikresource or songs together to plan practice sessions or build a performance setlist.
           </p>
         </div>
 
@@ -128,6 +150,54 @@ export const CreatePlaylist: React.FC = () => {
           </div>
 
           <div className="form-group-flex">
+            <label className="form-label">Add Zikresources</label>
+            <div className="search-filter-box">
+              <Search size={14} className="search-filter-icon" />
+              <input
+                type="text"
+                className="search-filter-input"
+                placeholder="Search zikresources by title or artist..."
+                value={zikSearchQuery}
+                onChange={(e) => setZikSearchQuery(e.target.value)}
+              />
+            </div>
+
+            {isLoading ? (
+              <div className="resources-loading-msg">Loading zikresources...</div>
+            ) : filteredZikresources.length === 0 ? (
+              <div className="no-resources-msg">No zikresources found. Create a Zikresource first!</div>
+            ) : (
+              <div className="selection-list-container">
+                {filteredZikresources.map((res) => {
+                  const isChecked = selectedZikresourceIds.includes(res._id);
+                  return (
+                    <div
+                      key={res._id}
+                      className={`selection-list-item ${isChecked ? 'selected' : ''}`}
+                      onClick={() => toggleZikresource(res._id)}
+                    >
+                      <div className="checkbox-indicator">
+                        {isChecked && <Check size={12} />}
+                      </div>
+                      <div className="item-meta">
+                        <span className="item-title">{res.title}</span>
+                        <span className="item-artist">by {res.artist}</span>
+                      </div>
+                      <div className="playlist-item-badge">
+                        {res.type === 'tablature' && <BookOpen size={12} />}
+                        {res.type === 'video' && <Video size={12} />}
+                        {res.type === 'backing-track' && <Music size={12} />}
+                        {res.type === 'other' && <HelpCircle size={12} />}
+                        <span style={{ marginLeft: '4px' }}>{res.type}</span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          <div className="form-group-flex" style={{ marginTop: '1.5rem' }}>
             <label className="form-label">Add Songs</label>
             <div className="search-filter-box">
               <Search size={14} className="search-filter-icon" />

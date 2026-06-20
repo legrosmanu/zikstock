@@ -47,18 +47,18 @@ export const Landing: React.FC = () => {
           <div className="glow-orb primary"></div>
           <div className="glow-orb secondary"></div>
         </div>
-        
+
         <div className="hero-content animate-fade-in" style={{ animationDelay: '0.2s' }}>
           <div className="badge">
             <span className="badge-dot"></span>
             <span>Your Musical Companion</span>
           </div>
-          
+
           <h1 className="hero-title">
-            Organize Your <br/>
+            Organize Your <br />
             <span className="text-gradient">Musical Journey</span>
           </h1>
-          
+
           <p className="hero-subtitle">
             Store and organize the resources you need to learn new songs. The perfect companion to practice alone or build setlists to play with your friends.
           </p>
@@ -93,7 +93,7 @@ export const Landing: React.FC = () => {
               <Users size={24} className="feature-icon" />
             </div>
             <h3>Play With Friends</h3>
-            <p>Group your songs into shared songbooks. Easily decide which tracks to learn and play in your next jam session.</p>
+            <p>Group your zikresources and songs into shared songbooks. Easily decide which tracks to learn and play in your next jam session.</p>
           </div>
           <div className="feature-card glass-panel" style={{ animationDelay: '0.6s' }}>
             <div className="feature-icon-wrapper">

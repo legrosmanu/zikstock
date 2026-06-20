@@ -46,10 +46,10 @@ export const ViewZikresource: React.FC = () => {
 
   const getResourceLabel = (type: string) => {
     switch (type) {
-      case 'tablature': return '🎸 Tab / Sheet Music';
+      case 'tablature': return '🎼 Tab / Sheet Music';
       case 'video': return '🎬 Video Tutorial';
       case 'backing-track': return '🎵 Backing Track';
-      default: return '📎 Other';
+      default: return '❓ Other';
     }
   };
 

@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { 
-  Music, 
-  LogOut, 
-  BookOpen, 
-  Video, 
-  Plus, 
-  Activity, 
+import {
+  Music,
+  LogOut,
+  BookOpen,
+  Video,
+  Plus,
+  Activity,
   User,
   Sun,
   Moon,
@@ -13,6 +13,7 @@ import {
   Trash2,
   ExternalLink,
   FileText,
+  HelpCircle,
   X,
   Loader2,
   Folder,
@@ -37,7 +38,7 @@ export const Home: React.FC = () => {
   const { theme, toggleTheme } = useTheme();
 
   const [connectionStatus, setConnectionStatus] = useState<'checking' | 'active' | 'error'>('checking');
-  
+
   const search = useSearch({ from: '/home' as any });
 
   // Tab control
@@ -149,7 +150,7 @@ export const Home: React.FC = () => {
       case 'tablature': return <BookOpen size={18} />;
       case 'video': return <Video size={18} />;
       case 'backing-track': return <Music size={18} />;
-      default: return <FileText size={18} />;
+      default: return <HelpCircle size={18} />;
     }
   };
 
@@ -218,9 +219,9 @@ export const Home: React.FC = () => {
           {user && (
             <div className="user-profile-card">
               {user.picture ? (
-                <img 
-                  src={user.picture} 
-                  alt={user.name || 'User avatar'} 
+                <img
+                  src={user.picture}
+                  alt={user.name || 'User avatar'}
                   className="user-avatar"
                   onError={(e) => {
                     (e.target as HTMLImageElement).src = '';
@@ -255,7 +256,7 @@ export const Home: React.FC = () => {
 
       {/* Main Content Home */}
       <main className="dashboard-main animate-fade-in">
-        
+
         {/* Workspace Intro Section */}
         {showWelcomeBanner && (
           <section className="welcome-banner glass-panel">
@@ -265,35 +266,35 @@ export const Home: React.FC = () => {
             <p className="welcome-subtitle">
               Welcome to your musical workspace. Use this space to organize your practice material at three levels of hierarchy:
             </p>
-            
+
             <div className="concept-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.25rem', marginTop: '1.5rem' }}>
               <div className="concept-card" style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '12px', padding: '1rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', color: 'var(--accent-primary, #8b5cf6)' }}>
                   <FileText size={18} />
-                  <h4 style={{ margin: 0, fontWeight: 700 }}>1. Zikresources</h4>
+                  <h4 style={{ margin: 0, fontWeight: 700 }}>Zikresources</h4>
                 </div>
                 <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-secondary, #9ca3af)' }}>
                   Save links to tabs, sheet music, video tutorials, or backing tracks.
                 </p>
               </div>
-              
-              <div className="concept-card" style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '12px', padding: '1rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', color: 'var(--accent-secondary, #d946ef)' }}>
-                  <Music size={18} />
-                  <h4 style={{ margin: 0, fontWeight: 700 }}>2. Songs</h4>
-                </div>
-                <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-secondary, #9ca3af)' }}>
-                  Group your saved resources under unified song titles.
-                </p>
-              </div>
-              
+
               <div className="concept-card" style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '12px', padding: '1rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', color: '#10b981' }}>
                   <Folder size={18} />
-                  <h4 style={{ margin: 0, fontWeight: 700 }}>3. Playlists</h4>
+                  <h4 style={{ margin: 0, fontWeight: 700 }}>Playlists</h4>
                 </div>
                 <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-secondary, #9ca3af)' }}>
-                  Organize songs into custom playlists for gigs or focused practice sessions.
+                  Organize zikresources or songs into custom playlists for gigs or focused practice sessions.
+                </p>
+              </div>
+
+              <div className="concept-card" style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '12px', padding: '1rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', color: 'var(--accent-secondary, #d946ef)' }}>
+                  <Music size={18} />
+                  <h4 style={{ margin: 0, fontWeight: 700 }}>Songs</h4>
+                </div>
+                <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-secondary, #9ca3af)' }}>
+                  Group your saved resources under unified song titles.
                 </p>
               </div>
             </div>
@@ -302,26 +303,26 @@ export const Home: React.FC = () => {
 
         {/* Tab Selection */}
         <div className="dashboard-tabs-container">
-          <button 
+          <button
             className={`dashboard-tab ${activeTab === 'zikresources' ? 'active' : ''}`}
             onClick={() => { setActiveTab('zikresources'); setSearchQuery(''); }}
           >
             <FileText size={16} />
             <span>Zikresources ({zikresources.length})</span>
           </button>
-          <button 
-            className={`dashboard-tab ${activeTab === 'songs' ? 'active' : ''}`}
-            onClick={() => { setActiveTab('songs'); setSearchQuery(''); }}
-          >
-            <Music size={16} />
-            <span>Songs ({songs.length})</span>
-          </button>
-          <button 
+          <button
             className={`dashboard-tab ${activeTab === 'playlists' ? 'active' : ''}`}
             onClick={() => { setActiveTab('playlists'); setSearchQuery(''); }}
           >
             <Folder size={16} />
             <span>Playlists ({playlists.length})</span>
+          </button>
+          <button
+            className={`dashboard-tab ${activeTab === 'songs' ? 'active' : ''}`}
+            onClick={() => { setActiveTab('songs'); setSearchQuery(''); }}
+          >
+            <Music size={16} />
+            <span>Songs ({songs.length})</span>
           </button>
         </div>
 
@@ -363,10 +364,10 @@ export const Home: React.FC = () => {
                   <p className="resources-subtitle">
                     {activeTab === 'zikresources' && `Access your saved references (${zikresources.length})`}
                     {activeTab === 'songs' && `Grouped resources by song title (${songs.length})`}
-                    {activeTab === 'playlists' && `Grouped songs into playlists (${playlists.length})`}
+                    {activeTab === 'playlists' && `Grouped zikresources and songs into playlists (${playlists.length})`}
                   </p>
                 </div>
-                
+
                 {activeTab === 'zikresources' && (
                   <button className="btn-primary-large btn-add-zik" onClick={() => navigate({ to: '/zikresources/new' })}>
                     <Plus size={16} />
@@ -394,8 +395,8 @@ export const Home: React.FC = () => {
                   <input
                     type="text"
                     placeholder={
-                      activeTab === 'zikresources' 
-                        ? "Search title, artist, or tags..." 
+                      activeTab === 'zikresources'
+                        ? "Search title, artist, or tags..."
                         : activeTab === 'playlists'
                           ? "Search by playlist name or description..."
                           : "Search by title or artist..."
@@ -415,10 +416,10 @@ export const Home: React.FC = () => {
                   <div className="filter-chips">
                     {[
                       { id: 'all', label: 'All' },
-                      { id: 'tabs', label: '🎸 Tabs' },
+                      { id: 'tabs', label: '🎼 Tabs' },
                       { id: 'videos', label: '🎬 Videos' },
                       { id: 'backing-tracks', label: '🎵 Tracks' },
-                      { id: 'other', label: '📎 Other' }
+                      { id: 'other', label: '❓ Other' }
                     ].map((chip) => (
                       <button
                         key={chip.id}
@@ -445,9 +446,9 @@ export const Home: React.FC = () => {
                       const isConfirming = confirmDeleteId === resource._id;
 
                       return (
-                        <div 
-                          key={resource._id} 
-                          className="playlist-row-card glass-panel" 
+                        <div
+                          key={resource._id}
+                          className="playlist-row-card glass-panel"
                           style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.75rem', position: 'relative', cursor: 'pointer' }}
                           onClick={() => navigate({ to: `/zikresources/${resource._id}` as any })}
                         >
@@ -547,9 +548,9 @@ export const Home: React.FC = () => {
                       const isConfirming = confirmDeleteId === song._id;
 
                       return (
-                        <div 
-                          key={song._id} 
-                          className="playlist-row-card glass-panel" 
+                        <div
+                          key={song._id}
+                          className="playlist-row-card glass-panel"
                           style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.75rem', position: 'relative', cursor: 'pointer' }}
                           onClick={() => navigate({ to: `/songs/${song._id}` as any })}
                         >
@@ -622,9 +623,9 @@ export const Home: React.FC = () => {
                       const isConfirming = confirmDeleteId === playlist._id;
 
                       return (
-                        <div 
-                          key={playlist._id} 
-                          className="playlist-row-card glass-panel" 
+                        <div
+                          key={playlist._id}
+                          className="playlist-row-card glass-panel"
                           style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.75rem', position: 'relative', cursor: 'pointer' }}
                           onClick={() => navigate({ to: `/playlists/${playlist._id}` as any })}
                         >

@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Music, ArrowLeft, Loader2, Trash2, Edit } from 'lucide-react';
+import { Music, ArrowLeft, Loader2, Trash2, Edit, BookOpen, Video, HelpCircle } from 'lucide-react';
 import { useNavigate, useParams } from '@tanstack/react-router';
 import { fetchPlaylistById, deletePlaylist } from '../../infra/playlist.api';
 import { fetchSongs } from '../../infra/song.api';
+import { fetchZikresources } from '../../infra/zikresource.api';
 import type { Playlist } from '../../infra/playlist.api';
 import type { Song } from '../../infra/song.api';
+import type { Zikresource } from '../../infra/zikresource.api';
 import '../CreateSong/CreateSong.css';
 import './ViewPlaylist.css';
 
@@ -18,19 +20,25 @@ export const ViewPlaylist: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [playlist, setPlaylist] = useState<Playlist | null>(null);
   const [associatedSongs, setAssociatedSongs] = useState<Song[]>([]);
+  const [associatedZikresources, setAssociatedZikresources] = useState<Zikresource[]>([]);
 
   useEffect(() => {
     const loadData = async () => {
       try {
-        const [playlistData, allSongs] = await Promise.all([
+        const [playlistData, allSongs, allZikresources] = await Promise.all([
           fetchPlaylistById(id),
           fetchSongs(),
+          fetchZikresources(),
         ]);
         setPlaylist(playlistData);
         
         const songIds = playlistData.songIds || [];
-        const matched = allSongs.filter(s => songIds.includes(s._id));
-        setAssociatedSongs(matched);
+        const matchedSongs = allSongs.filter(s => songIds.includes(s._id));
+        setAssociatedSongs(matchedSongs);
+
+        const zikIds = playlistData.zikresourceIds || [];
+        const matchedZiks = allZikresources.filter(z => zikIds.includes(z._id));
+        setAssociatedZikresources(matchedZiks);
       } catch (err) {
         console.error('Failed to load playlist data', err);
         setError('Failed to load playlist details.');
@@ -171,6 +179,39 @@ export const ViewPlaylist: React.FC = () => {
                     <span className="playlist-item-badge">
                       <Music size={12} />
                       <span>{song.zikresourceIds?.length || 0} resources</span>
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="playlist-detail-panel glass-panel" style={{ marginTop: '2rem' }}>
+          <h2 className="section-title">Zikresources in Playlist</h2>
+          
+          {associatedZikresources.length === 0 ? (
+            <p className="no-songs-message">No zikresources in this playlist yet.</p>
+          ) : (
+            <div className="associated-songs-list">
+              {associatedZikresources.map((res) => (
+                <div
+                  key={res._id}
+                  className="song-card glass-panel"
+                  onClick={() => navigate({ to: `/zikresources/${res._id}` as any })}
+                  style={{ cursor: 'pointer' }}
+                >
+                  <div className="song-card-left">
+                    <span className="song-card-title">{res.title}</span>
+                    <span className="song-card-artist">by {res.artist}</span>
+                  </div>
+                  <div className="song-card-right">
+                    <span className="playlist-item-badge">
+                      {res.type === 'tablature' && <BookOpen size={12} />}
+                      {res.type === 'video' && <Video size={12} />}
+                      {res.type === 'backing-track' && <Music size={12} />}
+                      {res.type === 'other' && <HelpCircle size={12} />}
+                      <span style={{ marginLeft: '4px' }}>{res.type}</span>
                     </span>
                   </div>
                 </div>

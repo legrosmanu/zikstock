@@ -18,10 +18,9 @@ interface FormState {
 }
 
 const RESOURCE_TYPES = [
-  { value: 'tablature', label: '🎸 Tab / Sheet Music' },
+  { value: 'tablature', label: '🎼 Tab / Sheet Music' },
   { value: 'video', label: '🎬 Video Tutorial' },
   { value: 'backing-track', label: '🎵 Backing Track' },
-  { value: 'other', label: '📎 Other' },
 ];
 
 
@@ -74,7 +73,6 @@ export const CreateZikresource: React.FC = () => {
     try { new URL(form.url); } catch { return 'Please enter a valid URL.'; }
     if (!form.artist.trim()) return 'Artist name is required.';
     if (!form.title.trim()) return 'Title is required.';
-    if (!form.type) return 'A resource type is required.';
     return null;
   };
 
@@ -91,7 +89,7 @@ export const CreateZikresource: React.FC = () => {
         url: form.url.trim(),
         artist: form.artist.trim(),
         title: form.title.trim(),
-        type: form.type,
+        type: form.type || 'other',
       };
       if (form.tags.length > 0) body.tags = form.tags;
 
@@ -199,7 +197,7 @@ export const CreateZikresource: React.FC = () => {
           <div className="form-group">
             <label className="form-label" htmlFor="field-type">
               <FileText size={15} />
-              Resource Type <span className="form-required">*</span>
+              Resource Type
             </label>
             <div className="type-grid">
 

@@ -16,6 +16,7 @@ const toResponse = (domain: Playlist): PlaylistResponse => ({
     name: domain.name,
     description: domain.description,
     songIds: domain.songIds,
+    zikresourceIds: domain.zikresourceIds || [],
     createdBy: domain.createdBy,
     createdAt: domain.createdAt,
     updatedAt: domain.updatedAt,

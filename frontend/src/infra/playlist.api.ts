@@ -5,6 +5,7 @@ export interface Playlist {
   name: string;
   description?: string;
   songIds: string[];
+  zikresourceIds?: string[];
   createdBy: string;
   createdAt: string;
   updatedAt: string;

@@ -8,6 +8,7 @@ import {
     deletePlaylistFromDb
 } from '../repositories/firestore-playlist.repository';
 import { findSongById } from '../../songs/repositories/firestore-song.repository';
+import { findZikresourceById } from '../../zikresources/repositories/firestore-zikresource.repository';
 import { AppError } from '../../application/middleware/error.middleware';
 import { StatusCodes } from 'http-status-codes';
 
@@ -23,12 +24,26 @@ const validateSongs = async (songIds: string[], userId: string) => {
     }
 };
 
+const validateZikresources = async (zikresourceIds: string[], userId: string) => {
+    for (const zikresourceId of zikresourceIds) {
+        const res = await findZikresourceById(zikresourceId);
+        if (!res) {
+            throw new AppError(StatusCodes.BAD_REQUEST, `Zikresource with id ${zikresourceId} not found`);
+        }
+        if (res.createdBy !== userId) {
+            throw new AppError(StatusCodes.FORBIDDEN, `Zikresource with id ${zikresourceId} does not belong to you`);
+        }
+    }
+};
+
 export const createPlaylist = async (partial: Omit<Playlist, 'id' | 'createdAt' | 'updatedAt'>): Promise<Playlist> => {
     await validateSongs(partial.songIds, partial.createdBy);
+    await validateZikresources(partial.zikresourceIds || [], partial.createdBy);
     const now = new Date().toISOString();
     const playlist: Playlist = {
         id: uuidv4(),
         ...partial,
+        zikresourceIds: partial.zikresourceIds || [],
         createdAt: now,
         updatedAt: now,
     };
@@ -59,10 +74,12 @@ export const updatePlaylist = async (id: string, partial: Omit<Playlist, 'id' | 
         throw new AppError(StatusCodes.FORBIDDEN, `You cannot change the owner of the playlist.`);
     }
     await validateSongs(partial.songIds, partial.createdBy);
+    await validateZikresources(partial.zikresourceIds || [], partial.createdBy);
     const updated: Playlist = {
         ...existing,
         ...partial,
         id,
+        zikresourceIds: partial.zikresourceIds || [],
         updatedAt: new Date().toISOString(),
     };
     return updatePlaylistInDb(updated);
