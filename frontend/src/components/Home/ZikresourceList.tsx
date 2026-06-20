@@ -1,0 +1,148 @@
+import React, { useState } from 'react';
+import { BookOpen, Video, Music, HelpCircle, ExternalLink, Trash2, Loader2, ChevronRight } from 'lucide-react';
+import { useNavigate } from '@tanstack/react-router';
+import type { Zikresource } from '../../infra/zikresource.api';
+
+interface ZikresourceListProps {
+  resources: Zikresource[];
+  onDelete: (id: string) => Promise<void>;
+}
+
+export const ZikresourceList: React.FC<ZikresourceListProps> = ({ resources, onDelete }) => {
+  const navigate = useNavigate();
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  const getTypeIcon = (type: string) => {
+    switch (type) {
+      case 'tablature': return <BookOpen size={18} />;
+      case 'video': return <Video size={18} />;
+      case 'backing-track': return <Music size={18} />;
+      default: return <HelpCircle size={18} />;
+    }
+  };
+
+  const getTypeLabel = (type: string) => {
+    switch (type) {
+      case 'tablature': return 'Tab / Sheet';
+      case 'video': return 'Video Tutorial';
+      case 'backing-track': return 'Backing Track';
+      default: return 'Other';
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    setDeletingId(id);
+    try {
+      await onDelete(id);
+      setConfirmDeleteId(null);
+    } catch (err) {
+      console.error('Error deleting resource in list component:', err);
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
+  if (resources.length === 0) {
+    return (
+      <div className="no-results-panel glass-panel">
+        <p>No resources match your filters or search query.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="playlists-list" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+      {resources.map((resource) => {
+        const isDeleting = deletingId === resource._id;
+        const isConfirming = confirmDeleteId === resource._id;
+
+        return (
+          <div
+            key={resource._id}
+            className="playlist-row-card glass-panel"
+            style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.75rem', position: 'relative', cursor: 'pointer' }}
+            onClick={() => navigate({ to: '/zikresources/$id', params: { id: resource._id } })}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <div className={`card-icon-wrapper type-${resource.type}`} style={{ padding: '0.5rem', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  {getTypeIcon(resource.type)}
+                </div>
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                    <h3 className="playlist-row-title" style={{ margin: 0, fontSize: '1.1rem', fontWeight: '600' }}>{resource.title}</h3>
+                    <span className={`card-type-badge type-${resource.type}`} style={{ fontSize: '0.75rem' }}>
+                      {getTypeLabel(resource.type)}
+                    </span>
+                  </div>
+                  <p className="playlist-row-desc" style={{ margin: '0.25rem 0 0 0', fontSize: '0.85rem', color: 'var(--text-muted, #9ca3af)' }}>
+                    {resource.artist || 'Unknown Artist'}
+                  </p>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <a
+                  href={resource.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="card-link"
+                  onClick={(e) => e.stopPropagation()}
+                  style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', textDecoration: 'none' }}
+                >
+                  <span>Go to Zikresource</span>
+                  <ExternalLink size={13} />
+                </a>
+
+                <div className="playlist-actions" onClick={(e) => e.stopPropagation()}>
+                  {isConfirming ? (
+                    <div className="confirm-delete-actions" style={{ position: 'static' }}>
+                      <button
+                        className="btn-confirm-delete"
+                        disabled={isDeleting}
+                        onClick={() => handleDelete(resource._id)}
+                      >
+                        {isDeleting ? <Loader2 size={13} className="spinning" /> : 'Confirm'}
+                      </button>
+                      <button
+                        className="btn-cancel-delete"
+                        disabled={isDeleting}
+                        onClick={() => setConfirmDeleteId(null)}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      className="btn-card-delete"
+                      onClick={() => setConfirmDeleteId(resource._id)}
+                      aria-label="Delete resource"
+                      style={{ background: 'transparent', border: 'none', color: 'var(--text-muted, #9ca3af)', cursor: 'pointer' }}
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  )}
+                </div>
+
+                <div style={{ color: 'var(--text-muted, #9ca3af)', display: 'flex', alignItems: 'center', paddingLeft: '0.5rem' }}>
+                  <ChevronRight size={20} />
+                </div>
+              </div>
+            </div>
+
+            {resource.tags && resource.tags.length > 0 && (
+              <div className="card-tags" style={{ paddingLeft: '3.25rem', margin: 0, display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                {resource.tags.map((tag, idx) => (
+                  <span key={idx} className="card-tag" style={{ margin: 0 }}>
+                    {tag.label}: {tag.value}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+};

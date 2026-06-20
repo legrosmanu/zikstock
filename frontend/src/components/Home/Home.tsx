@@ -1,45 +1,37 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   Music,
-  LogOut,
-  BookOpen,
-  Video,
   Plus,
-  Activity,
-  User,
-  Sun,
-  Moon,
   Search,
-  Trash2,
-  ExternalLink,
   FileText,
-  HelpCircle,
   X,
-  Loader2,
-  Folder,
-  ChevronRight
+  Folder
 } from 'lucide-react';
 import { useNavigate, useSearch } from '@tanstack/react-router';
 import { useAuthStore } from '../../store/authStore';
-import { useTheme } from '../../hooks/useTheme';
 import { fetchZikresources, deleteZikresource } from '../../infra/zikresource.api';
 import type { Zikresource } from '../../infra/zikresource.api';
 import { fetchSongs, deleteSong } from '../../infra/song.api';
 import type { Song } from '../../infra/song.api';
 import { fetchPlaylists, deletePlaylist } from '../../infra/playlist.api';
 import type { Playlist } from '../../infra/playlist.api';
+
+// Sub-components
+import { HomeNavbar } from './HomeNavbar';
+import { WelcomeBanner } from './WelcomeBanner';
+import { ZikresourceList } from './ZikresourceList';
+import { SongList } from './SongList';
+import { PlaylistList } from './PlaylistList';
+import { IntegrationStatusBar } from './IntegrationStatusBar';
 import './Home.css';
 
 export const Home: React.FC = () => {
   const navigate = useNavigate();
-  const user = useAuthStore((state) => state.user);
-  const logout = useAuthStore((state) => state.logout);
   const token = useAuthStore((state) => state.token);
-  const { theme, toggleTheme } = useTheme();
 
   const [connectionStatus, setConnectionStatus] = useState<'checking' | 'active' | 'error'>('checking');
 
-  const search = useSearch({ from: '/home' as any });
+  const search = useSearch({ from: '/home' });
 
   // Tab control
   const [activeTab, setActiveTab] = useState<'zikresources' | 'songs' | 'playlists'>(search.tab || 'zikresources');
@@ -64,11 +56,7 @@ export const Home: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedType, setSelectedType] = useState<string>('all');
 
-  // Delete status state
-  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
-  const [isDeletingId, setIsDeletingId] = useState<string | null>(null);
-
-  const fetchAllData = async () => {
+  const fetchAllData = useCallback(async () => {
     if (!token) {
       setConnectionStatus('error');
       setIsLoadingData(false);
@@ -97,69 +85,42 @@ export const Home: React.FC = () => {
     } finally {
       setIsLoadingData(false);
     }
-  };
+  }, [token]);
 
   useEffect(() => {
     fetchAllData();
-  }, [token]);
+  }, [fetchAllData]);
 
   const handleDeleteResource = async (id: string) => {
-    setIsDeletingId(id);
     try {
       await deleteZikresource(id);
       setZikresources(prev => prev.filter(r => r._id !== id));
-      setConfirmDeleteId(null);
     } catch (err) {
       console.error('Error deleting zikresource:', err);
       alert('Failed to delete resource. It might be referenced by a song.');
-    } finally {
-      setIsDeletingId(null);
+      throw err;
     }
   };
 
   const handleDeleteSong = async (id: string) => {
-    setIsDeletingId(id);
     try {
       await deleteSong(id);
       setSongs(prev => prev.filter(s => s._id !== id));
-      setConfirmDeleteId(null);
     } catch (err) {
       console.error('Error deleting song:', err);
       alert('Failed to delete song. It might be referenced by a playlist.');
-    } finally {
-      setIsDeletingId(null);
+      throw err;
     }
   };
 
   const handleDeletePlaylist = async (id: string) => {
-    setIsDeletingId(id);
     try {
       await deletePlaylist(id);
       setPlaylists(prev => prev.filter(p => p._id !== id));
-      setConfirmDeleteId(null);
     } catch (err) {
       console.error('Error deleting playlist:', err);
       alert('Failed to delete playlist.');
-    } finally {
-      setIsDeletingId(null);
-    }
-  };
-
-  const getTypeIcon = (type: string) => {
-    switch (type) {
-      case 'tablature': return <BookOpen size={18} />;
-      case 'video': return <Video size={18} />;
-      case 'backing-track': return <Music size={18} />;
-      default: return <HelpCircle size={18} />;
-    }
-  };
-
-  const getTypeLabel = (type: string) => {
-    switch (type) {
-      case 'tablature': return 'Tab / Sheet';
-      case 'video': return 'Video Tutorial';
-      case 'backing-track': return 'Backing Track';
-      default: return 'Other';
+      throw err;
     }
   };
 
@@ -201,105 +162,20 @@ export const Home: React.FC = () => {
     }
     return true;
   });
+
   const hasAddedItems = zikresources.length > 0 || songs.length > 0 || playlists.length > 0;
   const showWelcomeBanner = !isLoadingData && !errorMsg && !hasAddedItems;
 
   return (
     <div className="dashboard-container">
       {/* Navigation */}
-      <nav className="dashboard-nav">
-        <div className="dashboard-logo">
-          <div className="dashboard-logo-icon">
-            <Music size={20} />
-          </div>
-          <span className="dashboard-logo-text">Zikstock</span>
-        </div>
-
-        <div className="dashboard-profile-section">
-          {user && (
-            <div className="user-profile-card">
-              {user.picture ? (
-                <img
-                  src={user.picture}
-                  alt={user.name || 'User avatar'}
-                  className="user-avatar"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = '';
-                    (e.target as HTMLImageElement).style.display = 'none';
-                  }}
-                />
-              ) : (
-                <div className="user-avatar" style={{ display: 'flex', alignItems: 'center', justifyItems: 'center', background: 'rgba(255,255,255,0.1)' }}>
-                  <User size={16} style={{ margin: 'auto' }} />
-                </div>
-              )}
-              <div className="user-info">
-                <span className="user-name">{user.name || 'Musician'}</span>
-                <span className="user-email">{user.email}</span>
-              </div>
-            </div>
-          )}
-          <button
-            className="btn-theme-toggle"
-            onClick={toggleTheme}
-            aria-label={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
-            title={theme === 'light' ? 'Dark mode' : 'Light mode'}
-          >
-            {theme === 'light' ? <Moon size={16} /> : <Sun size={16} />}
-          </button>
-          <button className="btn-signout" onClick={logout}>
-            <LogOut size={16} />
-            <span>Sign Out</span>
-          </button>
-        </div>
-      </nav>
+      <HomeNavbar />
 
       {/* Main Content Home */}
       <main className="dashboard-main animate-fade-in">
 
         {/* Workspace Intro Section */}
-        {showWelcomeBanner && (
-          <section className="welcome-banner glass-panel">
-            <h1 className="welcome-title">
-              Manage your repertoire
-            </h1>
-            <p className="welcome-subtitle">
-              Welcome to your musical workspace. Use this space to organize your practice material at three levels of hierarchy:
-            </p>
-
-            <div className="concept-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.25rem', marginTop: '1.5rem' }}>
-              <div className="concept-card" style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '12px', padding: '1rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', color: 'var(--accent-primary, #8b5cf6)' }}>
-                  <FileText size={18} />
-                  <h4 style={{ margin: 0, fontWeight: 700 }}>Zikresources</h4>
-                </div>
-                <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-secondary, #9ca3af)' }}>
-                  Save links to tabs, sheet music, video tutorials, or backing tracks.
-                </p>
-              </div>
-
-              <div className="concept-card" style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '12px', padding: '1rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', color: '#10b981' }}>
-                  <Folder size={18} />
-                  <h4 style={{ margin: 0, fontWeight: 700 }}>Playlists</h4>
-                </div>
-                <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-secondary, #9ca3af)' }}>
-                  Organize zikresources or songs into custom playlists for gigs or focused practice sessions.
-                </p>
-              </div>
-
-              <div className="concept-card" style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '12px', padding: '1rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', color: 'var(--accent-secondary, #d946ef)' }}>
-                  <Music size={18} />
-                  <h4 style={{ margin: 0, fontWeight: 700 }}>Songs</h4>
-                </div>
-                <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-secondary, #9ca3af)' }}>
-                  Group your saved resources under unified song titles.
-                </p>
-              </div>
-            </div>
-          </section>
-        )}
+        {showWelcomeBanner && <WelcomeBanner />}
 
         {/* Tab Selection */}
         <div className="dashboard-tabs-container">
@@ -435,285 +311,32 @@ export const Home: React.FC = () => {
 
               {/* Resources Tab View */}
               {activeTab === 'zikresources' && (
-                filteredResources.length === 0 ? (
-                  <div className="no-results-panel glass-panel">
-                    <p>No resources match your filters or search query.</p>
-                  </div>
-                ) : (
-                  <div className="playlists-list" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                    {filteredResources.map((resource) => {
-                      const isDeleting = isDeletingId === resource._id;
-                      const isConfirming = confirmDeleteId === resource._id;
-
-                      return (
-                        <div
-                          key={resource._id}
-                          className="playlist-row-card glass-panel"
-                          style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.75rem', position: 'relative', cursor: 'pointer' }}
-                          onClick={() => navigate({ to: `/zikresources/${resource._id}` as any })}
-                        >
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                              <div className={`card-icon-wrapper type-${resource.type}`} style={{ padding: '0.5rem', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                {getTypeIcon(resource.type)}
-                              </div>
-                              <div>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
-                                  <h3 className="playlist-row-title" style={{ margin: 0, fontSize: '1.1rem', fontWeight: '600' }}>{resource.title}</h3>
-                                  <span className={`card-type-badge type-${resource.type}`} style={{ fontSize: '0.75rem' }}>
-                                    {getTypeLabel(resource.type)}
-                                  </span>
-                                </div>
-                                <p className="playlist-row-desc" style={{ margin: '0.25rem 0 0 0', fontSize: '0.85rem', color: 'var(--text-muted, #9ca3af)' }}>
-                                  {resource.artist || 'Unknown Artist'}
-                                </p>
-                              </div>
-                            </div>
-
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                              <a
-                                href={resource.url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="card-link"
-                                onClick={(e) => e.stopPropagation()}
-                                style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', textDecoration: 'none' }}
-                              >
-                                <span>Go to Zikresource</span>
-                                <ExternalLink size={13} />
-                              </a>
-
-                              <div className="playlist-actions" onClick={(e) => e.stopPropagation()}>
-                                {isConfirming ? (
-                                  <div className="confirm-delete-actions" style={{ position: 'static' }}>
-                                    <button
-                                      className="btn-confirm-delete"
-                                      disabled={isDeleting}
-                                      onClick={() => handleDeleteResource(resource._id)}
-                                    >
-                                      {isDeleting ? <Loader2 size={13} className="spinning" /> : 'Confirm'}
-                                    </button>
-                                    <button
-                                      className="btn-cancel-delete"
-                                      disabled={isDeleting}
-                                      onClick={() => setConfirmDeleteId(null)}
-                                    >
-                                      Cancel
-                                    </button>
-                                  </div>
-                                ) : (
-                                  <button
-                                    className="btn-card-delete"
-                                    onClick={() => setConfirmDeleteId(resource._id)}
-                                    aria-label="Delete resource"
-                                    style={{ background: 'transparent', border: 'none', color: 'var(--text-muted, #9ca3af)', cursor: 'pointer' }}
-                                  >
-                                    <Trash2 size={16} />
-                                  </button>
-                                )}
-                              </div>
-
-                              <div style={{ color: 'var(--text-muted, #9ca3af)', display: 'flex', alignItems: 'center', paddingLeft: '0.5rem' }}>
-                                <ChevronRight size={20} />
-                              </div>
-                            </div>
-                          </div>
-
-                          {resource.tags && resource.tags.length > 0 && (
-                            <div className="card-tags" style={{ paddingLeft: '3.25rem', margin: 0, display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                              {resource.tags.map((tag, idx) => (
-                                <span key={idx} className="card-tag" style={{ margin: 0 }}>
-                                  {tag.label}: {tag.value}
-                                </span>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                )
+                <ZikresourceList
+                  resources={filteredResources}
+                  onDelete={handleDeleteResource}
+                />
               )}
 
               {/* Songs Tab View */}
               {activeTab === 'songs' && (
-                filteredSongs.length === 0 ? (
-                  <div className="no-results-panel glass-panel">
-                    <p>No songs found. Create a Song to group Zikresources together.</p>
-                  </div>
-                ) : (
-                  <div className="playlists-list" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                    {filteredSongs.map((song) => {
-                      const isDeleting = isDeletingId === song._id;
-                      const isConfirming = confirmDeleteId === song._id;
-
-                      return (
-                        <div
-                          key={song._id}
-                          className="playlist-row-card glass-panel"
-                          style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.75rem', position: 'relative', cursor: 'pointer' }}
-                          onClick={() => navigate({ to: `/songs/${song._id}` as any })}
-                        >
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                              <div className="playlist-icon-wrapper" style={{ background: '#8b5cf6', color: '#fff', padding: '0.5rem', borderRadius: '8px' }}>
-                                <Music size={20} />
-                              </div>
-                              <div>
-                                <h3 className="playlist-row-title" style={{ margin: 0, fontSize: '1.1rem', fontWeight: '600' }}>{song.title}</h3>
-                                <p className="playlist-row-desc" style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-muted, #9ca3af)' }}>
-                                  {song.artist || 'Unknown Artist'} • {song.zikresourceIds.length} Resources
-                                </p>
-                              </div>
-                            </div>
-
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                              <div className="playlist-actions" onClick={(e) => e.stopPropagation()}>
-                                {isConfirming ? (
-                                  <div className="confirm-delete-actions" style={{ position: 'static' }}>
-                                    <button
-                                      className="btn-confirm-delete"
-                                      disabled={isDeleting}
-                                      onClick={() => handleDeleteSong(song._id)}
-                                    >
-                                      {isDeleting ? <Loader2 size={13} className="spinning" /> : 'Confirm'}
-                                    </button>
-                                    <button
-                                      className="btn-cancel-delete"
-                                      disabled={isDeleting}
-                                      onClick={() => setConfirmDeleteId(null)}
-                                    >
-                                      Cancel
-                                    </button>
-                                  </div>
-                                ) : (
-                                  <button
-                                    className="btn-card-delete"
-                                    onClick={() => setConfirmDeleteId(song._id)}
-                                    aria-label="Delete song"
-                                    style={{ background: 'transparent', border: 'none', color: 'var(--text-muted, #9ca3af)', cursor: 'pointer' }}
-                                  >
-                                    <Trash2 size={16} />
-                                  </button>
-                                )}
-                              </div>
-
-                              <div style={{ color: 'var(--text-muted, #9ca3af)', display: 'flex', alignItems: 'center', paddingLeft: '0.5rem' }}>
-                                <ChevronRight size={20} />
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )
+                <SongList
+                  songs={filteredSongs}
+                  onDelete={handleDeleteSong}
+                />
               )}
 
               {/* Playlists Tab View */}
               {activeTab === 'playlists' && (
-                filteredPlaylists.length === 0 ? (
-                  <div className="no-results-panel glass-panel">
-                    <p>No playlists found. Create a Playlist to organize your repertoire.</p>
-                  </div>
-                ) : (
-                  <div className="playlists-list" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                    {filteredPlaylists.map((playlist) => {
-                      const isDeleting = isDeletingId === playlist._id;
-                      const isConfirming = confirmDeleteId === playlist._id;
-
-                      return (
-                        <div
-                          key={playlist._id}
-                          className="playlist-row-card glass-panel"
-                          style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.75rem', position: 'relative', cursor: 'pointer' }}
-                          onClick={() => navigate({ to: `/playlists/${playlist._id}` as any })}
-                        >
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                              <div className="playlist-icon-wrapper" style={{ background: '#8b5cf6', color: '#fff', padding: '0.5rem', borderRadius: '8px' }}>
-                                <Folder size={20} />
-                              </div>
-                              <div>
-                                <h3 className="playlist-row-title" style={{ margin: 0, fontSize: '1.1rem', fontWeight: '600' }}>{playlist.name}</h3>
-                                <p className="playlist-row-desc" style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-muted, #9ca3af)' }}>
-                                  {playlist.description || 'No description'} • {playlist.songIds.length} Songs
-                                </p>
-                              </div>
-                            </div>
-
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                              <div className="playlist-actions" onClick={(e) => e.stopPropagation()}>
-                                {isConfirming ? (
-                                  <div className="confirm-delete-actions" style={{ position: 'static' }}>
-                                    <button
-                                      className="btn-confirm-delete"
-                                      disabled={isDeleting}
-                                      onClick={() => handleDeletePlaylist(playlist._id)}
-                                    >
-                                      {isDeleting ? <Loader2 size={13} className="spinning" /> : 'Confirm'}
-                                    </button>
-                                    <button
-                                      className="btn-cancel-delete"
-                                      disabled={isDeleting}
-                                      onClick={() => setConfirmDeleteId(null)}
-                                    >
-                                      Cancel
-                                    </button>
-                                  </div>
-                                ) : (
-                                  <button
-                                    className="btn-card-delete"
-                                    onClick={() => setConfirmDeleteId(playlist._id)}
-                                    aria-label="Delete playlist"
-                                    style={{ background: 'transparent', border: 'none', color: 'var(--text-muted, #9ca3af)', cursor: 'pointer' }}
-                                  >
-                                    <Trash2 size={16} />
-                                  </button>
-                                )}
-                              </div>
-
-                              <div style={{ color: 'var(--text-muted, #9ca3af)', display: 'flex', alignItems: 'center', paddingLeft: '0.5rem' }}>
-                                <ChevronRight size={20} />
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )
+                <PlaylistList
+                  playlists={filteredPlaylists}
+                  onDelete={handleDeletePlaylist}
+                />
               )}
             </div>
           )}
 
           {/* Secure Integration Live Check Status */}
-          <div className="integration-status-bar glass-panel">
-            <span className="integration-label">
-              <Activity size={16} />
-              Secure API Gateway Local Synchronization
-            </span>
-            <div className="status-indicator">
-              {connectionStatus === 'checking' && (
-                <>
-                  <span className="status-dot checking"></span>
-                  <span style={{ color: '#f59e0b' }}>CHECKING GATEWAY...</span>
-                </>
-              )}
-              {connectionStatus === 'active' && (
-                <>
-                  <span className="status-dot active"></span>
-                  <span style={{ color: '#10b981' }}>CONNECTED & VALIDATED</span>
-                </>
-              )}
-              {connectionStatus === 'error' && (
-                <>
-                  <span className="status-dot error"></span>
-                  <span style={{ color: '#ef4444' }}>OFFLINE / VERIFICATION ERROR</span>
-                </>
-              )}
-            </div>
-          </div>
+          <IntegrationStatusBar connectionStatus={connectionStatus} />
         </section>
       </main>
 
