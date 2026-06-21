@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { BookOpen, Video, Music, HelpCircle, ExternalLink, Trash2, Loader2, ChevronRight } from 'lucide-react';
+import { BookOpen, Video, Music, HelpCircle, Trash2, Loader2, ChevronRight } from 'lucide-react';
 import { useNavigate } from '@tanstack/react-router';
 import type { Zikresource } from '../../infra/zikresource.api';
 

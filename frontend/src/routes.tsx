@@ -14,6 +14,7 @@ import { ViewSong } from './components/ViewSong/ViewSong';
 import { EditSong } from './components/EditSong/EditSong';
 import { ViewPlaylist } from './components/ViewPlaylist/ViewPlaylist';
 import { EditPlaylist } from './components/EditPlaylist/EditPlaylist';
+import { AppLayout } from './components/Layout/AppLayout';
 
 async function WittAuth<T>(apiCall?: () => Promise<T>): Promise<T | undefined> {
   try {
@@ -44,17 +45,17 @@ const RootComponent = () => {
   const navigate = useNavigate();
   const routerState = useRouterState();
   const currentPath = routerState.location.pathname;
+  const isPublicRoute = currentPath === '/' || currentPath === '/login';
 
   useEffect(() => {
     initialize();
   }, [initialize]);
 
   useEffect(() => {
-    const isPublicRoute = currentPath === '/' || currentPath === '/login';
     if (!isInitializing && !isAuthenticated && !isPublicRoute) {
       navigate({ to: '/login', replace: true });
     }
-  }, [isInitializing, isAuthenticated, currentPath, navigate]);
+  }, [isInitializing, isAuthenticated, isPublicRoute, navigate]);
 
   if (isInitializing) {
     return (
@@ -84,6 +85,14 @@ const RootComponent = () => {
           }
         `}</style>
       </div>
+    );
+  }
+
+  if (isAuthenticated && !isPublicRoute) {
+    return (
+      <AppLayout>
+        <Outlet />
+      </AppLayout>
     );
   }
 

@@ -1,11 +1,8 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import {
-  Music,
   Plus,
   Search,
-  FileText,
-  X,
-  Folder
+  X
 } from 'lucide-react';
 import { useNavigate, useSearch } from '@tanstack/react-router';
 import { useAuthStore } from '../../store/authStore';
@@ -17,7 +14,6 @@ import { fetchPlaylists, deletePlaylist } from '../../infra/playlist.api';
 import type { Playlist } from '../../infra/playlist.api';
 
 // Sub-components
-import { HomeNavbar } from './HomeNavbar';
 import { WelcomeBanner } from './WelcomeBanner';
 import { ZikresourceList } from './ZikresourceList';
 import { SongList } from './SongList';
@@ -167,40 +163,11 @@ export const Home: React.FC = () => {
   const showWelcomeBanner = !isLoadingData && !errorMsg && !hasAddedItems;
 
   return (
-    <div className="dashboard-container">
-      {/* Navigation */}
-      <HomeNavbar />
-
-      {/* Main Content Home */}
-      <main className="dashboard-main animate-fade-in">
+    // Main Content Home
+    <main className="dashboard-main animate-fade-in">
 
         {/* Workspace Intro Section */}
         {showWelcomeBanner && <WelcomeBanner />}
-
-        {/* Tab Selection */}
-        <div className="dashboard-tabs-container">
-          <button
-            className={`dashboard-tab ${activeTab === 'zikresources' ? 'active' : ''}`}
-            onClick={() => { setActiveTab('zikresources'); setSearchQuery(''); }}
-          >
-            <FileText size={16} />
-            <span>Zikresources ({zikresources.length})</span>
-          </button>
-          <button
-            className={`dashboard-tab ${activeTab === 'playlists' ? 'active' : ''}`}
-            onClick={() => { setActiveTab('playlists'); setSearchQuery(''); }}
-          >
-            <Folder size={16} />
-            <span>Playlists ({playlists.length})</span>
-          </button>
-          <button
-            className={`dashboard-tab ${activeTab === 'songs' ? 'active' : ''}`}
-            onClick={() => { setActiveTab('songs'); setSearchQuery(''); }}
-          >
-            <Music size={16} />
-            <span>Songs ({songs.length})</span>
-          </button>
-        </div>
 
         {/* Dashboard Content & Zikresources List / Empty State */}
         <section className="dashboard-content-area">
@@ -339,7 +306,5 @@ export const Home: React.FC = () => {
           <IntegrationStatusBar connectionStatus={connectionStatus} />
         </section>
       </main>
-
-    </div>
   );
 };
