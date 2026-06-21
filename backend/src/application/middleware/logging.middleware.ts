@@ -9,6 +9,7 @@ export const loggingMiddleware = pinoHttp({
         censor: '[REDACTED]'
     },
     customLogLevel: (req, res, err) => {
+        if (res.statusCode === 401) return 'silent';
         if (res.statusCode >= 400 || err) return 'error';
         return 'silent';
     },
