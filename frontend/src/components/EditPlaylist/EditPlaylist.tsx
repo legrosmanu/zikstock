@@ -11,7 +11,7 @@ import '../ViewPlaylist/ViewPlaylist.css';
 
 export const EditPlaylist: React.FC = () => {
   const navigate = useNavigate();
-  const { id } = useParams({ from: '/playlists/$id/edit' as any }) as { id: string };
+  const { id } = useParams({ from: '/playlists/$id/edit' }) as { id: string };
 
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -94,7 +94,7 @@ export const EditPlaylist: React.FC = () => {
         zikresourceIds: selectedZikresourceIds,
       });
       setSuccess(true);
-      setTimeout(() => navigate({ to: `/playlists/${id}` as any }), 1200);
+      setTimeout(() => navigate({ to: `/playlists/${id}` as never }), 1200);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to update playlist.');
     } finally {
@@ -130,7 +130,7 @@ export const EditPlaylist: React.FC = () => {
       <nav className="create-page-nav">
         <button
           className="btn-back-dashboard"
-          onClick={() => navigate({ to: `/playlists/${id}` as any })}
+          onClick={() => navigate({ to: `/playlists/${id}` as never })}
         >
           <ArrowLeft size={16} />
           <span>Back to View</span>
@@ -308,7 +308,7 @@ export const EditPlaylist: React.FC = () => {
             <button
               type="button"
               className="btn-secondary-action"
-              onClick={() => navigate({ to: `/playlists/${id}` as any })}
+              onClick={() => navigate({ to: `/playlists/${id}` as never })}
               disabled={isSubmitting}
             >
               Cancel

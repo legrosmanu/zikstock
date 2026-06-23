@@ -99,7 +99,7 @@ export const CreateSong: React.FC = () => {
       <nav className="create-page-nav">
         <button
           className="btn-back-dashboard"
-          onClick={() => navigate({ to: '/home' as any })}
+          onClick={() => navigate({ to: '/home' })}
         >
           <ArrowLeft size={16} />
           <span>Back to Home</span>
@@ -201,7 +201,7 @@ export const CreateSong: React.FC = () => {
             <button
               type="button"
               className="btn-secondary-action"
-              onClick={() => navigate({ to: '/home' as any })}
+              onClick={() => navigate({ to: '/home' })}
               disabled={isSubmitting}
             >
               Cancel

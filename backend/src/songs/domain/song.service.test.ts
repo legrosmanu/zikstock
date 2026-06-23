@@ -1,9 +1,6 @@
 import {
     createSong,
-    getSongById,
-    getAllSongs,
-    updateSong,
-    deleteSong
+    getSongById
 } from './song.service';
 import { Song } from './song.domain';
 import { describe, it, expect, beforeEach, jest } from '@jest/globals';

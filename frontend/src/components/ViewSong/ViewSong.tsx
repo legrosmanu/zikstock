@@ -10,7 +10,7 @@ import './ViewSong.css';
 
 export const ViewSong: React.FC = () => {
   const navigate = useNavigate();
-  const { id } = useParams({ from: '/songs/$id' as any }) as { id: string };
+  const { id } = useParams({ from: '/songs/$id' }) as { id: string };
 
   const [isLoading, setIsLoading] = useState(true);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -83,7 +83,7 @@ export const ViewSong: React.FC = () => {
     return (
       <div className="manage-loading-container">
         <p style={{ color: '#ef4444' }}>Song not found.</p>
-        <button className="btn-back-dashboard" onClick={() => navigate({ to: '/home' as any })} style={{ marginTop: '1rem' }}>
+        <button className="btn-back-dashboard" onClick={() => navigate({ to: '/home' })} style={{ marginTop: '1rem' }}>
           <ArrowLeft size={16} />
           <span>Back to Home</span>
         </button>
@@ -97,7 +97,7 @@ export const ViewSong: React.FC = () => {
       <nav className="create-page-nav">
         <button
           className="btn-back-dashboard"
-          onClick={() => navigate({ to: '/home' as any })}
+          onClick={() => navigate({ to: '/home' })}
         >
           <ArrowLeft size={16} />
           <span>Back to Home</span>
@@ -125,7 +125,7 @@ export const ViewSong: React.FC = () => {
           <button
             type="button"
             className="btn-edit-song"
-            onClick={() => navigate({ to: `/songs/${id}/edit` as any })}
+            onClick={() => navigate({ to: `/songs/${id}/edit` as never })}
           >
             <Edit size={14} />
             <span>Edit Song</span>

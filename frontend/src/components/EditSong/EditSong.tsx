@@ -9,7 +9,7 @@ import '../ViewSong/ViewSong.css';
 
 export const EditSong: React.FC = () => {
   const navigate = useNavigate();
-  const { id } = useParams({ from: '/songs/$id/edit' as any }) as { id: string };
+  const { id } = useParams({ from: '/songs/$id/edit' }) as { id: string };
 
   const [title, setTitle] = useState('');
   const [artist, setArtist] = useState('');
@@ -97,7 +97,7 @@ export const EditSong: React.FC = () => {
         zikresourceIds: selectedZikresourceIds,
       });
       setSuccess(true);
-      setTimeout(() => navigate({ to: `/songs/${id}` as any }), 1200);
+      setTimeout(() => navigate({ to: `/songs/${id}` as never }), 1200);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to update song.');
     } finally {
@@ -133,7 +133,7 @@ export const EditSong: React.FC = () => {
       <nav className="create-page-nav">
         <button
           className="btn-back-dashboard"
-          onClick={() => navigate({ to: `/songs/${id}` as any })}
+          onClick={() => navigate({ to: `/songs/${id}` as never })}
         >
           <ArrowLeft size={16} />
           <span>Back to View</span>
@@ -267,7 +267,7 @@ export const EditSong: React.FC = () => {
             <button
               type="button"
               className="btn-secondary-action"
-              onClick={() => navigate({ to: `/songs/${id}` as any })}
+              onClick={() => navigate({ to: `/songs/${id}` as never })}
               disabled={isSubmitting}
             >
               Cancel

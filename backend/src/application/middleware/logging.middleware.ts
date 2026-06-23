@@ -1,3 +1,4 @@
+import { IncomingMessage, ServerResponse } from 'http';
 import pinoHttp from 'pino-http';
 import { logger } from '../logger';
 
@@ -14,11 +15,11 @@ export const loggingMiddleware = pinoHttp({
         return 'silent';
     },
     serializers: {
-        req: (req: any) => ({
+        req: (req: IncomingMessage) => ({
             method: req.method,
             url: req.url,
         }),
-        res: (res: any) => ({
+        res: (res: ServerResponse) => ({
             statusCode: res.statusCode
         })
     }

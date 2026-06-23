@@ -209,8 +209,8 @@ describe('ZikresourceController Firestore Integration', () => {
 
             expect(response.status).toBe(200);
             expect(response.body).toHaveLength(2);
-            expect(response.body.some((r: any) => r._id === 'test-id-1')).toBe(true);
-            expect(response.body.some((r: any) => r._id === 'test-id-2')).toBe(true);
+            expect(response.body.some((r: { _id: string }) => r._id === 'test-id-1')).toBe(true);
+            expect(response.body.some((r: { _id: string }) => r._id === 'test-id-2')).toBe(true);
         });
 
         it('should return empty array when no zikresources exist', async () => {

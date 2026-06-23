@@ -16,7 +16,7 @@ import { useAuthStore } from '../store/authStore';
 export const authenticatedPost = async (
   endpoint: string, 
   body: unknown = {}
-): Promise<any> => {
+): Promise<unknown> => {
   const store = useAuthStore.getState();
   const token = store.token;
   
@@ -24,7 +24,7 @@ export const authenticatedPost = async (
     throw new Error('AUTHENTICATION_ERROR: Token is null or undefined.');
   }
 
-  let fetchOptions = { 
+  const fetchOptions = { 
     method: 'POST',
     headers: { 
       'Content-Type': 'application/json',
@@ -33,36 +33,30 @@ export const authenticatedPost = async (
     body: JSON.stringify(body),
   };
 
+  const apiUrl = import.meta.env.VITE_API_URL;
+  const response = await fetch(`${apiUrl}${endpoint}`, fetchOptions);
+
+  if (!response.ok) {
+    if (response.status === 401) {
+      useAuthStore.getState().logout();
+    }
+    throw new Error(`HTTP Error: ${response.status} ${response.statusText || ''}`);
+  }
+
+  // Attempt to parse JSON response
+  const text = await response.text();
   try {
-    const apiUrl = import.meta.env.VITE_API_URL;
-    const response = await fetch(`${apiUrl}${endpoint}`, fetchOptions);
-
-    if (!response.ok) {
-      if (response.status === 401) {
-        useAuthStore.getState().logout();
-      }
-      throw new Error(`HTTP Error: ${response.status} ${response.statusText || ''}`);
-    }
-
-    // Attempt to parse JSON response
-    const text = await response.text();
-    try {
-        return JSON.parse(text);
-    } catch (e) {
-        // If parsing fails, return the raw text but alert the consumer
-        console.warn("Could not parse response as JSON. Returning raw text.", e);
-        return text;
-    }
-
-  } catch (error) {
-    // Re-throw specific connection or network errors
-    throw error;
+      return JSON.parse(text);
+  } catch (e) {
+      // If parsing fails, return the raw text but alert the consumer
+      console.warn("Could not parse response as JSON. Returning raw text.", e);
+      return text;
   }
 };
 
 export const authenticatedGet = async (
   endpoint: string
-): Promise<any> => {
+): Promise<unknown> => {
   const store = useAuthStore.getState();
   const token = store.token;
   
@@ -70,7 +64,7 @@ export const authenticatedGet = async (
     throw new Error('AUTHENTICATION_ERROR: Token is null or undefined.');
   }
 
-  let fetchOptions = { 
+  const fetchOptions = { 
     method: 'GET',
     headers: { 
       'Content-Type': 'application/json',
@@ -78,33 +72,28 @@ export const authenticatedGet = async (
     },
   };
 
+  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+  const response = await fetch(`${apiUrl}${endpoint}`, fetchOptions);
+
+  if (!response.ok) {
+    if (response.status === 401) {
+      useAuthStore.getState().logout();
+    }
+    throw new Error(`HTTP Error: ${response.status} ${response.statusText || ''}`);
+  }
+
+  const text = await response.text();
   try {
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
-    const response = await fetch(`${apiUrl}${endpoint}`, fetchOptions);
-
-    if (!response.ok) {
-      if (response.status === 401) {
-        useAuthStore.getState().logout();
-      }
-      throw new Error(`HTTP Error: ${response.status} ${response.statusText || ''}`);
-    }
-
-    const text = await response.text();
-    try {
-        return JSON.parse(text);
-    } catch (e) {
-        console.warn("Could not parse response as JSON. Returning raw text.", e);
-        return text;
-    }
-
-  } catch (error) {
-    throw error;
+      return JSON.parse(text);
+  } catch (e) {
+      console.warn("Could not parse response as JSON. Returning raw text.", e);
+      return text;
   }
 };
 
 export const authenticatedDelete = async (
   endpoint: string
-): Promise<any> => {
+): Promise<unknown> => {
   const store = useAuthStore.getState();
   const token = store.token;
   
@@ -112,7 +101,7 @@ export const authenticatedDelete = async (
     throw new Error('AUTHENTICATION_ERROR: Token is null or undefined.');
   }
 
-  let fetchOptions = { 
+  const fetchOptions = { 
     method: 'DELETE',
     headers: { 
       'Content-Type': 'application/json',
@@ -120,39 +109,34 @@ export const authenticatedDelete = async (
     },
   };
 
+  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+  const response = await fetch(`${apiUrl}${endpoint}`, fetchOptions);
+
+  if (!response.ok) {
+    if (response.status === 401) {
+      useAuthStore.getState().logout();
+    }
+    throw new Error(`HTTP Error: ${response.status} ${response.statusText || ''}`);
+  }
+
+  if (response.status === 204) {
+    return;
+  }
+
+  const text = await response.text();
+  if (!text) return;
   try {
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
-    const response = await fetch(`${apiUrl}${endpoint}`, fetchOptions);
-
-    if (!response.ok) {
-      if (response.status === 401) {
-        useAuthStore.getState().logout();
-      }
-      throw new Error(`HTTP Error: ${response.status} ${response.statusText || ''}`);
-    }
-
-    if (response.status === 204) {
-      return;
-    }
-
-    const text = await response.text();
-    if (!text) return;
-    try {
-        return JSON.parse(text);
-    } catch (e) {
-        console.warn("Could not parse response as JSON. Returning raw text.", e);
-        return text;
-    }
-
-  } catch (error) {
-    throw error;
+      return JSON.parse(text);
+  } catch (e) {
+      console.warn("Could not parse response as JSON. Returning raw text.", e);
+      return text;
   }
 };
 
 export const authenticatedPut = async (
   endpoint: string,
   body: unknown = {}
-): Promise<any> => {
+): Promise<unknown> => {
   const store = useAuthStore.getState();
   const token = store.token;
 
@@ -160,7 +144,7 @@ export const authenticatedPut = async (
     throw new Error('AUTHENTICATION_ERROR: Token is null or undefined.');
   }
 
-  let fetchOptions = {
+  const fetchOptions = {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
@@ -169,27 +153,22 @@ export const authenticatedPut = async (
     body: JSON.stringify(body),
   };
 
+  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+  const response = await fetch(`${apiUrl}${endpoint}`, fetchOptions);
+
+  if (!response.ok) {
+    if (response.status === 401) {
+      useAuthStore.getState().logout();
+    }
+    throw new Error(`HTTP Error: ${response.status} ${response.statusText || ''}`);
+  }
+
+  const text = await response.text();
   try {
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
-    const response = await fetch(`${apiUrl}${endpoint}`, fetchOptions);
-
-    if (!response.ok) {
-      if (response.status === 401) {
-        useAuthStore.getState().logout();
-      }
-      throw new Error(`HTTP Error: ${response.status} ${response.statusText || ''}`);
-    }
-
-    const text = await response.text();
-    try {
-        return JSON.parse(text);
-    } catch (e) {
-        console.warn("Could not parse response as JSON. Returning raw text.", e);
-        return text;
-    }
-
-  } catch (error) {
-    throw error;
+      return JSON.parse(text);
+  } catch (e) {
+      console.warn("Could not parse response as JSON. Returning raw text.", e);
+      return text;
   }
 };
 

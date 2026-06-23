@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Music, ArrowLeft, X, Link, User, FileText, Tag, Loader2, Trash2, ExternalLink } from 'lucide-react';
 import { useNavigate, useParams } from '@tanstack/react-router';
 import { fetchZikresourceById, updateZikresource, deleteZikresource } from '../../infra/zikresource.api';
-import type { ZikresourceTag } from '../../infra/zikresource.api';
+import type { ZikresourceTag, ZikresourceType } from '../../infra/zikresource.api';
 import '../CreateZikresource/CreateZikresource.css';
 import '../ViewZikresource/ViewZikresource.css';
 
@@ -16,7 +16,7 @@ const PRESET_TAGS = ['beginner', 'intermediate', 'advanced', 'jazz', 'rock', 'bl
 
 export const EditZikresource: React.FC = () => {
   const navigate = useNavigate();
-  const { id } = useParams({ from: '/zikresources/$id/edit' as any }) as { id: string };
+  const { id } = useParams({ from: '/zikresources/$id/edit' }) as { id: string };
 
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -108,12 +108,12 @@ export const EditZikresource: React.FC = () => {
         url: form.url.trim(),
         artist: form.artist.trim(),
         title: form.title.trim(),
-        type: (form.type || 'other') as any,
+        type: (form.type || 'other') as ZikresourceType,
         tags: form.tags,
       });
 
       setSuccess(true);
-      setTimeout(() => navigate({ to: `/zikresources/${id}` as any }), 1200);
+      setTimeout(() => navigate({ to: `/zikresources/${id}` as never }), 1200);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
     } finally {
@@ -149,7 +149,7 @@ export const EditZikresource: React.FC = () => {
       <nav className="create-nav">
         <button
           className="btn-back"
-          onClick={() => navigate({ to: `/zikresources/${id}` as any })}
+          onClick={() => navigate({ to: `/zikresources/${id}` as never })}
         >
           <ArrowLeft size={16} />
           <span>Back to View</span>
@@ -360,7 +360,7 @@ export const EditZikresource: React.FC = () => {
               type="button"
               className="btn-submit"
               style={{ background: 'transparent', border: '1px solid var(--border-subtle)', color: 'var(--text-secondary)' }}
-              onClick={() => navigate({ to: `/zikresources/${id}` as any })}
+              onClick={() => navigate({ to: `/zikresources/${id}` as never })}
               disabled={isSubmitting}
             >
               Cancel

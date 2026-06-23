@@ -12,7 +12,7 @@ import './ViewPlaylist.css';
 
 export const ViewPlaylist: React.FC = () => {
   const navigate = useNavigate();
-  const { id } = useParams({ from: '/playlists/$id' as any }) as { id: string };
+  const { id } = useParams({ from: '/playlists/$id' }) as { id: string };
 
   const [isLoading, setIsLoading] = useState(true);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -75,7 +75,7 @@ export const ViewPlaylist: React.FC = () => {
     return (
       <div className="manage-loading-container">
         <p style={{ color: '#ef4444' }}>Playlist not found.</p>
-        <button className="btn-back-dashboard" onClick={() => navigate({ to: '/home' as any })} style={{ marginTop: '1rem' }}>
+        <button className="btn-back-dashboard" onClick={() => navigate({ to: '/home' })} style={{ marginTop: '1rem' }}>
           <ArrowLeft size={16} />
           <span>Back to Home</span>
         </button>
@@ -89,7 +89,7 @@ export const ViewPlaylist: React.FC = () => {
       <nav className="create-page-nav">
         <button
           className="btn-back-dashboard"
-          onClick={() => navigate({ to: '/home' as any })}
+          onClick={() => navigate({ to: '/home' })}
         >
           <ArrowLeft size={16} />
           <span>Back to Home</span>
@@ -119,7 +119,7 @@ export const ViewPlaylist: React.FC = () => {
           <button
             type="button"
             className="btn-edit-playlist"
-            onClick={() => navigate({ to: `/playlists/${id}/edit` as any })}
+            onClick={() => navigate({ to: `/playlists/${id}/edit` as never })}
           >
             <Edit size={14} />
             <span>Edit Playlist</span>
@@ -168,7 +168,7 @@ export const ViewPlaylist: React.FC = () => {
                 <div
                   key={song._id}
                   className="song-card glass-panel"
-                  onClick={() => navigate({ to: `/songs/${song._id}` as any })}
+                  onClick={() => navigate({ to: `/songs/${song._id}` as never })}
                   style={{ cursor: 'pointer' }}
                 >
                   <div className="song-card-left">
@@ -198,7 +198,7 @@ export const ViewPlaylist: React.FC = () => {
                 <div
                   key={res._id}
                   className="song-card glass-panel"
-                  onClick={() => navigate({ to: `/zikresources/${res._id}` as any })}
+                  onClick={() => navigate({ to: `/zikresources/${res._id}` as never })}
                   style={{ cursor: 'pointer' }}
                 >
                   <div className="song-card-left">

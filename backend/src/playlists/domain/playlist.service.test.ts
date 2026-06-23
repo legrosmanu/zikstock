@@ -1,9 +1,6 @@
 import {
     createPlaylist,
-    getPlaylistById,
-    getAllPlaylists,
-    updatePlaylist,
-    deletePlaylist
+    getPlaylistById
 } from './playlist.service';
 import { Playlist } from './playlist.domain';
 import { describe, it, expect, beforeEach, jest } from '@jest/globals';

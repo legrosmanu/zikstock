@@ -8,7 +8,7 @@ import './ViewZikresource.css';
 
 export const ViewZikresource: React.FC = () => {
   const navigate = useNavigate();
-  const { id } = useParams({ from: '/zikresources/$id' as any }) as { id: string };
+  const { id } = useParams({ from: '/zikresources/$id' }) as { id: string };
 
   const [isLoading, setIsLoading] = useState(true);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -66,7 +66,7 @@ export const ViewZikresource: React.FC = () => {
     return (
       <div className="manage-loading-container">
         <p style={{ color: '#ef4444' }}>Resource not found.</p>
-        <button className="btn-back" onClick={() => navigate({ to: '/home' as any })} style={{ marginTop: '1rem' }}>
+        <button className="btn-back" onClick={() => navigate({ to: '/home' })} style={{ marginTop: '1rem' }}>
           <ArrowLeft size={16} />
           <span>Back to Home</span>
         </button>
@@ -80,7 +80,7 @@ export const ViewZikresource: React.FC = () => {
       <nav className="create-nav">
         <button
           className="btn-back"
-          onClick={() => navigate({ to: '/home' as any })}
+          onClick={() => navigate({ to: '/home' })}
         >
           <ArrowLeft size={16} />
           <span>Back to Home</span>
@@ -109,7 +109,7 @@ export const ViewZikresource: React.FC = () => {
             <button
               type="button"
               className="btn-edit-resource"
-              onClick={() => navigate({ to: `/zikresources/${id}/edit` as any })}
+              onClick={() => navigate({ to: `/zikresources/${id}/edit` as never })}
             >
               <Edit size={14} />
               <span>Edit Details</span>

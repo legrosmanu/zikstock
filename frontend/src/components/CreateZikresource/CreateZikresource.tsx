@@ -113,7 +113,7 @@ export const CreateZikresource: React.FC = () => {
         <button
           id="btn-back-to-dashboard"
           className="btn-back"
-          onClick={() => navigate({ to: '/home' as any })}
+          onClick={() => navigate({ to: '/home' })}
         >
           <ArrowLeft size={16} />
           <span>Back to Home</span>
@@ -301,7 +301,7 @@ export const CreateZikresource: React.FC = () => {
               type="button"
               id="btn-cancel"
               className="btn-cancel"
-              onClick={() => navigate({ to: '/home' as any })}
+              onClick={() => navigate({ to: '/home' })}
               disabled={isSubmitting}
             >
               Cancel
