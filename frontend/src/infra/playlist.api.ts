@@ -12,21 +12,22 @@ export interface Playlist {
 }
 
 export const fetchPlaylists = (): Promise<Playlist[]> => {
-  return authenticatedGet('/playlists');
+  return authenticatedGet<Playlist[]>('/playlists');
 };
 
 export const fetchPlaylistById = (id: string): Promise<Playlist> => {
-  return authenticatedGet(`/playlists/${id}`);
+  return authenticatedGet<Playlist>(`/playlists/${id}`);
 };
 
 export const createPlaylist = (playlist: Omit<Playlist, '_id' | 'createdBy' | 'createdAt' | 'updatedAt'>): Promise<Playlist> => {
-  return authenticatedPost('/playlists', playlist);
+  return authenticatedPost<Playlist>('/playlists', playlist);
 };
 
 export const updatePlaylist = (id: string, playlist: Omit<Playlist, '_id' | 'createdBy' | 'createdAt' | 'updatedAt'>): Promise<Playlist> => {
-  return authenticatedPut(`/playlists/${id}`, playlist);
+  return authenticatedPut<Playlist>(`/playlists/${id}`, playlist);
 };
 
 export const deletePlaylist = (id: string): Promise<void> => {
-  return authenticatedDelete(`/playlists/${id}`);
+  return authenticatedDelete<void>(`/playlists/${id}`);
 };
+

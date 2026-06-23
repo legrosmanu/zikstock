@@ -11,21 +11,21 @@ export interface Song {
 }
 
 export const fetchSongs = (): Promise<Song[]> => {
-  return authenticatedGet('/songs');
+  return authenticatedGet<Song[]>('/songs');
 };
 
 export const fetchSongById = (id: string): Promise<Song> => {
-  return authenticatedGet(`/songs/${id}`);
+  return authenticatedGet<Song>(`/songs/${id}`);
 };
 
 export const createSong = (song: Omit<Song, '_id' | 'createdBy' | 'createdAt' | 'updatedAt'>): Promise<Song> => {
-  return authenticatedPost('/songs', song);
+  return authenticatedPost<Song>('/songs', song);
 };
 
 export const updateSong = (id: string, song: Omit<Song, '_id' | 'createdBy' | 'createdAt' | 'updatedAt'>): Promise<Song> => {
-  return authenticatedPut(`/songs/${id}`, song);
+  return authenticatedPut<Song>(`/songs/${id}`, song);
 };
 
 export const deleteSong = (id: string): Promise<void> => {
-  return authenticatedDelete(`/songs/${id}`);
+  return authenticatedDelete<void>(`/songs/${id}`);
 };

@@ -13,10 +13,10 @@ import { useAuthStore } from '../store/authStore';
  * @returns A Promise that resolves with the response JSON data.
  * @throws {Error} Throws a custom error if the token is invalid or expired.
  */
-export const authenticatedPost = async (
+export const authenticatedPost = async <T = unknown>(
   endpoint: string, 
   body: unknown = {}
-): Promise<unknown> => {
+): Promise<T> => {
   const store = useAuthStore.getState();
   const token = store.token;
   
@@ -46,17 +46,17 @@ export const authenticatedPost = async (
   // Attempt to parse JSON response
   const text = await response.text();
   try {
-      return JSON.parse(text);
+      return JSON.parse(text) as T;
   } catch (e) {
       // If parsing fails, return the raw text but alert the consumer
       console.warn("Could not parse response as JSON. Returning raw text.", e);
-      return text;
+      return text as unknown as T;
   }
 };
 
-export const authenticatedGet = async (
+export const authenticatedGet = async <T = unknown>(
   endpoint: string
-): Promise<unknown> => {
+): Promise<T> => {
   const store = useAuthStore.getState();
   const token = store.token;
   
@@ -84,16 +84,16 @@ export const authenticatedGet = async (
 
   const text = await response.text();
   try {
-      return JSON.parse(text);
+      return JSON.parse(text) as T;
   } catch (e) {
       console.warn("Could not parse response as JSON. Returning raw text.", e);
-      return text;
+      return text as unknown as T;
   }
 };
 
-export const authenticatedDelete = async (
+export const authenticatedDelete = async <T = unknown>(
   endpoint: string
-): Promise<unknown> => {
+): Promise<T> => {
   const store = useAuthStore.getState();
   const token = store.token;
   
@@ -120,23 +120,23 @@ export const authenticatedDelete = async (
   }
 
   if (response.status === 204) {
-    return;
+    return undefined as unknown as T;
   }
 
   const text = await response.text();
-  if (!text) return;
+  if (!text) return undefined as unknown as T;
   try {
-      return JSON.parse(text);
+      return JSON.parse(text) as T;
   } catch (e) {
       console.warn("Could not parse response as JSON. Returning raw text.", e);
-      return text;
+      return text as unknown as T;
   }
 };
 
-export const authenticatedPut = async (
+export const authenticatedPut = async <T = unknown>(
   endpoint: string,
   body: unknown = {}
-): Promise<unknown> => {
+): Promise<T> => {
   const store = useAuthStore.getState();
   const token = store.token;
 
@@ -165,10 +165,10 @@ export const authenticatedPut = async (
 
   const text = await response.text();
   try {
-      return JSON.parse(text);
+      return JSON.parse(text) as T;
   } catch (e) {
       console.warn("Could not parse response as JSON. Returning raw text.", e);
-      return text;
+      return text as unknown as T;
   }
 };
 
