@@ -37,6 +37,9 @@ jobs:
       - name: Build check
         run: pnpm build
 
+      - name: Start Firestore Emulator
+        run: docker compose -f ../docker-compose.yml up -d
+
       - name: Run tests
         run: pnpm test
 
