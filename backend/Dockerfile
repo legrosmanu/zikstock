@@ -1,4 +1,5 @@
 # Base image with Node.js 24 and pnpm
+# To build locally: docker build -t zikstock-backend .
 FROM node:24-slim AS base
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
@@ -7,7 +8,7 @@ RUN corepack enable
 # Build stage
 FROM base AS builder
 WORKDIR /app
-COPY package.json pnpm-lock.yaml tsconfig.json ./
+COPY package.json pnpm-lock.yaml tsconfig.json pnpm-workspace.yaml ./
 RUN pnpm install --frozen-lockfile
 COPY src ./src
 RUN pnpm build
@@ -15,7 +16,7 @@ RUN pnpm build
 # Production dependencies stage
 FROM base AS prod-deps
 WORKDIR /app
-COPY package.json pnpm-lock.yaml ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 RUN pnpm install --prod --frozen-lockfile
 
 # Final production runner
