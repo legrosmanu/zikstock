@@ -1,6 +1,7 @@
 # GCP Deployment Guide for Zikstock
 
-This guide explains how to deploy the Zikstock application (Backend + Frontend) to Google Cloud Platform (GCP) using **Cloud Run** and **Firestore** (Native mode) in the `europe-west9` (Paris) region.
+This guide explains how to deploy the Zikstock application (Backend + Frontend) to Google Cloud Platform (GCP) using **Cloud Run** and **Firestore** (Native mode) in the `europe-west9` (Paris) region.  
+If you want to deploy it automatically, you can use the deploy Github workflow.
 
 ---
 

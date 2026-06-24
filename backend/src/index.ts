@@ -38,17 +38,38 @@ const port = process.env.PORT || 3000;
 app.use(express.json());
 app.use(loggingMiddleware);
 
-// CORS Middleware to support development frontend API requests
+// CORS Middleware to support development and production frontend API requests
 app.use((req, res, next) => {
     const origin = req.headers.origin;
-    if (origin && (origin.startsWith('http://localhost:') || origin.startsWith('http://127.0.0.1:'))) {
-        res.header('Access-Control-Allow-Origin', origin);
+    const allowedOrigins = [
+        'http://localhost:',
+        'http://127.0.0.1:',
+        process.env.FRONTEND_URL
+    ].filter(Boolean) as string[];
+
+    let isAllowed = false;
+    if (origin) {
+        for (const allowed of allowedOrigins) {
+            if (origin.startsWith(allowed) || origin === allowed) {
+                isAllowed = true;
+                break;
+            }
+        }
+    }
+
+    // Fallback: If FRONTEND_URL is not defined, allow any origin to prevent breaking installations
+    const allowOrigin = origin && (isAllowed || !process.env.FRONTEND_URL) ? origin : '';
+
+    if (allowOrigin) {
+        res.header('Access-Control-Allow-Origin', allowOrigin);
+        res.header('Access-Control-Allow-Credentials', 'true');
     } else {
         res.header('Access-Control-Allow-Origin', '*');
     }
+
     res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
     res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    res.header('Access-Control-Allow-Credentials', 'true');
+
     if (req.method === 'OPTIONS') {
         res.sendStatus(200);
         return;

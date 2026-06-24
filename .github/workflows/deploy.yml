@@ -109,3 +109,20 @@ jobs:
             --region ${{ env.GCP_REGION }} \
             --allow-unauthenticated \
             --project=${{ env.GCP_PROJECT_ID }}
+
+      - name: Retrieve Frontend URL
+        id: frontend-info
+        run: |
+          FRONTEND_URL=$(gcloud run services describe zikstock-frontend \
+            --region ${{ env.GCP_REGION }} \
+            --project=${{ env.GCP_PROJECT_ID }} \
+            --format 'value(status.url)')
+          echo "url=$FRONTEND_URL" >> $GITHUB_OUTPUT
+          echo "Retrieved Frontend URL: $FRONTEND_URL"
+
+      - name: Update Backend CORS with Frontend URL
+        run: |
+          gcloud run services update zikstock-backend \
+            --region ${{ env.GCP_REGION }} \
+            --project=${{ env.GCP_PROJECT_ID }} \
+            --update-env-vars FRONTEND_URL=${{ steps.frontend-info.outputs.url }}
