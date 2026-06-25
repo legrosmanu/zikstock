@@ -9,6 +9,7 @@ env:
   GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
   GCP_WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
   GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+  FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
 
 jobs:
   deploy:
@@ -76,7 +77,7 @@ jobs:
             --platform managed \
             --region ${{ env.GCP_REGION }} \
             --allow-unauthenticated \
-            --set-env-vars GCLOUD_PROJECT=${{ env.GCP_PROJECT_ID }},GOOGLE_CLIENT_ID=${{ env.GOOGLE_CLIENT_ID }} \
+            --set-env-vars GCLOUD_PROJECT=${{ env.GCP_PROJECT_ID }},GOOGLE_CLIENT_ID=${{ env.GOOGLE_CLIENT_ID }},FRONTEND_URL=${{ env.FRONTEND_URL }} \
             --project=${{ env.GCP_PROJECT_ID }}
 
       - name: Retrieve Backend URL
@@ -109,20 +110,3 @@ jobs:
             --region ${{ env.GCP_REGION }} \
             --allow-unauthenticated \
             --project=${{ env.GCP_PROJECT_ID }}
-
-      - name: Retrieve Frontend URL
-        id: frontend-info
-        run: |
-          FRONTEND_URL=$(gcloud run services describe zikstock-frontend \
-            --region ${{ env.GCP_REGION }} \
-            --project=${{ env.GCP_PROJECT_ID }} \
-            --format 'value(status.url)')
-          echo "url=$FRONTEND_URL" >> $GITHUB_OUTPUT
-          echo "Retrieved Frontend URL: $FRONTEND_URL"
-
-      - name: Update Backend CORS with Frontend URL
-        run: |
-          gcloud run services update zikstock-backend \
-            --region ${{ env.GCP_REGION }} \
-            --project=${{ env.GCP_PROJECT_ID }} \
-            --update-env-vars FRONTEND_URL=${{ steps.frontend-info.outputs.url }}

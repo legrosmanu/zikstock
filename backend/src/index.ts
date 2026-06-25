@@ -42,8 +42,6 @@ app.use(loggingMiddleware);
 app.use((req, res, next) => {
     const origin = req.headers.origin;
     const allowedOrigins = [
-        'http://localhost:',
-        'http://127.0.0.1:',
         process.env.FRONTEND_URL
     ].filter(Boolean) as string[];
 
