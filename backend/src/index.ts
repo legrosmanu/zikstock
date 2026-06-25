@@ -42,7 +42,9 @@ app.use(loggingMiddleware);
 app.use((req, res, next) => {
     const origin = req.headers.origin;
     const allowedOrigins = [
-        process.env.FRONTEND_URL
+        'http://localhost:',
+        'http://127.0.0.1:',
+        process.env.FRONTEND_URL ? process.env.FRONTEND_URL.replace(/\/$/, '') : ''
     ].filter(Boolean) as string[];
 
     let isAllowed = false;

@@ -1,6 +1,6 @@
 # GCP Deployment Guide for Zikstock
 
-This guide explains how to deploy the Zikstock application (Backend + Frontend) to Google Cloud Platform (GCP) using **Cloud Run** and **Firestore** (Native mode) in the `europe-west9` (Paris) region.  
+This guide explains how to deploy the Zikstock application (Backend + Frontend) to Google Cloud Platform (GCP) using **Cloud Run** and **Firestore** (Native mode) in the `europe-west1` (Paris) region.  
 If you want to deploy it automatically, you can use the deploy Github workflow.
 
 ---
@@ -36,8 +36,8 @@ Run the following commands in your terminal to authenticate and prepare your env
 # 1. Login to your Google Cloud Account
 gcloud auth login
 
-# 2. Configure Docker authentication for Artifact Registry in europe-west9
-gcloud auth configure-docker europe-west9-docker.pkg.dev
+# 2. Configure Docker authentication for Artifact Registry in europe-west1
+gcloud auth configure-docker europe-west1-docker.pkg.dev
 
 # 3. Set your project context
 gcloud config set project [YOUR_PROJECT_ID]
@@ -53,10 +53,10 @@ gcloud services enable \
 
 ## 4. Database Setup (Firestore)
 
-Create the Firestore database in **Native mode** inside the `europe-west9` region:
+Create the Firestore database in **Native mode** inside the `europe-west1` region:
 
 ```bash
-gcloud firestore databases create --location=europe-west9 --type=firestore-native
+gcloud firestore databases create --location=europe-west1 --type=firestore-native
 ```
 
 ---
@@ -69,7 +69,7 @@ Create a repository to store the Docker images for the frontend and backend:
 ```bash
 gcloud artifacts repositories create zikstock-repo \
     --repository-format=docker \
-    --location=europe-west9 \
+    --location=europe-west1 \
     --description="Zikstock Docker Images"
 ```
 
@@ -77,16 +77,16 @@ gcloud artifacts repositories create zikstock-repo \
 1. Submit the backend build to GCP:
    ```bash
    gcloud builds submit backend \
-       --tag europe-west9-docker.pkg.dev/[YOUR_PROJECT_ID]/zikstock-repo/backend:latest
+       --tag europe-west1-docker.pkg.dev/[YOUR_PROJECT_ID]/zikstock-repo/backend:latest
    ```
 
 2. Deploy the backend container to Cloud Run:
    Replace `[YOUR_GOOGLE_CLIENT_ID]` and `[YOUR_PROJECT_ID]` with your actual credentials:
    ```bash
    gcloud run deploy zikstock-backend \
-       --image europe-west9-docker.pkg.dev/[YOUR_PROJECT_ID]/zikstock-repo/backend:latest \
+       --image europe-west1-docker.pkg.dev/[YOUR_PROJECT_ID]/zikstock-repo/backend:latest \
        --platform managed \
-       --region europe-west9 \
+       --region europe-west1 \
        --allow-unauthenticated \
        --set-env-vars GCLOUD_PROJECT=[YOUR_PROJECT_ID],GOOGLE_CLIENT_ID=[YOUR_GOOGLE_CLIENT_ID]
    ```
@@ -97,7 +97,7 @@ gcloud artifacts repositories create zikstock-repo \
 1. Submit the frontend build, passing the Backend API URL and Google Client ID as build arguments so Vite can package them:
    ```bash
    gcloud builds submit frontend \
-       --tag europe-west9-docker.pkg.dev/[YOUR_PROJECT_ID]/zikstock-repo/frontend:latest \
+       --tag europe-west1-docker.pkg.dev/[YOUR_PROJECT_ID]/zikstock-repo/frontend:latest \
        --build-arg VITE_API_URL=[YOUR_BACKEND_URL] \
        --build-arg VITE_GOOGLE_CLIENT_ID=[YOUR_GOOGLE_CLIENT_ID]
    ```
@@ -105,9 +105,9 @@ gcloud artifacts repositories create zikstock-repo \
 2. Deploy the frontend container to Cloud Run:
    ```bash
    gcloud run deploy zikstock-frontend \
-       --image europe-west9-docker.pkg.dev/[YOUR_PROJECT_ID]/zikstock-repo/frontend:latest \
+       --image europe-west1-docker.pkg.dev/[YOUR_PROJECT_ID]/zikstock-repo/frontend:latest \
        --platform managed \
-       --region europe-west9 \
+       --region europe-west1 \
        --allow-unauthenticated
    ```
 
