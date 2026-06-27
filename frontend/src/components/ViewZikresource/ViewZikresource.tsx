@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Music, ArrowLeft, Link, User, FileText, Tag, Loader2, Trash2, ExternalLink, Edit } from 'lucide-react';
+import { Music, ArrowLeft, Tag, Loader2, Trash2, ExternalLink, Edit } from 'lucide-react';
 import { useNavigate, useParams } from '@tanstack/react-router';
 import { fetchZikresourceById, deleteZikresource } from '../../infra/zikresource.api';
 import type { Zikresource } from '../../infra/zikresource.api';
@@ -104,6 +104,13 @@ export const ViewZikresource: React.FC = () => {
 
         {error && <div className="create-error-banner" style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)', color: '#ef4444', padding: '1rem', borderRadius: '8px', marginBottom: '1.5rem', fontSize: '0.9rem' }}>{error}</div>}
 
+        <div className="primary-cta-container">
+          <a href={resource.url} target="_blank" rel="noopener noreferrer" className="btn-primary-cta">
+            <span>Go to Zikresource</span>
+            <ExternalLink size={18} />
+          </a>
+        </div>
+
         <div className="manage-top-actions">
           <div className="action-buttons-left">
             <button
@@ -151,22 +158,6 @@ export const ViewZikresource: React.FC = () => {
         <div className="detail-panel glass-panel">
           <div className="detail-item">
             <div className="detail-label">
-              <User size={16} />
-              <span>Artist</span>
-            </div>
-            <div className="detail-value">{resource.artist}</div>
-          </div>
-
-          <div className="detail-item">
-            <div className="detail-label">
-              <FileText size={16} />
-              <span>Title</span>
-            </div>
-            <div className="detail-value">{resource.title}</div>
-          </div>
-
-          <div className="detail-item">
-            <div className="detail-label">
               <Music size={16} />
               <span>Resource Type</span>
             </div>
@@ -175,20 +166,6 @@ export const ViewZikresource: React.FC = () => {
                 {getResourceLabel(resource.type)}
               </span>
             </div>
-          </div>
-
-          <div className="detail-item url-highlight-card">
-            <div className="detail-label">
-              <Link size={16} />
-              <span>Resource Link</span>
-            </div>
-            <a href={resource.url} target="_blank" rel="noopener noreferrer" className="url-card-anchor">
-              <span className="url-card-url">{resource.url}</span>
-              <span className="url-card-action">
-                <span>Go to Zikresource</span>
-                <ExternalLink size={14} />
-              </span>
-            </a>
           </div>
 
           {resource.tags && resource.tags.length > 0 && (
