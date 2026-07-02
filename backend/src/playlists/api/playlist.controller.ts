@@ -6,7 +6,7 @@ import {
     updatePlaylist,
     deletePlaylist
 } from '../domain/playlist.service';
-import { PlaylistSchema, PlaylistResponse } from './playlist.dto';
+import { PlaylistSchema, PlaylistResponse, PlaylistIdParamSchema, UserPayloadSchema } from './playlist.dto';
 import { Playlist } from '../domain/playlist.domain';
 import { StatusCodes } from 'http-status-codes';
 import { AppError } from '../../application/middleware/error.middleware';
@@ -28,10 +28,11 @@ export const createPlaylistHandler = async (req: Request, res: Response, next: N
         if (!validation.success) {
             throw new AppError(StatusCodes.BAD_REQUEST, `Validation failed: ${validation.error.message}`);
         }
-        const createdBy = req.user?.sub;
-        if (!createdBy) {
-            throw new AppError(StatusCodes.UNAUTHORIZED, 'User identity is missing from token');
+        const userValidation = UserPayloadSchema.safeParse(req.user);
+        if (!userValidation.success) {
+            throw new AppError(StatusCodes.UNAUTHORIZED, `User identity validation failed: ${userValidation.error.message}`);
         }
+        const createdBy = userValidation.data.sub;
         const domainModel = await createPlaylist({ ...validation.data, createdBy });
         res.status(StatusCodes.CREATED).json(toResponse(domainModel));
     } catch (error) {
@@ -41,7 +42,11 @@ export const createPlaylistHandler = async (req: Request, res: Response, next: N
 
 export const getAllPlaylistsHandler = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const createdBy = req.user?.sub;
+        const userValidation = UserPayloadSchema.safeParse(req.user);
+        if (!userValidation.success) {
+            throw new AppError(StatusCodes.UNAUTHORIZED, `User identity validation failed: ${userValidation.error.message}`);
+        }
+        const createdBy = userValidation.data.sub;
         const result = await getAllPlaylists(createdBy);
         res.json(result.map(toResponse));
     } catch (error) {
@@ -51,8 +56,16 @@ export const getAllPlaylistsHandler = async (req: Request, res: Response, next: 
 
 export const getPlaylistByIdHandler = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const createdBy = req.user?.sub;
-        const result = await getPlaylistById(req.params.id as string, createdBy);
+        const paramValidation = PlaylistIdParamSchema.safeParse(req.params);
+        if (!paramValidation.success) {
+            throw new AppError(StatusCodes.BAD_REQUEST, `Validation failed: ${paramValidation.error.message}`);
+        }
+        const userValidation = UserPayloadSchema.safeParse(req.user);
+        if (!userValidation.success) {
+            throw new AppError(StatusCodes.UNAUTHORIZED, `User identity validation failed: ${userValidation.error.message}`);
+        }
+        const createdBy = userValidation.data.sub;
+        const result = await getPlaylistById(paramValidation.data.id, createdBy);
         res.json(toResponse(result));
     } catch (error) {
         next(error);
@@ -61,15 +74,20 @@ export const getPlaylistByIdHandler = async (req: Request, res: Response, next: 
 
 export const updatePlaylistHandler = async (req: Request, res: Response, next: NextFunction) => {
     try {
+        const paramValidation = PlaylistIdParamSchema.safeParse(req.params);
+        if (!paramValidation.success) {
+            throw new AppError(StatusCodes.BAD_REQUEST, `Validation failed: ${paramValidation.error.message}`);
+        }
         const validation = PlaylistSchema.safeParse(req.body);
         if (!validation.success) {
             throw new AppError(StatusCodes.BAD_REQUEST, `Validation failed: ${validation.error.message}`);
         }
-        const createdBy = req.user?.sub;
-        if (!createdBy) {
-            throw new AppError(StatusCodes.UNAUTHORIZED, 'User identity is missing from token');
+        const userValidation = UserPayloadSchema.safeParse(req.user);
+        if (!userValidation.success) {
+            throw new AppError(StatusCodes.UNAUTHORIZED, `User identity validation failed: ${userValidation.error.message}`);
         }
-        const result = await updatePlaylist(req.params.id as string, { ...validation.data, createdBy });
+        const createdBy = userValidation.data.sub;
+        const result = await updatePlaylist(paramValidation.data.id, { ...validation.data, createdBy });
         res.json(toResponse(result));
     } catch (error) {
         next(error);
@@ -78,13 +96,19 @@ export const updatePlaylistHandler = async (req: Request, res: Response, next: N
 
 export const deletePlaylistHandler = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const createdBy = req.user?.sub;
-        if (!createdBy) {
-            throw new AppError(StatusCodes.UNAUTHORIZED, 'User identity is missing from token');
+        const paramValidation = PlaylistIdParamSchema.safeParse(req.params);
+        if (!paramValidation.success) {
+            throw new AppError(StatusCodes.BAD_REQUEST, `Validation failed: ${paramValidation.error.message}`);
         }
-        await deletePlaylist(req.params.id as string, createdBy);
+        const userValidation = UserPayloadSchema.safeParse(req.user);
+        if (!userValidation.success) {
+            throw new AppError(StatusCodes.UNAUTHORIZED, `User identity validation failed: ${userValidation.error.message}`);
+        }
+        const createdBy = userValidation.data.sub;
+        await deletePlaylist(paramValidation.data.id, createdBy);
         res.status(StatusCodes.NO_CONTENT).send();
     } catch (error) {
         next(error);
     }
 };
+

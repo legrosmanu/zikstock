@@ -6,6 +6,14 @@ export const SongSchema = z.object({
     zikresourceIds: z.array(z.string().min(1)).min(1, 'A song must have at least one Zikresource'),
 });
 
+export const SongIdParamSchema = z.object({
+    id: z.string().min(1, 'Song ID is required'),
+});
+
+export const UserPayloadSchema = z.object({
+    sub: z.string().min(1, 'User identity is missing from token'),
+});
+
 export type CreateSongRequest = z.infer<typeof SongSchema>;
 
 export interface SongResponse {
@@ -17,3 +25,4 @@ export interface SongResponse {
     createdAt: string;
     updatedAt: string;
 }
+

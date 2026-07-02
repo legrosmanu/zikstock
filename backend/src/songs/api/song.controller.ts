@@ -6,7 +6,7 @@ import {
     updateSong,
     deleteSong
 } from '../domain/song.service';
-import { SongSchema, SongResponse } from './song.dto';
+import { SongSchema, SongResponse, SongIdParamSchema, UserPayloadSchema } from './song.dto';
 import { Song } from '../domain/song.domain';
 import { StatusCodes } from 'http-status-codes';
 import { AppError } from '../../application/middleware/error.middleware';
@@ -27,10 +27,11 @@ export const createSongHandler = async (req: Request, res: Response, next: NextF
         if (!validation.success) {
             throw new AppError(StatusCodes.BAD_REQUEST, `Validation failed: ${validation.error.message}`);
         }
-        const createdBy = req.user?.sub;
-        if (!createdBy) {
-            throw new AppError(StatusCodes.UNAUTHORIZED, 'User identity is missing from token');
+        const userValidation = UserPayloadSchema.safeParse(req.user);
+        if (!userValidation.success) {
+            throw new AppError(StatusCodes.UNAUTHORIZED, `User identity validation failed: ${userValidation.error.message}`);
         }
+        const createdBy = userValidation.data.sub;
         const domainModel = await createSong({ ...validation.data, createdBy });
         res.status(StatusCodes.CREATED).json(toResponse(domainModel));
     } catch (error) {
@@ -40,7 +41,11 @@ export const createSongHandler = async (req: Request, res: Response, next: NextF
 
 export const getAllSongsHandler = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const createdBy = req.user?.sub;
+        const userValidation = UserPayloadSchema.safeParse(req.user);
+        if (!userValidation.success) {
+            throw new AppError(StatusCodes.UNAUTHORIZED, `User identity validation failed: ${userValidation.error.message}`);
+        }
+        const createdBy = userValidation.data.sub;
         const result = await getAllSongs(createdBy);
         res.json(result.map(toResponse));
     } catch (error) {
@@ -50,8 +55,16 @@ export const getAllSongsHandler = async (req: Request, res: Response, next: Next
 
 export const getSongByIdHandler = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const createdBy = req.user?.sub;
-        const result = await getSongById(req.params.id as string, createdBy);
+        const paramValidation = SongIdParamSchema.safeParse(req.params);
+        if (!paramValidation.success) {
+            throw new AppError(StatusCodes.BAD_REQUEST, `Validation failed: ${paramValidation.error.message}`);
+        }
+        const userValidation = UserPayloadSchema.safeParse(req.user);
+        if (!userValidation.success) {
+            throw new AppError(StatusCodes.UNAUTHORIZED, `User identity validation failed: ${userValidation.error.message}`);
+        }
+        const createdBy = userValidation.data.sub;
+        const result = await getSongById(paramValidation.data.id, createdBy);
         res.json(toResponse(result));
     } catch (error) {
         next(error);
@@ -60,15 +73,20 @@ export const getSongByIdHandler = async (req: Request, res: Response, next: Next
 
 export const updateSongHandler = async (req: Request, res: Response, next: NextFunction) => {
     try {
+        const paramValidation = SongIdParamSchema.safeParse(req.params);
+        if (!paramValidation.success) {
+            throw new AppError(StatusCodes.BAD_REQUEST, `Validation failed: ${paramValidation.error.message}`);
+        }
         const validation = SongSchema.safeParse(req.body);
         if (!validation.success) {
             throw new AppError(StatusCodes.BAD_REQUEST, `Validation failed: ${validation.error.message}`);
         }
-        const createdBy = req.user?.sub;
-        if (!createdBy) {
-            throw new AppError(StatusCodes.UNAUTHORIZED, 'User identity is missing from token');
+        const userValidation = UserPayloadSchema.safeParse(req.user);
+        if (!userValidation.success) {
+            throw new AppError(StatusCodes.UNAUTHORIZED, `User identity validation failed: ${userValidation.error.message}`);
         }
-        const result = await updateSong(req.params.id as string, { ...validation.data, createdBy });
+        const createdBy = userValidation.data.sub;
+        const result = await updateSong(paramValidation.data.id, { ...validation.data, createdBy });
         res.json(toResponse(result));
     } catch (error) {
         next(error);
@@ -77,13 +95,19 @@ export const updateSongHandler = async (req: Request, res: Response, next: NextF
 
 export const deleteSongHandler = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const createdBy = req.user?.sub;
-        if (!createdBy) {
-            throw new AppError(StatusCodes.UNAUTHORIZED, 'User identity is missing from token');
+        const paramValidation = SongIdParamSchema.safeParse(req.params);
+        if (!paramValidation.success) {
+            throw new AppError(StatusCodes.BAD_REQUEST, `Validation failed: ${paramValidation.error.message}`);
         }
-        await deleteSong(req.params.id as string, createdBy);
+        const userValidation = UserPayloadSchema.safeParse(req.user);
+        if (!userValidation.success) {
+            throw new AppError(StatusCodes.UNAUTHORIZED, `User identity validation failed: ${userValidation.error.message}`);
+        }
+        const createdBy = userValidation.data.sub;
+        await deleteSong(paramValidation.data.id, createdBy);
         res.status(StatusCodes.NO_CONTENT).send();
     } catch (error) {
         next(error);
     }
 };
+
