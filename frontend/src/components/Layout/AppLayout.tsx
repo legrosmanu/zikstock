@@ -6,7 +6,8 @@ import {
   Sun,
   Moon,
   FileText,
-  Folder
+  Folder,
+  Users
 } from 'lucide-react';
 import { useNavigate, useRouterState } from '@tanstack/react-router';
 import { useAuthStore } from '../../store/authStore';
@@ -45,7 +46,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const searchParams = new URLSearchParams(routerState.location.search);
   const tabParam = searchParams.get('tab');
 
-  let activeSection: 'zikresources' | 'playlists' | 'songs' = 'zikresources';
+  let activeSection: 'zikresources' | 'playlists' | 'songs' | 'network' = 'zikresources';
   if (currentPath === '/home') {
     if (tabParam === 'playlists') activeSection = 'playlists';
     else if (tabParam === 'songs') activeSection = 'songs';
@@ -53,10 +54,16 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
     activeSection = 'playlists';
   } else if (currentPath.startsWith('/songs')) {
     activeSection = 'songs';
+  } else if (currentPath.startsWith('/network')) {
+    activeSection = 'network';
   }
 
-  const navigateToSection = (section: 'zikresources' | 'playlists' | 'songs') => {
-    navigate({ to: '/home', search: { tab: section } });
+  const navigateToSection = (section: 'zikresources' | 'playlists' | 'songs' | 'network') => {
+    if (section === 'network') {
+      navigate({ to: '/network' });
+    } else {
+      navigate({ to: '/home', search: { tab: section } });
+    }
     setIsDropdownOpen(false);
   };
 
@@ -66,7 +73,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   };
 
   // Determine if we are on a main tab view or subpage
-  const isMainView = currentPath === '/home';
+  const isMainView = currentPath === '/home' || currentPath === '/network';
 
   return (
     <div className="app-shell-layout">
@@ -102,6 +109,14 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
           >
             <Music size={18} />
             <span>Songs</span>
+          </button>
+
+          <button
+            className={`sidebar-nav-item ${activeSection === 'network' ? 'active' : ''}`}
+            onClick={() => navigateToSection('network')}
+          >
+            <Users size={18} />
+            <span>Network</span>
           </button>
         </nav>
 
@@ -226,6 +241,14 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
           >
             <Music size={20} />
             <span className="tab-label">Songs</span>
+          </button>
+
+          <button
+            className={`mobile-tab-item ${activeSection === 'network' ? 'active' : ''}`}
+            onClick={() => navigateToSection('network')}
+          >
+            <Users size={20} />
+            <span className="tab-label">Network</span>
           </button>
         </nav>
       )}

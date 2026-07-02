@@ -29,6 +29,16 @@ import {
     initializeGoogleAuthStrategy,
     authMiddleware
 } from './application/middleware/google-auth.middleware';
+import {
+    syncMeHandler,
+    searchUsersHandler
+} from './users/api/user.controller';
+import {
+    requestConnectionHandler,
+    acceptConnectionHandler,
+    deleteConnectionHandler,
+    listNetworkHandler
+} from './connections/api/connection.controller';
 
 
 
@@ -102,6 +112,16 @@ app.get('/playlists', authMiddleware, getAllPlaylistsHandler);
 app.get('/playlists/:id', authMiddleware, getPlaylistByIdHandler);
 app.put('/playlists/:id', authMiddleware, updatePlaylistHandler);
 app.delete('/playlists/:id', authMiddleware, deletePlaylistHandler);
+
+// User Routes (protected)
+app.post('/users/me', authMiddleware, syncMeHandler);
+app.get('/users', authMiddleware, searchUsersHandler);
+
+// Connection Routes (protected)
+app.post('/connections', authMiddleware, requestConnectionHandler);
+app.get('/connections', authMiddleware, listNetworkHandler);
+app.put('/connections/:id', authMiddleware, acceptConnectionHandler);
+app.delete('/connections/:id', authMiddleware, deleteConnectionHandler);
 
 
 

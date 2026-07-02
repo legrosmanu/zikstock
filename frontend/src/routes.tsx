@@ -15,6 +15,7 @@ import { EditSong } from './components/EditSong/EditSong';
 import { ViewPlaylist } from './components/ViewPlaylist/ViewPlaylist';
 import { EditPlaylist } from './components/EditPlaylist/EditPlaylist';
 import { AppLayout } from './components/Layout/AppLayout';
+import { Network } from './components/Network/Network';
 
 async function WittAuth<T>(apiCall?: () => Promise<T>): Promise<T | undefined> {
   try {
@@ -50,6 +51,16 @@ const RootComponent = () => {
   useEffect(() => {
     initialize();
   }, [initialize]);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      import('./infra/network.api').then(({ syncUserProfile }) => {
+        syncUserProfile().catch((err) => {
+          console.error('Failed to sync user profile with backend:', err);
+        });
+      });
+    }
+  }, [isAuthenticated]);
 
   useEffect(() => {
     if (!isInitializing && !isAuthenticated && !isPublicRoute) {
@@ -204,6 +215,14 @@ const editPlaylistRoute = createRoute({
   component: EditPlaylist,
 });
 
+// Network Route (/network)
+const networkRoute = createRoute({
+  loader: () => WittAuth(),
+  getParentRoute: () => rootRoute,
+  path: '/network',
+  component: Network,
+});
+
 // Build the Route Tree
 const routeTree = rootRoute.addChildren([
   indexRoute,
@@ -218,6 +237,7 @@ const routeTree = rootRoute.addChildren([
   editSongRoute,
   viewPlaylistRoute,
   editPlaylistRoute,
+  networkRoute,
 ]);
 
 // Create the Router
