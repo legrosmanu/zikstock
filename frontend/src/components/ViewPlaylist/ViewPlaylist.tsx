@@ -7,12 +7,14 @@ import { fetchZikresources } from '../../infra/zikresource.api';
 import type { Playlist } from '../../infra/playlist.api';
 import type { Song } from '../../infra/song.api';
 import type { Zikresource } from '../../infra/zikresource.api';
+import { useTranslation } from '../../hooks/useTranslation';
 import '../CreateSong/CreateSong.css';
 import './ViewPlaylist.css';
 
 export const ViewPlaylist: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams({ from: '/playlists/$id' }) as { id: string };
+  const { t } = useTranslation();
 
   const [isLoading, setIsLoading] = useState(true);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -41,13 +43,13 @@ export const ViewPlaylist: React.FC = () => {
         setAssociatedZikresources(matchedZiks);
       } catch (err) {
         console.error('Failed to load playlist data', err);
-        setError('Failed to load playlist details.');
+        setError(t.viewPlaylist.errorLoadFailed);
       } finally {
         setIsLoading(false);
       }
     };
     loadData();
-  }, [id]);
+  }, [id, t.viewPlaylist.errorLoadFailed]);
 
   const handleDelete = async () => {
     setIsDeleting(true);
@@ -56,7 +58,7 @@ export const ViewPlaylist: React.FC = () => {
       await deletePlaylist(id);
       navigate({ to: '/home', search: { tab: 'playlists' } });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to delete playlist.');
+      setError(err instanceof Error ? err.message : t.viewPlaylist.errorDeleteFailed);
       setIsDeleting(false);
       setShowDeleteConfirm(false);
     }
@@ -66,7 +68,7 @@ export const ViewPlaylist: React.FC = () => {
     return (
       <div className="manage-loading-container">
         <Loader2 size={36} className="spinning" style={{ color: 'var(--accent-primary)' }} />
-        <p style={{ marginTop: '1rem', color: 'var(--text-secondary)' }}>Loading playlist details...</p>
+        <p style={{ marginTop: '1rem', color: 'var(--text-secondary)' }}>{t.viewPlaylist.loadingDetails}</p>
       </div>
     );
   }
@@ -74,10 +76,10 @@ export const ViewPlaylist: React.FC = () => {
   if (!playlist) {
     return (
       <div className="manage-loading-container">
-        <p style={{ color: '#ef4444' }}>Playlist not found.</p>
+        <p style={{ color: '#ef4444' }}>{t.viewPlaylist.notFound}</p>
         <button className="btn-back-dashboard" onClick={() => navigate({ to: '/home' })} style={{ marginTop: '1rem' }}>
           <ArrowLeft size={16} />
-          <span>Back to Home</span>
+          <span>{t.common.backToHome}</span>
         </button>
       </div>
     );
@@ -92,7 +94,7 @@ export const ViewPlaylist: React.FC = () => {
           onClick={() => navigate({ to: '/home' })}
         >
           <ArrowLeft size={16} />
-          <span>Back to Home</span>
+          <span>{t.common.backToHome}</span>
         </button>
         <div className="create-page-logo">
           <div className="create-page-logo-icon">
@@ -122,7 +124,7 @@ export const ViewPlaylist: React.FC = () => {
             onClick={() => navigate({ to: `/playlists/${id}/edit` as never })}
           >
             <Edit size={14} />
-            <span>Edit Playlist</span>
+            <span>{t.viewPlaylist.btnEdit}</span>
           </button>
 
           {!showDeleteConfirm ? (
@@ -132,18 +134,18 @@ export const ViewPlaylist: React.FC = () => {
               onClick={() => setShowDeleteConfirm(true)}
             >
               <Trash2 size={14} />
-              <span>Delete Playlist</span>
+              <span>{t.viewPlaylist.btnDelete}</span>
             </button>
           ) : (
             <div className="delete-confirm-group">
-              <span className="delete-confirm-text">Are you sure?</span>
+              <span className="delete-confirm-text">{t.viewZikresource.confirmDeleteText}</span>
               <button
                 type="button"
                 className="btn-confirm-delete"
                 onClick={handleDelete}
                 disabled={isDeleting}
               >
-                {isDeleting ? <Loader2 size={12} className="spinning" /> : 'Yes, Delete'}
+                {isDeleting ? <Loader2 size={12} className="spinning" /> : t.viewZikresource.btnConfirmDelete}
               </button>
               <button
                 type="button"
@@ -151,17 +153,17 @@ export const ViewPlaylist: React.FC = () => {
                 onClick={() => setShowDeleteConfirm(false)}
                 disabled={isDeleting}
               >
-                Cancel
+                {t.common.cancel}
               </button>
             </div>
           )}
         </div>
 
         <div className="playlist-detail-panel glass-panel">
-          <h2 className="section-title">Songs in Playlist</h2>
+          <h2 className="section-title">{t.viewPlaylist.songsSectionTitle}</h2>
           
           {associatedSongs.length === 0 ? (
-            <p className="no-songs-message">No songs in this playlist yet.</p>
+            <p className="no-songs-message">{t.viewPlaylist.noSongsText}</p>
           ) : (
             <div className="associated-songs-list">
               {associatedSongs.map((song) => (
@@ -173,12 +175,12 @@ export const ViewPlaylist: React.FC = () => {
                 >
                   <div className="song-card-left">
                     <span className="song-card-title">{song.title}</span>
-                    <span className="song-card-artist">by {song.artist}</span>
+                    <span className="song-card-artist">{t.common.by} {song.artist}</span>
                   </div>
                   <div className="song-card-right">
                     <span className="playlist-item-badge">
                       <Music size={12} />
-                      <span>{song.zikresourceIds?.length || 0} resources</span>
+                      <span>{song.zikresourceIds?.length || 0} {song.zikresourceIds?.length === 1 ? t.common.resourcesCountSingular : t.common.resourcesCountPlural}</span>
                     </span>
                   </div>
                 </div>
@@ -188,10 +190,10 @@ export const ViewPlaylist: React.FC = () => {
         </div>
 
         <div className="playlist-detail-panel glass-panel" style={{ marginTop: '2rem' }}>
-          <h2 className="section-title">Zikresources in Playlist</h2>
+          <h2 className="section-title">{t.viewPlaylist.resourcesSectionTitle}</h2>
           
           {associatedZikresources.length === 0 ? (
-            <p className="no-songs-message">No zikresources in this playlist yet.</p>
+            <p className="no-songs-message">{t.viewPlaylist.noResourcesText}</p>
           ) : (
             <div className="associated-songs-list">
               {associatedZikresources.map((res) => (
@@ -203,7 +205,7 @@ export const ViewPlaylist: React.FC = () => {
                 >
                   <div className="song-card-left">
                     <span className="song-card-title">{res.title}</span>
-                    <span className="song-card-artist">by {res.artist}</span>
+                    <span className="song-card-artist">{t.common.by} {res.artist}</span>
                   </div>
                   <div className="song-card-right">
                     <span className="playlist-item-badge">
@@ -211,7 +213,12 @@ export const ViewPlaylist: React.FC = () => {
                       {res.type === 'video' && <Video size={12} />}
                       {res.type === 'backing-track' && <Music size={12} />}
                       {res.type === 'other' && <HelpCircle size={12} />}
-                      <span style={{ marginLeft: '4px' }}>{res.type}</span>
+                      <span style={{ marginLeft: '4px' }}>
+                        {res.type === 'tablature' && t.dashboard.typeTablature}
+                        {res.type === 'video' && t.dashboard.typeVideo}
+                        {res.type === 'backing-track' && t.dashboard.typeBackingTrack}
+                        {res.type === 'other' && t.dashboard.typeOther}
+                      </span>
                     </span>
                   </div>
                 </div>

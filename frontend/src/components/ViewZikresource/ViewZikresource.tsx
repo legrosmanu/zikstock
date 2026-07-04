@@ -3,12 +3,14 @@ import { Music, ArrowLeft, Tag, Loader2, Trash2, ExternalLink, Edit } from 'luci
 import { useNavigate, useParams } from '@tanstack/react-router';
 import { fetchZikresourceById, deleteZikresource } from '../../infra/zikresource.api';
 import type { Zikresource } from '../../infra/zikresource.api';
+import { useTranslation } from '../../hooks/useTranslation';
 import '../CreateZikresource/CreateZikresource.css';
 import './ViewZikresource.css';
 
 export const ViewZikresource: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams({ from: '/zikresources/$id' }) as { id: string };
+  const { t } = useTranslation();
 
   const [isLoading, setIsLoading] = useState(true);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -23,13 +25,13 @@ export const ViewZikresource: React.FC = () => {
         setResource(data);
       } catch (err) {
         console.error('Failed to load resource', err);
-        setError('Failed to load resource or unauthorized.');
+        setError(t.viewZikresource.errorLoadFailed);
       } finally {
         setIsLoading(false);
       }
     };
     loadResource();
-  }, [id]);
+  }, [id, t.viewZikresource.errorLoadFailed]);
 
   const handleDelete = async () => {
     setIsDeleting(true);
@@ -38,7 +40,7 @@ export const ViewZikresource: React.FC = () => {
       await deleteZikresource(id);
       navigate({ to: '/home', search: { tab: 'zikresources' } });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to delete resource.');
+      setError(err instanceof Error ? err.message : t.viewZikresource.errorDeleteFailed);
       setIsDeleting(false);
       setShowDeleteConfirm(false);
     }
@@ -46,10 +48,10 @@ export const ViewZikresource: React.FC = () => {
 
   const getResourceLabel = (type: string) => {
     switch (type) {
-      case 'tablature': return '🎼 Tab / Sheet Music';
-      case 'video': return '🎬 Video Tutorial';
-      case 'backing-track': return '🎵 Backing Track';
-      default: return '❓ Other';
+      case 'tablature': return `🎼 ${t.dashboard.typeTablature}`;
+      case 'video': return `🎬 ${t.dashboard.typeVideo}`;
+      case 'backing-track': return `🎵 ${t.dashboard.typeBackingTrack}`;
+      default: return `❓ ${t.dashboard.typeOther}`;
     }
   };
 
@@ -57,7 +59,7 @@ export const ViewZikresource: React.FC = () => {
     return (
       <div className="manage-loading-container">
         <Loader2 size={36} className="spinning" style={{ color: 'var(--accent-primary)' }} />
-        <p style={{ marginTop: '1rem', color: 'var(--text-secondary)' }}>Loading resource details...</p>
+        <p style={{ marginTop: '1rem', color: 'var(--text-secondary)' }}>{t.viewZikresource.loadingDetails}</p>
       </div>
     );
   }
@@ -65,10 +67,10 @@ export const ViewZikresource: React.FC = () => {
   if (!resource) {
     return (
       <div className="manage-loading-container">
-        <p style={{ color: '#ef4444' }}>Resource not found.</p>
+        <p style={{ color: '#ef4444' }}>{t.viewZikresource.notFound}</p>
         <button className="btn-back" onClick={() => navigate({ to: '/home' })} style={{ marginTop: '1rem' }}>
           <ArrowLeft size={16} />
-          <span>Back to Home</span>
+          <span>{t.common.backToHome}</span>
         </button>
       </div>
     );
@@ -83,7 +85,7 @@ export const ViewZikresource: React.FC = () => {
           onClick={() => navigate({ to: '/home' })}
         >
           <ArrowLeft size={16} />
-          <span>Back to Home</span>
+          <span>{t.common.backToHome}</span>
         </button>
         <div className="create-logo">
           <div className="create-logo-icon">
@@ -98,7 +100,7 @@ export const ViewZikresource: React.FC = () => {
         <div className="create-header">
           <h1 className="create-title">{resource.title}</h1>
           <p className="create-subtitle">
-            by {resource.artist}
+            {t.common.by} {resource.artist}
           </p>
         </div>
 
@@ -106,7 +108,7 @@ export const ViewZikresource: React.FC = () => {
 
         <div className="primary-cta-container">
           <a href={resource.url} target="_blank" rel="noopener noreferrer" className="btn-primary-cta">
-            <span>Go to Zikresource</span>
+            <span>{t.viewZikresource.goToLink}</span>
             <ExternalLink size={18} />
           </a>
         </div>
@@ -119,7 +121,7 @@ export const ViewZikresource: React.FC = () => {
               onClick={() => navigate({ to: `/zikresources/${id}/edit` as never })}
             >
               <Edit size={14} />
-              <span>Edit Details</span>
+              <span>{t.viewZikresource.btnEdit}</span>
             </button>
           </div>
 
@@ -130,18 +132,18 @@ export const ViewZikresource: React.FC = () => {
               onClick={() => setShowDeleteConfirm(true)}
             >
               <Trash2 size={14} />
-              <span>Delete Resource</span>
+              <span>{t.viewZikresource.btnDelete}</span>
             </button>
           ) : (
             <div className="delete-confirm-group">
-              <span className="delete-confirm-text">Are you sure?</span>
+              <span className="delete-confirm-text">{t.viewZikresource.confirmDeleteText}</span>
               <button
                 type="button"
                 className="btn-confirm-delete"
                 onClick={handleDelete}
                 disabled={isDeleting}
               >
-                {isDeleting ? <Loader2 size={12} className="spinning" /> : 'Yes, Delete'}
+                {isDeleting ? <Loader2 size={12} className="spinning" /> : t.viewZikresource.btnConfirmDelete}
               </button>
               <button
                 type="button"
@@ -149,7 +151,7 @@ export const ViewZikresource: React.FC = () => {
                 onClick={() => setShowDeleteConfirm(false)}
                 disabled={isDeleting}
               >
-                Cancel
+                {t.common.cancel}
               </button>
             </div>
           )}
@@ -159,7 +161,7 @@ export const ViewZikresource: React.FC = () => {
           <div className="detail-item">
             <div className="detail-label">
               <Music size={16} />
-              <span>Resource Type</span>
+              <span>{t.viewZikresource.typeLabel}</span>
             </div>
             <div className="detail-value">
               <span className={`type-badge type-${resource.type}`}>
@@ -172,7 +174,7 @@ export const ViewZikresource: React.FC = () => {
             <div className="detail-item">
               <div className="detail-label">
                 <Tag size={16} />
-                <span>Tags</span>
+                <span>{t.viewZikresource.tagsLabel}</span>
               </div>
               <div className="detail-tags-list">
                 {resource.tags.map((tag) => (

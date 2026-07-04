@@ -39,7 +39,7 @@ export const fr: TranslationSchema = {
     companionBadge: 'Votre compagnon musical',
     titleFirst: 'Organisez votre',
     titleGradient: 'Parcours Musical',
-    subtitle: 'Enregistrez et organisez les ressources nécessaires pour apprendre de nouveaux morceaux. Le compagnon idéal pour s\'entraîner seul ou créer des répertoires à jouer entre amis.',
+    subtitle: 'Enregistrez et organisez les ressources nécessaires pour apprendre de nouveaux morceaux. Le compagnon idéal pour s\'entraînement seul ou créer des répertoires à jouer entre amis.',
     getStarted: 'Commencer',
     discoverFeatures: 'Découvrir les fonctionnalités',
     feature1Title: 'Apprenez de nouveaux morceaux',
@@ -186,5 +186,41 @@ export const fr: TranslationSchema = {
     errorCreateFailed: 'Échec de la création du morceau.',
     saving: 'Enregistrement du Morceau...',
     saveButton: 'Enregistrer le Morceau'
+  },
+  viewZikresource: {
+    errorLoadFailed: 'Impossible de charger les détails de la ressource.',
+    errorDeleteFailed: 'Échec de la suppression de la ressource.',
+    loadingDetails: 'Chargement des détails de la ressource...',
+    notFound: 'Ressource introuvable.',
+    goToLink: 'Accéder à la Zikresource',
+    btnEdit: 'Modifier les détails',
+    btnDelete: 'Supprimer la ressource',
+    confirmDeleteText: 'Êtes-vous sûr ?',
+    btnConfirmDelete: 'Oui, Supprimer',
+    typeLabel: 'Type de ressource',
+    tagsLabel: 'Tags'
+  },
+  viewPlaylist: {
+    errorLoadFailed: 'Impossible de charger les détails de la playlist.',
+    errorDeleteFailed: 'Échec de la suppression de la playlist.',
+    loadingDetails: 'Chargement des détails de la playlist...',
+    notFound: 'Playlist introuvable.',
+    btnEdit: 'Modifier la Playlist',
+    btnDelete: 'Supprimer la Playlist',
+    songsSectionTitle: 'Morceaux dans la Playlist',
+    noSongsText: 'Aucun morceau dans cette playlist pour le moment.',
+    resourcesSectionTitle: 'Zikresources dans la Playlist',
+    noResourcesText: 'Aucune zikresource dans cette playlist pour le moment.'
+  },
+  viewSong: {
+    errorLoadFailed: 'Impossible de charger les détails du morceau.',
+    errorDeleteFailed: 'Échec de la suppression du morceau.',
+    loadingDetails: 'Chargement des détails du morceau...',
+    notFound: 'Morceau introuvable.',
+    btnEdit: 'Modifier le Morceau',
+    btnDelete: 'Supprimer le Morceau',
+    resourcesSectionTitle: 'Zikresources Associées',
+    noResourcesText: 'Aucune ressource associée trouvée pour ce morceau.',
+    btnOpenLink: 'Ouvrir le lien'
   }
 };

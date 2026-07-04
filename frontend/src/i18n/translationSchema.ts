@@ -185,6 +185,42 @@ export interface TranslationSchema {
     saving: string;
     saveButton: string;
   };
+  viewZikresource: {
+    errorLoadFailed: string;
+    errorDeleteFailed: string;
+    loadingDetails: string;
+    notFound: string;
+    goToLink: string;
+    btnEdit: string;
+    btnDelete: string;
+    confirmDeleteText: string;
+    btnConfirmDelete: string;
+    typeLabel: string;
+    tagsLabel: string;
+  };
+  viewPlaylist: {
+    errorLoadFailed: string;
+    errorDeleteFailed: string;
+    loadingDetails: string;
+    notFound: string;
+    btnEdit: string;
+    btnDelete: string;
+    songsSectionTitle: string;
+    noSongsText: string;
+    resourcesSectionTitle: string;
+    noResourcesText: string;
+  };
+  viewSong: {
+    errorLoadFailed: string;
+    errorDeleteFailed: string;
+    loadingDetails: string;
+    notFound: string;
+    btnEdit: string;
+    btnDelete: string;
+    resourcesSectionTitle: string;
+    noResourcesText: string;
+    btnOpenLink: string;
+  };
 }
 
 export type Locale = 'en' | 'fr';

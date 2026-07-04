@@ -5,12 +5,14 @@ import { fetchSongById, deleteSong } from '../../infra/song.api';
 import { fetchZikresources } from '../../infra/zikresource.api';
 import type { Song } from '../../infra/song.api';
 import type { Zikresource } from '../../infra/zikresource.api';
+import { useTranslation } from '../../hooks/useTranslation';
 import '../CreateSong/CreateSong.css';
 import './ViewSong.css';
 
 export const ViewSong: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams({ from: '/songs/$id' }) as { id: string };
+  const { t } = useTranslation();
 
   const [isLoading, setIsLoading] = useState(true);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -33,13 +35,13 @@ export const ViewSong: React.FC = () => {
         setAssociatedResources(matched);
       } catch (err) {
         console.error('Failed to load song data', err);
-        setError('Failed to load song details.');
+        setError(t.viewSong.errorLoadFailed);
       } finally {
         setIsLoading(false);
       }
     };
     loadData();
-  }, [id]);
+  }, [id, t.viewSong.errorLoadFailed]);
 
   const handleDelete = async () => {
     setIsDeleting(true);
@@ -48,7 +50,7 @@ export const ViewSong: React.FC = () => {
       await deleteSong(id);
       navigate({ to: '/home', search: { tab: 'songs' } });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to delete song.');
+      setError(err instanceof Error ? err.message : t.viewSong.errorDeleteFailed);
       setIsDeleting(false);
       setShowDeleteConfirm(false);
     }
@@ -64,9 +66,9 @@ export const ViewSong: React.FC = () => {
 
   const getResourceLabel = (type: string) => {
     switch (type) {
-      case 'tablature': return 'Tab';
-      case 'video': return 'Video';
-      default: return 'Track';
+      case 'tablature': return t.dashboard.typeTablature;
+      case 'video': return t.dashboard.typeVideo;
+      default: return t.dashboard.typeBackingTrack;
     }
   };
 
@@ -74,7 +76,7 @@ export const ViewSong: React.FC = () => {
     return (
       <div className="manage-loading-container">
         <Loader2 size={36} className="spinning" style={{ color: 'var(--accent-primary)' }} />
-        <p style={{ marginTop: '1rem', color: 'var(--text-secondary)' }}>Loading song details...</p>
+        <p style={{ marginTop: '1rem', color: 'var(--text-secondary)' }}>{t.viewSong.loadingDetails}</p>
       </div>
     );
   }
@@ -82,10 +84,10 @@ export const ViewSong: React.FC = () => {
   if (!song) {
     return (
       <div className="manage-loading-container">
-        <p style={{ color: '#ef4444' }}>Song not found.</p>
+        <p style={{ color: '#ef4444' }}>{t.viewSong.notFound}</p>
         <button className="btn-back-dashboard" onClick={() => navigate({ to: '/home' })} style={{ marginTop: '1rem' }}>
           <ArrowLeft size={16} />
-          <span>Back to Home</span>
+          <span>{t.common.backToHome}</span>
         </button>
       </div>
     );
@@ -100,7 +102,7 @@ export const ViewSong: React.FC = () => {
           onClick={() => navigate({ to: '/home' })}
         >
           <ArrowLeft size={16} />
-          <span>Back to Home</span>
+          <span>{t.common.backToHome}</span>
         </button>
         <div className="create-page-logo">
           <div className="create-page-logo-icon">
@@ -115,7 +117,7 @@ export const ViewSong: React.FC = () => {
         <div className="create-page-header">
           <h1 className="create-page-title">{song.title}</h1>
           <p className="create-page-subtitle">
-            by {song.artist}
+            {t.common.by} {song.artist}
           </p>
         </div>
 
@@ -128,7 +130,7 @@ export const ViewSong: React.FC = () => {
             onClick={() => navigate({ to: `/songs/${id}/edit` as never })}
           >
             <Edit size={14} />
-            <span>Edit Song</span>
+            <span>{t.viewSong.btnEdit}</span>
           </button>
 
           {!showDeleteConfirm ? (
@@ -138,18 +140,18 @@ export const ViewSong: React.FC = () => {
               onClick={() => setShowDeleteConfirm(true)}
             >
               <Trash2 size={14} />
-              <span>Delete Song</span>
+              <span>{t.viewSong.btnDelete}</span>
             </button>
           ) : (
             <div className="delete-confirm-group">
-              <span className="delete-confirm-text">Are you sure?</span>
+              <span className="delete-confirm-text">{t.viewZikresource.confirmDeleteText}</span>
               <button
                 type="button"
                 className="btn-confirm-delete"
                 onClick={handleDelete}
                 disabled={isDeleting}
               >
-                {isDeleting ? <Loader2 size={12} className="spinning" /> : 'Yes, Delete'}
+                {isDeleting ? <Loader2 size={12} className="spinning" /> : t.viewZikresource.btnConfirmDelete}
               </button>
               <button
                 type="button"
@@ -157,24 +159,24 @@ export const ViewSong: React.FC = () => {
                 onClick={() => setShowDeleteConfirm(false)}
                 disabled={isDeleting}
               >
-                Cancel
+                {t.common.cancel}
               </button>
             </div>
           )}
         </div>
 
         <div className="song-detail-panel glass-panel">
-          <h2 className="section-title">Associated Zikresources</h2>
+          <h2 className="section-title">{t.viewSong.resourcesSectionTitle}</h2>
           
           {associatedResources.length === 0 ? (
-            <p className="no-resources-message">No associated resources found for this song.</p>
+            <p className="no-resources-message">{t.viewSong.noResourcesText}</p>
           ) : (
             <div className="associated-resources-list">
               {associatedResources.map((res) => (
                 <div key={res._id} className="resource-card glass-panel">
                   <div className="resource-card-left">
                     <span className="resource-card-title">{res.title}</span>
-                    <span className="resource-card-artist">by {res.artist}</span>
+                    <span className="resource-card-artist">{t.common.by} {res.artist}</span>
                     {res.tags && res.tags.length > 0 && (
                       <div className="resource-card-tags">
                         {res.tags.map(tag => (
@@ -197,7 +199,7 @@ export const ViewSong: React.FC = () => {
                       className="btn-card-link"
                     >
                       <ExternalLink size={14} />
-                      <span>Open Link</span>
+                      <span>{t.viewSong.btnOpenLink}</span>
                     </a>
                   </div>
                 </div>

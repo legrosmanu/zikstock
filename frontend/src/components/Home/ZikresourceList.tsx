@@ -1,19 +1,16 @@
-import React, { useState } from 'react';
-import { BookOpen, Video, Music, HelpCircle, Trash2, Loader2, ChevronRight } from 'lucide-react';
+import React from 'react';
+import { BookOpen, Video, Music, HelpCircle, ChevronRight } from 'lucide-react';
 import { useNavigate } from '@tanstack/react-router';
 import type { Zikresource } from '../../infra/zikresource.api';
 import { useTranslation } from '../../hooks/useTranslation';
 
 interface ZikresourceListProps {
   resources: Zikresource[];
-  onDelete: (id: string) => Promise<void>;
 }
 
-export const ZikresourceList: React.FC<ZikresourceListProps> = ({ resources, onDelete }) => {
+export const ZikresourceList: React.FC<ZikresourceListProps> = ({ resources }) => {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
-  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const getTypeIcon = (type: string) => {
     switch (type) {
@@ -33,18 +30,6 @@ export const ZikresourceList: React.FC<ZikresourceListProps> = ({ resources, onD
     }
   };
 
-  const handleDelete = async (id: string) => {
-    setDeletingId(id);
-    try {
-      await onDelete(id);
-      setConfirmDeleteId(null);
-    } catch (err) {
-      console.error('Error deleting resource in list component:', err);
-    } finally {
-      setDeletingId(null);
-    }
-  };
-
   if (resources.length === 0) {
     return (
       <div className="no-results-panel glass-panel">
@@ -56,8 +41,6 @@ export const ZikresourceList: React.FC<ZikresourceListProps> = ({ resources, onD
   return (
     <div className="playlists-list" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
       {resources.map((resource) => {
-        const isDeleting = deletingId === resource._id;
-        const isConfirming = confirmDeleteId === resource._id;
 
         return (
           <div
@@ -85,37 +68,6 @@ export const ZikresourceList: React.FC<ZikresourceListProps> = ({ resources, onD
               </div>
 
               <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-
-                <div className="playlist-actions" onClick={(e) => e.stopPropagation()}>
-                  {isConfirming ? (
-                    <div className="confirm-delete-actions" style={{ position: 'static' }}>
-                      <button
-                        className="btn-confirm-delete"
-                        disabled={isDeleting}
-                        onClick={() => handleDelete(resource._id)}
-                      >
-                        {isDeleting ? <Loader2 size={13} className="spinning" /> : t.common.confirm}
-                      </button>
-                      <button
-                        className="btn-cancel-delete"
-                        disabled={isDeleting}
-                        onClick={() => setConfirmDeleteId(null)}
-                      >
-                        {t.common.cancel}
-                      </button>
-                    </div>
-                  ) : (
-                    <button
-                      className="btn-card-delete"
-                      onClick={() => setConfirmDeleteId(resource._id)}
-                      aria-label="Delete resource"
-                      style={{ background: 'transparent', border: 'none', color: 'var(--text-muted, #9ca3af)', cursor: 'pointer' }}
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  )}
-                </div>
-
                 <div style={{ color: 'var(--text-muted, #9ca3af)', display: 'flex', alignItems: 'center', paddingLeft: '0.5rem' }}>
                   <ChevronRight size={20} />
                 </div>

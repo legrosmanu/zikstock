@@ -186,5 +186,41 @@ export const en: TranslationSchema = {
     errorCreateFailed: 'Failed to create song.',
     saving: 'Saving Song...',
     saveButton: 'Save Song'
+  },
+  viewZikresource: {
+    errorLoadFailed: 'Failed to load resource or unauthorized.',
+    errorDeleteFailed: 'Failed to delete resource.',
+    loadingDetails: 'Loading resource details...',
+    notFound: 'Resource not found.',
+    goToLink: 'Go to Zikresource',
+    btnEdit: 'Edit Details',
+    btnDelete: 'Delete Resource',
+    confirmDeleteText: 'Are you sure?',
+    btnConfirmDelete: 'Yes, Delete',
+    typeLabel: 'Resource Type',
+    tagsLabel: 'Tags'
+  },
+  viewPlaylist: {
+    errorLoadFailed: 'Failed to load playlist details.',
+    errorDeleteFailed: 'Failed to delete playlist.',
+    loadingDetails: 'Loading playlist details...',
+    notFound: 'Playlist not found.',
+    btnEdit: 'Edit Playlist',
+    btnDelete: 'Delete Playlist',
+    songsSectionTitle: 'Songs in Playlist',
+    noSongsText: 'No songs in this playlist yet.',
+    resourcesSectionTitle: 'Zikresources in Playlist',
+    noResourcesText: 'No zikresources in this playlist yet.'
+  },
+  viewSong: {
+    errorLoadFailed: 'Failed to load song details.',
+    errorDeleteFailed: 'Failed to delete song.',
+    loadingDetails: 'Loading song details...',
+    notFound: 'Song not found.',
+    btnEdit: 'Edit Song',
+    btnDelete: 'Delete Song',
+    resourcesSectionTitle: 'Associated Zikresources',
+    noResourcesText: 'No associated resources found for this song.',
+    btnOpenLink: 'Open Link'
   }
 };
