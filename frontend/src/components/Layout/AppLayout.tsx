@@ -7,12 +7,14 @@ import {
   Moon,
   FileText,
   Folder,
-  Users
+  Users,
+  Globe
 } from 'lucide-react';
 import { useNavigate, useRouterState } from '@tanstack/react-router';
 import { useAuthStore } from '../../store/authStore';
 import { useTheme } from '../../hooks/useTheme';
 import { useNetworkStore } from '../../store/networkStore';
+import { useTranslation } from '../../hooks/useTranslation';
 import './AppLayout.css';
 
 interface AppLayoutProps {
@@ -29,6 +31,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const { theme, toggleTheme } = useTheme();
   const incomingCount = useNetworkStore((state) => state.incomingCount);
   const fetchIncomingCount = useNetworkStore((state) => state.fetchIncomingCount);
+  const { locale, t, setLocale } = useTranslation();
 
   // Poll for incoming requests if authenticated
   useEffect(() => {
@@ -106,7 +109,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
             onClick={() => navigateToSection('zikresources')}
           >
             <FileText size={18} />
-            <span>Zikresources</span>
+            <span>{t.sidebar.zikresources}</span>
           </button>
 
           <button
@@ -114,7 +117,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
             onClick={() => navigateToSection('playlists')}
           >
             <Folder size={18} />
-            <span>Playlists</span>
+            <span>{t.sidebar.playlists}</span>
           </button>
 
           <button
@@ -122,7 +125,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
             onClick={() => navigateToSection('songs')}
           >
             <Music size={18} />
-            <span>Songs</span>
+            <span>{t.sidebar.songs}</span>
           </button>
 
           <button
@@ -130,7 +133,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
             onClick={() => navigateToSection('network')}
           >
             <Users size={18} />
-            <span>Network</span>
+            <span>{t.sidebar.network}</span>
             {incomingCount > 0 && (
               <span className="sidebar-badge-count animate-pulse">{incomingCount}</span>
             )}
@@ -148,7 +151,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
                 </div>
               )}
               <div className="profile-info">
-                <span className="profile-name">{user.name || 'Musician'}</span>
+                <span className="profile-name">{user.name || t.common.profileFallbackName}</span>
                 <span className="profile-email">{user.email}</span>
               </div>
             </div>
@@ -156,17 +159,26 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
 
           <div className="sidebar-actions">
             <button
+              className="action-btn language-toggle"
+              onClick={() => setLocale(locale === 'en' ? 'fr' : 'en')}
+              title={t.common.language}
+            >
+              <Globe size={18} />
+              <span>{locale === 'en' ? 'Français' : 'English'}</span>
+            </button>
+
+            <button
               className="action-btn theme-toggle"
               onClick={toggleTheme}
-              title={theme === 'light' ? 'Dark mode' : 'Light mode'}
+              title={theme === 'light' ? t.common.themeDark : t.common.themeLight}
             >
               {theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
-              <span>{theme === 'light' ? 'Dark Mode' : 'Light Mode'}</span>
+              <span>{theme === 'light' ? t.common.themeDark : t.common.themeLight}</span>
             </button>
 
             <button className="action-btn signout-btn" onClick={handleSignOut}>
               <LogOut size={18} />
-              <span>Sign Out</span>
+              <span>{t.common.signOut}</span>
             </button>
           </div>
         </div>
@@ -211,14 +223,23 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
               <div className="mobile-dropdown glass-panel animate-slide-down">
                 {user && (
                   <div className="dropdown-user-info">
-                    <span className="dropdown-name">{user.name || 'Musician'}</span>
+                    <span className="dropdown-name">{user.name || t.common.profileFallbackName}</span>
                     <span className="dropdown-email">{user.email}</span>
                   </div>
                 )}
                 <hr className="dropdown-divider" />
+                <button
+                  className="dropdown-item language-toggle"
+                  onClick={() => {
+                    setLocale(locale === 'en' ? 'fr' : 'en');
+                  }}
+                >
+                  <Globe size={16} />
+                  <span>{locale === 'en' ? 'Français' : 'English'}</span>
+                </button>
                 <button className="dropdown-item logout" onClick={handleSignOut}>
                   <LogOut size={16} />
-                  <span>Sign Out</span>
+                  <span>{t.common.signOut}</span>
                 </button>
               </div>
             )}
@@ -241,7 +262,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
             onClick={() => navigateToSection('zikresources')}
           >
             <FileText size={20} />
-            <span className="tab-label">Resources</span>
+            <span className="tab-label">{t.sidebar.zikresources}</span>
           </button>
 
           <button
@@ -249,7 +270,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
             onClick={() => navigateToSection('playlists')}
           >
             <Folder size={20} />
-            <span className="tab-label">Playlists</span>
+            <span className="tab-label">{t.sidebar.playlists}</span>
           </button>
 
           <button
@@ -257,7 +278,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
             onClick={() => navigateToSection('songs')}
           >
             <Music size={20} />
-            <span className="tab-label">Songs</span>
+            <span className="tab-label">{t.sidebar.songs}</span>
           </button>
 
           <button
@@ -270,7 +291,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
                 <span className="mobile-badge-count animate-pulse">{incomingCount}</span>
               )}
             </div>
-            <span className="tab-label">Network</span>
+            <span className="tab-label">{t.sidebar.network}</span>
           </button>
         </nav>
       )}

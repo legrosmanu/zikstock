@@ -4,10 +4,12 @@ import { useNavigate } from '@tanstack/react-router';
 import { fetchZikresources } from '../../infra/zikresource.api';
 import type { Zikresource } from '../../infra/zikresource.api';
 import { createSong } from '../../infra/song.api';
+import { useTranslation } from '../../hooks/useTranslation';
 import './CreateSong.css';
 
 export const CreateSong: React.FC = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const [title, setTitle] = useState('');
   const [artist, setArtist] = useState('');
@@ -25,13 +27,13 @@ export const CreateSong: React.FC = () => {
         setZikresources(data);
       } catch (err) {
         console.error('Failed to load resources', err);
-        setError('Failed to load Zikresources.');
+        setError(t.createSong.errorLoadResources);
       } finally {
         setIsLoading(false);
       }
     };
     loadResources();
-  }, []);
+  }, [t.createSong.errorLoadResources]);
 
   const toggleResource = (id: string) => {
     setSelectedZikresourceIds((prev) =>
@@ -49,9 +51,9 @@ export const CreateSong: React.FC = () => {
 
   const getResourceLabel = (type: string) => {
     switch (type) {
-      case 'tablature': return 'Tab';
-      case 'video': return 'Video';
-      default: return 'Track';
+      case 'tablature': return t.dashboard.typeTablature;
+      case 'video': return t.dashboard.typeVideo;
+      default: return t.dashboard.typeBackingTrack;
     }
   };
 
@@ -66,15 +68,15 @@ export const CreateSong: React.FC = () => {
     setError(null);
 
     if (!title.trim()) {
-      setError('Song title is required.');
+      setError(t.createSong.errorTitleRequired);
       return;
     }
     if (!artist.trim()) {
-      setError('Artist is required.');
+      setError(t.createSong.errorArtistRequired);
       return;
     }
     if (selectedZikresourceIds.length === 0) {
-      setError('Please select at least one Zikresource.');
+      setError(t.createSong.errorSelectResource);
       return;
     }
 
@@ -87,7 +89,7 @@ export const CreateSong: React.FC = () => {
       });
       navigate({ to: '/home', search: { tab: 'songs' } });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create song.');
+      setError(err instanceof Error ? err.message : t.createSong.errorCreateFailed);
     } finally {
       setIsSubmitting(false);
     }
@@ -102,7 +104,7 @@ export const CreateSong: React.FC = () => {
           onClick={() => navigate({ to: '/home' })}
         >
           <ArrowLeft size={16} />
-          <span>Back to Home</span>
+          <span>{t.common.backToHome}</span>
         </button>
         <div className="create-page-logo">
           <div className="create-page-logo-icon">
@@ -115,9 +117,9 @@ export const CreateSong: React.FC = () => {
       {/* Page Content */}
       <main className="create-page-main animate-fade-in">
         <div className="create-page-header">
-          <h1 className="create-page-title">Create a Song</h1>
+          <h1 className="create-page-title">{t.createSong.title}</h1>
           <p className="create-page-subtitle">
-            Group multiple Zikresources (tutorials, tabs, tracks) under a single song title for easier practice.
+            {t.createSong.subtitle}
           </p>
         </div>
 
@@ -126,12 +128,12 @@ export const CreateSong: React.FC = () => {
         <form onSubmit={handleSubmit} className="create-page-form glass-panel">
           <div className="form-row">
             <div className="form-group-flex">
-              <label className="form-label" htmlFor="song-title">Song Title</label>
+              <label className="form-label" htmlFor="song-title">{t.createSong.fieldTitle}</label>
               <input
                 type="text"
                 id="song-title"
                 className="form-input-field"
-                placeholder="e.g. Come As You Are"
+                placeholder={t.createSong.titlePlaceholder}
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 disabled={isSubmitting}
@@ -139,12 +141,12 @@ export const CreateSong: React.FC = () => {
             </div>
 
             <div className="form-group-flex">
-              <label className="form-label" htmlFor="song-artist">Artist</label>
+              <label className="form-label" htmlFor="song-artist">{t.createSong.fieldArtist}</label>
               <input
                 type="text"
                 id="song-artist"
                 className="form-input-field"
-                placeholder="e.g. Nirvana"
+                placeholder={t.createSong.artistPlaceholder}
                 value={artist}
                 onChange={(e) => setArtist(e.target.value)}
                 disabled={isSubmitting}
@@ -153,22 +155,22 @@ export const CreateSong: React.FC = () => {
           </div>
 
           <div className="form-group-flex">
-            <label className="form-label">Select Associated Zikresources</label>
+            <label className="form-label">{t.createSong.fieldSelectResources}</label>
             <div className="search-filter-box">
               <Search size={14} className="search-filter-icon" />
               <input
                 type="text"
                 className="search-filter-input"
-                placeholder="Search resources by title or artist..."
+                placeholder={t.createSong.searchPlaceholder}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
 
             {isLoading ? (
-              <div className="resources-loading-msg">Loading resources...</div>
+              <div className="resources-loading-msg">{t.createSong.loading}</div>
             ) : filteredResources.length === 0 ? (
-              <div className="no-resources-msg">No Zikresources found. Add some resources first!</div>
+              <div className="no-resources-msg">{t.createSong.noResourcesFound}</div>
             ) : (
               <div className="selection-list-container">
                 {filteredResources.map((res) => {
@@ -204,16 +206,16 @@ export const CreateSong: React.FC = () => {
               onClick={() => navigate({ to: '/home' })}
               disabled={isSubmitting}
             >
-              Cancel
+              {t.common.cancel}
             </button>
             <button type="submit" className="btn-primary-action" disabled={isSubmitting}>
               {isSubmitting ? (
                 <>
                   <Loader2 size={16} className="animate-spin" />
-                  <span>Saving Song...</span>
+                  <span>{t.createSong.saving}</span>
                 </>
               ) : (
-                <span>Save Song</span>
+                <span>{t.createSong.saveButton}</span>
               )}
             </button>
           </div>

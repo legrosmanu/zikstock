@@ -2,11 +2,13 @@ import React, { useEffect, useRef, useState } from 'react';
 import { ArrowLeft, Music, ShieldAlert } from 'lucide-react';
 import { useNavigate } from '@tanstack/react-router';
 import { useAuthStore } from '../../store/authStore';
+import { useTranslation } from '../../hooks/useTranslation';
 import './LoginPage.css';
 
 export const LoginPage: React.FC = () => {
   const navigate = useNavigate();
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -107,13 +109,13 @@ export const LoginPage: React.FC = () => {
 
         <div className="login-left-content">
           <h1 className="login-hero-title">
-            Organize Your <br />
+            {t.landing.titleFirst} <br />
             <span style={{ background: 'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-              Musical Journey
+              {t.landing.titleGradient}
             </span>
           </h1>
           <p className="login-hero-subtitle">
-            Store and organize the resources you need to learn new songs. The perfect companion to practice alone or build setlists to play with your friends.
+            {t.landing.subtitle}
           </p>
         </div>
 
@@ -127,7 +129,7 @@ export const LoginPage: React.FC = () => {
         <div className="login-card glass-panel">
           <button className="btn-back-landing" onClick={() => navigate({ to: '/' })}>
             <ArrowLeft size={16} />
-            <span>Back to home</span>
+            <span>{t.login.backToHome}</span>
           </button>
 
           {/* Dedicated mobile logo (hidden on desktop) */}
@@ -136,8 +138,8 @@ export const LoginPage: React.FC = () => {
           </div>
 
           <div className="login-card-header">
-            <h2 className="login-card-title">Sign In</h2>
-            <p className="login-card-subtitle">Connect to your musical repository</p>
+            <h2 className="login-card-title">{t.login.signInCardTitle}</h2>
+            <p className="login-card-subtitle">{t.login.signInCardSubtitle}</p>
           </div>
 
           <div className="login-card-body">
@@ -145,7 +147,7 @@ export const LoginPage: React.FC = () => {
               <div className="google-button-container-wrapper">
                 <div className="login-google-container" id="login-google-signin-button">
                   {!gisLoaded && (
-                    <p className="login-card-subtitle animate-pulse">Establishing secure connection...</p>
+                    <p className="login-card-subtitle animate-pulse">{t.login.establishingConnection}</p>
                   )}
                 </div>
               </div>
@@ -153,10 +155,10 @@ export const LoginPage: React.FC = () => {
               <div className="login-warning-box">
                 <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.35rem', fontWeight: 600, alignItems: 'center' }}>
                   <ShieldAlert size={16} />
-                  <span>Google Client ID Unconfigured</span>
+                  <span>{t.login.clientUnconfiguredTitle}</span>
                 </div>
                 <p>
-                  To enable Google Authentication, add your client ID to <code>VITE_GOOGLE_CLIENT_ID</code> in the frontend <code>.env</code> file.
+                  {t.login.clientUnconfiguredDesc}
                 </p>
               </div>
             )}

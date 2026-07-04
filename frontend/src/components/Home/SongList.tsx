@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Music, Trash2, Loader2, ChevronRight } from 'lucide-react';
 import { useNavigate } from '@tanstack/react-router';
 import type { Song } from '../../infra/song.api';
+import { useTranslation } from '../../hooks/useTranslation';
 
 interface SongListProps {
   songs: Song[];
@@ -10,6 +11,7 @@ interface SongListProps {
 
 export const SongList: React.FC<SongListProps> = ({ songs, onDelete }) => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
@@ -28,7 +30,7 @@ export const SongList: React.FC<SongListProps> = ({ songs, onDelete }) => {
   if (songs.length === 0) {
     return (
       <div className="no-results-panel glass-panel">
-        <p>No songs found. Create a Song to group Zikresources together.</p>
+        <p>{t.dashboard.noSongsFound}</p>
       </div>
     );
   }
@@ -54,7 +56,7 @@ export const SongList: React.FC<SongListProps> = ({ songs, onDelete }) => {
                 <div>
                   <h3 className="playlist-row-title" style={{ margin: 0, fontSize: '1.1rem', fontWeight: '600' }}>{song.title}</h3>
                   <p className="playlist-row-desc" style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-muted, #9ca3af)' }}>
-                    {song.artist || 'Unknown Artist'} • {song.zikresourceIds.length} Resources
+                    {song.artist || t.common.unknownArtist} • {song.zikresourceIds.length} {song.zikresourceIds.length > 1 ? t.common.resourcesCountPlural : t.common.resourcesCountSingular}
                   </p>
                 </div>
               </div>
@@ -68,14 +70,14 @@ export const SongList: React.FC<SongListProps> = ({ songs, onDelete }) => {
                         disabled={isDeleting}
                         onClick={() => handleDelete(song._id)}
                       >
-                        {isDeleting ? <Loader2 size={13} className="spinning" /> : 'Confirm'}
+                        {isDeleting ? <Loader2 size={13} className="spinning" /> : t.common.confirm}
                       </button>
                       <button
                         className="btn-cancel-delete"
                         disabled={isDeleting}
                         onClick={() => setConfirmDeleteId(null)}
                       >
-                        Cancel
+                        {t.common.cancel}
                       </button>
                     </div>
                   ) : (

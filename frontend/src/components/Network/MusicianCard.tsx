@@ -8,6 +8,7 @@ import {
     Loader2 
 } from 'lucide-react';
 import type { NetworkUser } from '../../infra/network.api';
+import { useTranslation } from '../../hooks/useTranslation';
 
 interface MusicianCardProps {
     user: NetworkUser;
@@ -28,6 +29,7 @@ export const MusicianCard: React.FC<MusicianCardProps> = ({
     onAccept,
     onRemove
 }) => {
+    const { t } = useTranslation();
     const isActionLoading = actionLoadingId === user.id || (connectionId && actionLoadingId === connectionId);
 
     return (
@@ -41,7 +43,7 @@ export const MusicianCard: React.FC<MusicianCardProps> = ({
                     </div>
                 )}
                 <div className="user-text-details">
-                    <span className="user-name">{user.name || 'Musician'}</span>
+                    <span className="user-name">{user.name || t.common.profileFallbackName}</span>
                     <span className="user-email">{user.email}</span>
                 </div>
             </div>
@@ -49,7 +51,7 @@ export const MusicianCard: React.FC<MusicianCardProps> = ({
             <div className="user-actions">
                 {relationship === 'connected' && (
                     <span className="badge-connected">
-                        <Check size={14} /> Connected
+                        <Check size={14} /> {t.network.badgeConnected}
                     </span>
                 )}
                 {relationship === 'active' && (
@@ -59,17 +61,17 @@ export const MusicianCard: React.FC<MusicianCardProps> = ({
                         disabled={!!isActionLoading}
                     >
                         {isActionLoading ? <Loader2 className="animate-spin" size={14} /> : <UserMinus size={14} />}
-                        <span>Disconnect</span>
+                        <span>{t.network.btnDisconnect}</span>
                     </button>
                 )}
                 {relationship === 'outgoing' && (
                     <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
                         <span className="badge-pending">
-                            <Clock size={14} /> Sent
+                            <Clock size={14} /> {t.network.badgeSent}
                         </span>
                         <button 
                             className="btn-action-icon decline"
-                            title="Cancel Request"
+                            title={t.network.titleCancelRequest}
                             onClick={() => connectionId && onRemove?.(connectionId)}
                             disabled={!!isActionLoading}
                         >
@@ -85,11 +87,11 @@ export const MusicianCard: React.FC<MusicianCardProps> = ({
                             disabled={!!isActionLoading}
                         >
                             {isActionLoading ? <Loader2 className="animate-spin" size={14} /> : <Check size={14} />}
-                            <span>Accept</span>
+                            <span>{t.network.btnAccept}</span>
                         </button>
                         <button 
                             className="btn-action-icon decline"
-                            title="Decline Request"
+                            title={t.network.titleDeclineRequest}
                             onClick={() => connectionId && onRemove?.(connectionId)}
                             disabled={!!isActionLoading}
                         >
@@ -104,7 +106,7 @@ export const MusicianCard: React.FC<MusicianCardProps> = ({
                         disabled={!!isActionLoading}
                     >
                         {isActionLoading ? <Loader2 className="animate-spin" size={14} /> : <UserPlus size={14} />}
-                        <span>Connect</span>
+                        <span>{t.network.btnConnect}</span>
                     </button>
                 )}
             </div>

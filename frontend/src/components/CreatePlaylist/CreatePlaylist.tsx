@@ -6,11 +6,13 @@ import type { Song } from '../../infra/song.api';
 import { fetchZikresources } from '../../infra/zikresource.api';
 import type { Zikresource } from '../../infra/zikresource.api';
 import { createPlaylist } from '../../infra/playlist.api';
+import { useTranslation } from '../../hooks/useTranslation';
 import '../CreateSong/CreateSong.css';
 import './CreatePlaylist.css';
 
 export const CreatePlaylist: React.FC = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -35,13 +37,13 @@ export const CreatePlaylist: React.FC = () => {
         setZikresources(zikData);
       } catch (err) {
         console.error('Failed to load data', err);
-        setError('Failed to load songs and zikresources.');
+        setError(t.createPlaylist.errorLoadData);
       } finally {
         setIsLoading(false);
       }
     };
     loadData();
-  }, []);
+  }, [t.createPlaylist.errorLoadData]);
 
   const toggleSong = (id: string) => {
     setSelectedSongIds((prev) =>
@@ -72,7 +74,7 @@ export const CreatePlaylist: React.FC = () => {
     setError(null);
 
     if (!name.trim()) {
-      setError('Playlist name is required.');
+      setError(t.createPlaylist.errorNameRequired);
       return;
     }
 
@@ -86,7 +88,7 @@ export const CreatePlaylist: React.FC = () => {
       });
       navigate({ to: '/home', search: { tab: 'playlists' } });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create playlist.');
+      setError(err instanceof Error ? err.message : t.createPlaylist.errorCreateFailed);
     } finally {
       setIsSubmitting(false);
     }
@@ -101,7 +103,7 @@ export const CreatePlaylist: React.FC = () => {
           onClick={() => navigate({ to: '/home' })}
         >
           <ArrowLeft size={16} />
-          <span>Back to Home</span>
+          <span>{t.common.backToHome}</span>
         </button>
         <div className="create-page-logo">
           <div className="create-page-logo-icon">
@@ -114,9 +116,9 @@ export const CreatePlaylist: React.FC = () => {
       {/* Page Content */}
       <main className="create-page-main animate-fade-in">
         <div className="create-page-header">
-          <h1 className="create-page-title">Create a Playlist</h1>
+          <h1 className="create-page-title">{t.createPlaylist.title}</h1>
           <p className="create-page-subtitle">
-            Group your zikresource or songs together to plan practice sessions or build a performance setlist.
+            {t.createPlaylist.subtitle}
           </p>
         </div>
 
@@ -124,12 +126,12 @@ export const CreatePlaylist: React.FC = () => {
 
         <form onSubmit={handleSubmit} className="create-page-form glass-panel">
           <div className="form-group-flex">
-            <label className="form-label" htmlFor="playlist-name">Playlist Name</label>
+            <label className="form-label" htmlFor="playlist-name">{t.createPlaylist.fieldName}</label>
             <input
               type="text"
               id="playlist-name"
               className="form-input-field"
-              placeholder="e.g. Sunday Morning Jam"
+              placeholder={t.createPlaylist.namePlaceholder}
               value={name}
               onChange={(e) => setName(e.target.value)}
               disabled={isSubmitting}
@@ -137,11 +139,11 @@ export const CreatePlaylist: React.FC = () => {
           </div>
 
           <div className="form-group-flex">
-            <label className="form-label" htmlFor="playlist-desc">Description (Optional)</label>
+            <label className="form-label" htmlFor="playlist-desc">{t.createPlaylist.fieldDescription}</label>
             <textarea
               id="playlist-desc"
               className="form-input-field form-textarea-field"
-              placeholder="e.g. Chill acoustic tunes to practice fingerpicking"
+              placeholder={t.createPlaylist.descriptionPlaceholder}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               disabled={isSubmitting}
@@ -150,22 +152,22 @@ export const CreatePlaylist: React.FC = () => {
           </div>
 
           <div className="form-group-flex">
-            <label className="form-label">Add Zikresources</label>
+            <label className="form-label">{t.createPlaylist.fieldAddResources}</label>
             <div className="search-filter-box">
               <Search size={14} className="search-filter-icon" />
               <input
                 type="text"
                 className="search-filter-input"
-                placeholder="Search zikresources by title or artist..."
+                placeholder={t.createPlaylist.searchResourcesPlaceholder}
                 value={zikSearchQuery}
                 onChange={(e) => setZikSearchQuery(e.target.value)}
               />
             </div>
 
             {isLoading ? (
-              <div className="resources-loading-msg">Loading zikresources...</div>
+              <div className="resources-loading-msg">{t.createPlaylist.loadingResources}</div>
             ) : filteredZikresources.length === 0 ? (
-              <div className="no-resources-msg">No zikresources found. Create a Zikresource first!</div>
+              <div className="no-resources-msg">{t.createPlaylist.noResourcesFound}</div>
             ) : (
               <div className="selection-list-container">
                 {filteredZikresources.map((res) => {
@@ -181,14 +183,19 @@ export const CreatePlaylist: React.FC = () => {
                       </div>
                       <div className="item-meta">
                         <span className="item-title">{res.title}</span>
-                        <span className="item-artist">by {res.artist}</span>
+                        <span className="item-artist">{t.common.by} {res.artist}</span>
                       </div>
                       <div className="playlist-item-badge">
                         {res.type === 'tablature' && <BookOpen size={12} />}
                         {res.type === 'video' && <Video size={12} />}
                         {res.type === 'backing-track' && <Music size={12} />}
                         {res.type === 'other' && <HelpCircle size={12} />}
-                        <span style={{ marginLeft: '4px' }}>{res.type}</span>
+                        <span style={{ marginLeft: '4px' }}>
+                          {res.type === 'tablature' && t.dashboard.typeTablature}
+                          {res.type === 'video' && t.dashboard.typeVideo}
+                          {res.type === 'backing-track' && t.dashboard.typeBackingTrack}
+                          {res.type === 'other' && t.dashboard.typeOther}
+                        </span>
                       </div>
                     </div>
                   );
@@ -198,22 +205,22 @@ export const CreatePlaylist: React.FC = () => {
           </div>
 
           <div className="form-group-flex" style={{ marginTop: '1.5rem' }}>
-            <label className="form-label">Add Songs</label>
+            <label className="form-label">{t.createPlaylist.fieldAddSongs}</label>
             <div className="search-filter-box">
               <Search size={14} className="search-filter-icon" />
               <input
                 type="text"
                 className="search-filter-input"
-                placeholder="Search songs by title or artist..."
+                placeholder={t.createPlaylist.searchSongsPlaceholder}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
 
             {isLoading ? (
-              <div className="resources-loading-msg">Loading songs...</div>
+              <div className="resources-loading-msg">{t.createPlaylist.loadingSongs}</div>
             ) : filteredSongs.length === 0 ? (
-              <div className="no-resources-msg">No songs found. Create a Song first!</div>
+              <div className="no-resources-msg">{t.createPlaylist.noSongsFound}</div>
             ) : (
               <div className="selection-list-container">
                 {filteredSongs.map((song) => {
@@ -229,11 +236,11 @@ export const CreatePlaylist: React.FC = () => {
                       </div>
                       <div className="item-meta">
                         <span className="item-title">{song.title}</span>
-                        <span className="item-artist">by {song.artist}</span>
+                        <span className="item-artist">{t.common.by} {song.artist}</span>
                       </div>
                       <div className="playlist-item-badge">
                         <Music size={12} />
-                        <span>{song.zikresourceIds.length} resources</span>
+                        <span>{song.zikresourceIds.length} {song.zikresourceIds.length > 1 ? t.common.resourcesCountPlural : t.common.resourcesCountSingular}</span>
                       </div>
                     </div>
                   );
@@ -249,16 +256,16 @@ export const CreatePlaylist: React.FC = () => {
               onClick={() => navigate({ to: '/home' })}
               disabled={isSubmitting}
             >
-              Cancel
+              {t.common.cancel}
             </button>
             <button type="submit" className="btn-primary-action" disabled={isSubmitting}>
               {isSubmitting ? (
                 <>
                   <Loader2 size={16} className="animate-spin" />
-                  <span>Saving Playlist...</span>
+                  <span>{t.createPlaylist.saving}</span>
                 </>
               ) : (
-                <span>Save Playlist</span>
+                <span>{t.createPlaylist.saveButton}</span>
               )}
             </button>
           </div>

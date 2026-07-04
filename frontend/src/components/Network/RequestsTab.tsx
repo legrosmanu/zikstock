@@ -2,6 +2,7 @@ import React from 'react';
 import { Clock, Send } from 'lucide-react';
 import { MusicianCard } from './MusicianCard';
 import type { ConnectionWithUser } from '../../infra/network.api';
+import { useTranslation } from '../../hooks/useTranslation';
 
 interface RequestsTabProps {
     incoming: ConnectionWithUser[];
@@ -18,14 +19,16 @@ export const RequestsTab: React.FC<RequestsTabProps> = ({
     onRemove,
     actionLoadingId
 }) => {
+    const { t } = useTranslation();
+
     return (
         <div className="requests-panel">
             <div className="incoming-requests-wrapper glass-panel">
-                <h3 className="section-title">Incoming Requests ({incoming.length})</h3>
+                <h3 className="section-title">{t.network.incomingRequestsHeading} ({incoming.length})</h3>
                 {incoming.length === 0 ? (
                     <div className="empty-state-card small">
                         <Clock size={30} className="empty-icon" />
-                        <p className="empty-title">No pending requests</p>
+                        <p className="empty-title">{t.network.noPendingRequests}</p>
                     </div>
                 ) : (
                     <div className="users-grid">
@@ -45,11 +48,11 @@ export const RequestsTab: React.FC<RequestsTabProps> = ({
             </div>
 
             <div className="outgoing-requests-wrapper glass-panel">
-                <h3 className="section-title">Sent Requests ({outgoing.length})</h3>
+                <h3 className="section-title">{t.network.sentRequestsHeading} ({outgoing.length})</h3>
                 {outgoing.length === 0 ? (
                     <div className="empty-state-card small">
                         <Send size={30} className="empty-icon" />
-                        <p className="empty-title">No sent requests</p>
+                        <p className="empty-title">{t.network.noSentRequests}</p>
                     </div>
                 ) : (
                     <div className="users-grid">

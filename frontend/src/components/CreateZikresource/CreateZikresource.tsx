@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Music, ArrowLeft, Plus, X, Link, User, FileText, Tag, Loader2 } from 'lucide-react';
 import { useNavigate } from '@tanstack/react-router';
 import { authenticatedPost } from '../../infra/httpClient';
+import { useTranslation } from '../../hooks/useTranslation';
 import './CreateZikresource.css';
 
 interface TagItem {
@@ -17,18 +18,17 @@ interface FormState {
   tags: TagItem[];
 }
 
-const RESOURCE_TYPES = [
-  { value: 'tablature', label: '🎼 Tab / Sheet Music' },
-  { value: 'video', label: '🎬 Video Tutorial' },
-  { value: 'backing-track', label: '🎵 Backing Track' },
-];
-
-
-
 const PRESET_TAGS = ['beginner', 'intermediate', 'advanced', 'jazz', 'rock', 'blues', 'classical', 'fingerstyle'];
 
 export const CreateZikresource: React.FC = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
+
+  const RESOURCE_TYPES = [
+    { value: 'tablature', label: `🎼 ${t.dashboard.typeTablature}` },
+    { value: 'video', label: `🎬 ${t.dashboard.typeVideo}` },
+    { value: 'backing-track', label: `🎵 ${t.dashboard.typeBackingTrack}` },
+  ];
 
   const [form, setForm] = useState<FormState>({
     url: '',
@@ -69,10 +69,10 @@ export const CreateZikresource: React.FC = () => {
   };
 
   const validate = (): string | null => {
-    if (!form.url.trim()) return 'A URL is required.';
-    try { new URL(form.url); } catch { return 'Please enter a valid URL.'; }
-    if (!form.artist.trim()) return 'Artist name is required.';
-    if (!form.title.trim()) return 'Title is required.';
+    if (!form.url.trim()) return t.createZikresource.errorUrlRequired;
+    try { new URL(form.url); } catch { return t.createZikresource.errorUrlInvalid; }
+    if (!form.artist.trim()) return t.createZikresource.errorArtistRequired;
+    if (!form.title.trim()) return t.createZikresource.errorTitleRequired;
     return null;
   };
 
@@ -96,11 +96,10 @@ export const CreateZikresource: React.FC = () => {
       const endpoint = '/zikresources';
       await authenticatedPost(endpoint, body);
 
-
       setSuccess(true);
       setTimeout(() => navigate({ to: '/home', search: { tab: 'zikresources' } }), 1200);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
+      setError(err instanceof Error ? err.message : t.common.errorSomethingWentWrong);
     } finally {
       setIsSubmitting(false);
     }
@@ -116,7 +115,7 @@ export const CreateZikresource: React.FC = () => {
           onClick={() => navigate({ to: '/home' })}
         >
           <ArrowLeft size={16} />
-          <span>Back to Home</span>
+          <span>{t.common.backToHome}</span>
         </button>
         <div className="create-logo">
           <div className="create-logo-icon">
@@ -129,9 +128,9 @@ export const CreateZikresource: React.FC = () => {
       {/* Page */}
       <main className="create-main">
         <div className="create-header">
-          <h1 className="create-title">Add a Zikresource</h1>
+          <h1 className="create-title">{t.createZikresource.title}</h1>
           <p className="create-subtitle">
-            Save a link to a tab, video tutorial, sheet music, or audio track to your practice space.
+            {t.createZikresource.subtitle}
           </p>
         </div>
 
@@ -145,7 +144,7 @@ export const CreateZikresource: React.FC = () => {
           <div className="form-group">
             <label className="form-label" htmlFor="field-url">
               <Link size={15} />
-              Resource URL <span className="form-required">*</span>
+              {t.createZikresource.fieldUrl} <span className="form-required">*</span>
             </label>
             <input
               id="field-url"
@@ -163,7 +162,7 @@ export const CreateZikresource: React.FC = () => {
           <div className="form-group">
             <label className="form-label" htmlFor="field-artist">
               <User size={15} />
-              Artist <span className="form-required">*</span>
+              {t.createZikresource.fieldArtist} <span className="form-required">*</span>
             </label>
             <input
               id="field-artist"
@@ -180,7 +179,7 @@ export const CreateZikresource: React.FC = () => {
           <div className="form-group">
             <label className="form-label" htmlFor="field-title">
               <FileText size={15} />
-              Title <span className="form-required">*</span>
+              {t.createZikresource.fieldTitle} <span className="form-required">*</span>
             </label>
             <input
               id="field-title"
@@ -197,10 +196,9 @@ export const CreateZikresource: React.FC = () => {
           <div className="form-group">
             <label className="form-label" htmlFor="field-type">
               <FileText size={15} />
-              Resource Type
+              {t.createZikresource.fieldType}
             </label>
             <div className="type-grid">
-
               {RESOURCE_TYPES.map(({ value, label }) => (
                 <button
                   key={value}
@@ -220,7 +218,7 @@ export const CreateZikresource: React.FC = () => {
           <div className="form-group">
             <label className="form-label" htmlFor="field-tag-input">
               <Tag size={15} />
-              Tags
+              {t.createZikresource.fieldTags}
             </label>
             <div className="tags-presets">
               {PRESET_TAGS.map((preset) => (
@@ -245,7 +243,7 @@ export const CreateZikresource: React.FC = () => {
                 id="field-tag-input"
                 type="text"
                 className="form-input tag-input"
-                placeholder="Custom tag — press Enter or comma to add"
+                placeholder={t.createZikresource.tagInputPlaceholder}
                 value={tagInput}
                 onChange={(e) => setTagInput(e.target.value)}
                 onKeyDown={handleTagKeyDown}
@@ -291,7 +289,7 @@ export const CreateZikresource: React.FC = () => {
           {/* Success */}
           {success && (
             <div className="form-success" role="status">
-              ✅ Zikresource saved! Redirecting…
+              {t.createZikresource.successSaving}
             </div>
           )}
 
@@ -304,7 +302,7 @@ export const CreateZikresource: React.FC = () => {
               onClick={() => navigate({ to: '/home' })}
               disabled={isSubmitting}
             >
-              Cancel
+              {t.common.cancel}
             </button>
             <button
               type="submit"
@@ -315,12 +313,12 @@ export const CreateZikresource: React.FC = () => {
               {isSubmitting ? (
                 <>
                   <Loader2 size={17} className="spinning" />
-                  <span>Saving…</span>
+                  <span>{t.common.saving}</span>
                 </>
               ) : (
                 <>
                   <Plus size={17} />
-                  <span>Save Zikresource</span>
+                  <span>{t.createZikresource.saveButton}</span>
                 </>
               )}
             </button>

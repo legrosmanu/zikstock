@@ -12,6 +12,7 @@ import { fetchSongs, deleteSong } from '../../infra/song.api';
 import type { Song } from '../../infra/song.api';
 import { fetchPlaylists, deletePlaylist } from '../../infra/playlist.api';
 import type { Playlist } from '../../infra/playlist.api';
+import { useTranslation } from '../../hooks/useTranslation';
 
 // Sub-components
 import { WelcomeBanner } from './WelcomeBanner';
@@ -24,6 +25,7 @@ import './Home.css';
 export const Home: React.FC = () => {
   const navigate = useNavigate();
   const token = useAuthStore((state) => state.token);
+  const { t } = useTranslation();
 
   const [connectionStatus, setConnectionStatus] = useState<'checking' | 'active' | 'error'>('checking');
 
@@ -77,7 +79,7 @@ export const Home: React.FC = () => {
     } catch (err) {
       console.error('Error fetching data from backend API:', err);
       setConnectionStatus('error');
-      setErrorMsg('Failed to retrieve your practice workspace data.');
+      setErrorMsg(t.dashboard.errorFetchData);
     } finally {
       setIsLoadingData(false);
     }
@@ -93,7 +95,7 @@ export const Home: React.FC = () => {
       setZikresources(prev => prev.filter(r => r._id !== id));
     } catch (err) {
       console.error('Error deleting zikresource:', err);
-      alert('Failed to delete resource. It might be referenced by a song.');
+      alert(t.common.errorDeleteResource);
       throw err;
     }
   };
@@ -104,7 +106,7 @@ export const Home: React.FC = () => {
       setSongs(prev => prev.filter(s => s._id !== id));
     } catch (err) {
       console.error('Error deleting song:', err);
-      alert('Failed to delete song. It might be referenced by a playlist.');
+      alert(t.common.errorDeleteSong);
       throw err;
     }
   };
@@ -115,7 +117,7 @@ export const Home: React.FC = () => {
       setPlaylists(prev => prev.filter(p => p._id !== id));
     } catch (err) {
       console.error('Error deleting playlist:', err);
-      alert('Failed to delete playlist.');
+      alert(t.common.errorDeletePlaylist);
       throw err;
     }
   };
@@ -193,40 +195,40 @@ export const Home: React.FC = () => {
           ) : errorMsg ? (
             <div className="error-state-panel glass-panel">
               <p className="error-message">{errorMsg}</p>
-              <button className="btn-secondary animate-hover" onClick={fetchAllData}>Retry</button>
+              <button className="btn-secondary animate-hover" onClick={fetchAllData}>{t.common.retry}</button>
             </div>
           ) : (
             <div className="resources-section">
               <div className="resources-header">
                 <div>
                   <h2 className="resources-title">
-                    {activeTab === 'zikresources' && 'Your Zikresources'}
-                    {activeTab === 'songs' && 'Your Compiled Songs'}
-                    {activeTab === 'playlists' && 'Your Playlists'}
+                    {activeTab === 'zikresources' && t.dashboard.titleZikresources}
+                    {activeTab === 'songs' && t.dashboard.titleSongs}
+                    {activeTab === 'playlists' && t.dashboard.titlePlaylists}
                   </h2>
                   <p className="resources-subtitle">
-                    {activeTab === 'zikresources' && `Access your saved references (${zikresources.length})`}
-                    {activeTab === 'songs' && `Grouped resources by song title (${songs.length})`}
-                    {activeTab === 'playlists' && `Grouped zikresources and songs into playlists (${playlists.length})`}
+                    {activeTab === 'zikresources' && `${t.dashboard.subtitleZikresources} (${zikresources.length})`}
+                    {activeTab === 'songs' && `${t.dashboard.subtitleSongs} (${songs.length})`}
+                    {activeTab === 'playlists' && `${t.dashboard.subtitlePlaylists} (${playlists.length})`}
                   </p>
                 </div>
 
                 {activeTab === 'zikresources' && (
                   <button className="btn-primary-large btn-add-zik" onClick={() => navigate({ to: '/zikresources/new' })}>
                     <Plus size={16} />
-                    <span>Add Zikresource</span>
+                    <span>{t.dashboard.addZikresource}</span>
                   </button>
                 )}
                 {activeTab === 'songs' && (
                   <button className="btn-primary-large btn-add-zik" onClick={() => navigate({ to: '/songs/new' })}>
                     <Plus size={16} />
-                    <span>Create Song</span>
+                    <span>{t.dashboard.createSong}</span>
                   </button>
                 )}
                 {activeTab === 'playlists' && (
                   <button className="btn-primary-large btn-add-zik" onClick={() => navigate({ to: '/playlists/new' })}>
                     <Plus size={16} />
-                    <span>Create Playlist</span>
+                    <span>{t.dashboard.createPlaylist}</span>
                   </button>
                 )}
               </div>
@@ -239,10 +241,10 @@ export const Home: React.FC = () => {
                     type="text"
                     placeholder={
                       activeTab === 'zikresources'
-                        ? "Search title, artist, or tags..."
+                        ? t.dashboard.searchResourcesPlaceholder
                         : activeTab === 'playlists'
-                          ? "Search by playlist name or description..."
-                          : "Search by title or artist..."
+                          ? t.dashboard.searchPlaylistsPlaceholder
+                          : t.dashboard.searchSongsPlaceholder
                     }
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
@@ -258,11 +260,11 @@ export const Home: React.FC = () => {
                 {activeTab === 'zikresources' && (
                   <div className="filter-chips">
                     {[
-                      { id: 'all', label: 'All' },
-                      { id: 'tabs', label: '🎼 Tabs' },
-                      { id: 'videos', label: '🎬 Videos' },
-                      { id: 'backing-tracks', label: '🎵 Tracks' },
-                      { id: 'other', label: '❓ Other' }
+                      { id: 'all', label: t.dashboard.filterAll },
+                      { id: 'tabs', label: t.dashboard.filterTabs },
+                      { id: 'videos', label: t.dashboard.filterVideos },
+                      { id: 'backing-tracks', label: t.dashboard.filterTracks },
+                      { id: 'other', label: t.dashboard.filterOther }
                     ].map((chip) => (
                       <button
                         key={chip.id}

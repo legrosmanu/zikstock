@@ -15,9 +15,11 @@ import type { NetworkUser, ConnectionWithUser } from '../../infra/network.api';
 import { ConnectionsTab } from './ConnectionsTab';
 import { RequestsTab } from './RequestsTab';
 import { useNetworkStore } from '../../store/networkStore';
+import { useTranslation } from '../../hooks/useTranslation';
 import './Network.css';
 
 export const Network: React.FC = () => {
+    const { t } = useTranslation();
     const [activeTab, setActiveTab] = useState<'connections' | 'requests'>('connections');
     
     // Data states
@@ -45,7 +47,7 @@ export const Network: React.FC = () => {
             useNetworkStore.getState().setIncomingCount(data.incoming.length);
         } catch (error) {
             console.error('Error fetching network details:', error);
-            setErrorMessage('Could not load network details. Please try again.');
+            setErrorMessage(t.network.loadNetworkError);
         } finally {
             setIsLoading(false);
         }
@@ -70,7 +72,7 @@ export const Network: React.FC = () => {
             setSearchResults(results);
         } catch (error) {
             console.error('Error searching users:', error);
-            setErrorMessage('Failed to search musicians.');
+            setErrorMessage(t.network.searchMusiciansError);
         } finally {
             setIsSearching(false);
         }
@@ -95,7 +97,7 @@ export const Network: React.FC = () => {
             }
         } catch (error) {
             console.error('Error sending connection request:', error);
-            setErrorMessage('Could not send connection request.');
+            setErrorMessage(t.network.sendRequestError);
         } finally {
             setActionLoadingId(null);
         }
@@ -113,7 +115,7 @@ export const Network: React.FC = () => {
             }
         } catch (error) {
             console.error('Error accepting request:', error);
-            setErrorMessage('Failed to accept request.');
+            setErrorMessage(t.network.acceptRequestError);
         } finally {
             setActionLoadingId(null);
         }
@@ -122,7 +124,7 @@ export const Network: React.FC = () => {
     // Decline / Cancel / Remove connection
     const handleRemoveConnection = async (connectionId: string) => {
         if (activeTab === 'connections') {
-            const confirmDelete = window.confirm('Are you sure you want to remove this connection?');
+            const confirmDelete = window.confirm(t.common.confirmDeleteConnection);
             if (!confirmDelete) return;
         }
         
@@ -136,7 +138,7 @@ export const Network: React.FC = () => {
             }
         } catch (error) {
             console.error('Error removing connection:', error);
-            setErrorMessage('Failed to remove connection.');
+            setErrorMessage(t.network.removeConnectionError);
         } finally {
             setActionLoadingId(null);
         }
@@ -166,7 +168,7 @@ export const Network: React.FC = () => {
         return (
             <div className="network-loading-container">
                 <Loader2 className="animate-spin" size={32} />
-                <span>Loading your network...</span>
+                <span>{t.network.loadingNetwork}</span>
             </div>
         );
     }
@@ -178,9 +180,9 @@ export const Network: React.FC = () => {
             {/* Header section */}
             <div className="welcome-banner glass-panel">
                 <div className="welcome-info">
-                    <h1 className="welcome-title">My Network</h1>
+                    <h1 className="welcome-title">{t.network.title}</h1>
                     <p className="welcome-subtitle">
-                        Find and connect with other musicians to build your collaboration circle.
+                        {t.network.subtitle}
                     </p>
                 </div>
                 <div className="network-stats">
@@ -188,7 +190,7 @@ export const Network: React.FC = () => {
                         <Users size={20} className="stat-icon" />
                         <div className="stat-details">
                             <span className="stat-value">{connections.length}</span>
-                            <span className="stat-label">Connections</span>
+                            <span className="stat-label">{t.network.connectionsStat}</span>
                         </div>
                     </div>
                 </div>
@@ -210,14 +212,14 @@ export const Network: React.FC = () => {
                         onClick={() => setActiveTab('connections')}
                     >
                         <Users size={16} />
-                        <span>Connections</span>
+                        <span>{t.network.tabConnections}</span>
                     </button>
                     <button 
                         className={`tab-btn ${activeTab === 'requests' ? 'active' : ''}`}
                         onClick={() => setActiveTab('requests')}
                     >
                         <Clock size={16} />
-                        <span>Requests</span>
+                        <span>{t.network.tabRequests}</span>
                         {totalRequests > 0 && (
                             <span className="badge-count animate-pulse">{totalRequests}</span>
                         )}

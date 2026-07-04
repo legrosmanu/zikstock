@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { BookOpen, Video, Music, HelpCircle, Trash2, Loader2, ChevronRight } from 'lucide-react';
 import { useNavigate } from '@tanstack/react-router';
 import type { Zikresource } from '../../infra/zikresource.api';
+import { useTranslation } from '../../hooks/useTranslation';
 
 interface ZikresourceListProps {
   resources: Zikresource[];
@@ -10,6 +11,7 @@ interface ZikresourceListProps {
 
 export const ZikresourceList: React.FC<ZikresourceListProps> = ({ resources, onDelete }) => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
@@ -24,10 +26,10 @@ export const ZikresourceList: React.FC<ZikresourceListProps> = ({ resources, onD
 
   const getTypeLabel = (type: string) => {
     switch (type) {
-      case 'tablature': return 'Tab / Sheet';
-      case 'video': return 'Video Tutorial';
-      case 'backing-track': return 'Backing Track';
-      default: return 'Other';
+      case 'tablature': return t.dashboard.typeTablature;
+      case 'video': return t.dashboard.typeVideo;
+      case 'backing-track': return t.dashboard.typeBackingTrack;
+      default: return t.dashboard.typeOther;
     }
   };
 
@@ -46,7 +48,7 @@ export const ZikresourceList: React.FC<ZikresourceListProps> = ({ resources, onD
   if (resources.length === 0) {
     return (
       <div className="no-results-panel glass-panel">
-        <p>No resources match your filters or search query.</p>
+        <p>{t.dashboard.noResourcesFound}</p>
       </div>
     );
   }
@@ -77,7 +79,7 @@ export const ZikresourceList: React.FC<ZikresourceListProps> = ({ resources, onD
                     </span>
                   </div>
                   <p className="playlist-row-desc" style={{ margin: '0.25rem 0 0 0', fontSize: '0.85rem', color: 'var(--text-muted, #9ca3af)' }}>
-                    {resource.artist || 'Unknown Artist'}
+                    {resource.artist || t.common.unknownArtist}
                   </p>
                 </div>
               </div>
@@ -92,14 +94,14 @@ export const ZikresourceList: React.FC<ZikresourceListProps> = ({ resources, onD
                         disabled={isDeleting}
                         onClick={() => handleDelete(resource._id)}
                       >
-                        {isDeleting ? <Loader2 size={13} className="spinning" /> : 'Confirm'}
+                        {isDeleting ? <Loader2 size={13} className="spinning" /> : t.common.confirm}
                       </button>
                       <button
                         className="btn-cancel-delete"
                         disabled={isDeleting}
                         onClick={() => setConfirmDeleteId(null)}
                       >
-                        Cancel
+                        {t.common.cancel}
                       </button>
                     </div>
                   ) : (
