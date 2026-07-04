@@ -12,6 +12,7 @@ import {
 import { useNavigate, useRouterState } from '@tanstack/react-router';
 import { useAuthStore } from '../../store/authStore';
 import { useTheme } from '../../hooks/useTheme';
+import { useNetworkStore } from '../../store/networkStore';
 import './AppLayout.css';
 
 interface AppLayoutProps {
@@ -26,6 +27,19 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const user = useAuthStore((state) => state.user);
   const logout = useAuthStore((state) => state.logout);
   const { theme, toggleTheme } = useTheme();
+  const incomingCount = useNetworkStore((state) => state.incomingCount);
+  const fetchIncomingCount = useNetworkStore((state) => state.fetchIncomingCount);
+
+  // Poll for incoming requests if authenticated
+  useEffect(() => {
+    if (user) {
+      fetchIncomingCount();
+      const interval = setInterval(() => {
+        fetchIncomingCount();
+      }, 30000); // 30 seconds
+      return () => clearInterval(interval);
+    }
+  }, [user, fetchIncomingCount]);
 
   // Mobile dropdown state
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -117,6 +131,9 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
           >
             <Users size={18} />
             <span>Network</span>
+            {incomingCount > 0 && (
+              <span className="sidebar-badge-count animate-pulse">{incomingCount}</span>
+            )}
           </button>
         </nav>
 
@@ -247,7 +264,12 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
             className={`mobile-tab-item ${activeSection === 'network' ? 'active' : ''}`}
             onClick={() => navigateToSection('network')}
           >
-            <Users size={20} />
+            <div className="mobile-tab-icon-wrapper">
+              <Users size={20} />
+              {incomingCount > 0 && (
+                <span className="mobile-badge-count animate-pulse">{incomingCount}</span>
+              )}
+            </div>
             <span className="tab-label">Network</span>
           </button>
         </nav>

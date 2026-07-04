@@ -14,6 +14,7 @@ import {
 import type { NetworkUser, ConnectionWithUser } from '../../infra/network.api';
 import { ConnectionsTab } from './ConnectionsTab';
 import { RequestsTab } from './RequestsTab';
+import { useNetworkStore } from '../../store/networkStore';
 import './Network.css';
 
 export const Network: React.FC = () => {
@@ -41,6 +42,7 @@ export const Network: React.FC = () => {
             setConnections(data.accepted);
             setIncomingRequests(data.incoming);
             setOutgoingRequests(data.outgoing);
+            useNetworkStore.getState().setIncomingCount(data.incoming.length);
         } catch (error) {
             console.error('Error fetching network details:', error);
             setErrorMessage('Could not load network details. Please try again.');
