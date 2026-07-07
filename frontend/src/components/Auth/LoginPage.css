@@ -196,11 +196,6 @@
   width: 100%;
 }
 
-.login-google-container iframe {
-  width: 100% !important;
-  margin: 0 auto;
-}
-
 
 
 .login-warning-box {
@@ -217,7 +212,8 @@
 /* Responsive Styles for Mobile */
 @media (max-width: 900px) {
   .login-left-pane {
-    display: none; /* Hide brand left side on mobile */
+    display: none;
+    /* Hide brand left side on mobile */
   }
 
   .login-right-pane {
@@ -242,6 +238,7 @@
     opacity: 0;
     transform: translateY(30px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);

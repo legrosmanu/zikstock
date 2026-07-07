@@ -61,7 +61,7 @@ export const LoginPage: React.FC = () => {
               window.google?.accounts.id.renderButton(btnContainer, {
                 theme: 'outline',
                 size: 'large',
-                width: '320',
+                width: 320,
                 shape: 'pill',
                 text: 'signin_with',
               });
