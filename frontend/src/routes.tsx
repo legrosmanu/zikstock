@@ -17,6 +17,7 @@ import { EditPlaylist } from './components/EditPlaylist/EditPlaylist';
 import { AppLayout } from './components/Layout/AppLayout';
 import { Network } from './components/Network/Network';
 import { Search } from './components/Search/Search';
+import { syncUserProfile } from './infra/network.api';
 
 async function WittAuth<T>(apiCall?: () => Promise<T>): Promise<T | undefined> {
   try {
@@ -55,10 +56,8 @@ const RootComponent = () => {
 
   useEffect(() => {
     if (isAuthenticated) {
-      import('./infra/network.api').then(({ syncUserProfile }) => {
-        syncUserProfile().catch((err) => {
-          console.error('Failed to sync user profile with backend:', err);
-        });
+      syncUserProfile().catch((err) => {
+        console.error('Failed to sync user profile with backend:', err);
       });
     }
   }, [isAuthenticated]);

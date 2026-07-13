@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { 
     Clock, 
     Users, 
@@ -37,25 +37,25 @@ export const Network: React.FC = () => {
     const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-    useEffect(() => {
-        const loadNetworkData = async () => {
-            try {
-                setErrorMessage(null);
-                const data = await getNetwork();
-                setConnections(data.accepted);
-                setIncomingRequests(data.incoming);
-                setOutgoingRequests(data.outgoing);
-                useNetworkStore.getState().setIncomingCount(data.incoming.length);
-            } catch (error) {
-                console.error('Error fetching network details:', error);
-                setErrorMessage(t.network.loadNetworkError);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        loadNetworkData();
+    const loadNetworkData = useCallback(async () => {
+        try {
+            setErrorMessage(null);
+            const data = await getNetwork();
+            setConnections(data.accepted);
+            setIncomingRequests(data.incoming);
+            setOutgoingRequests(data.outgoing);
+            useNetworkStore.getState().setIncomingCount(data.incoming.length);
+        } catch (error) {
+            console.error('Error fetching network details:', error);
+            setErrorMessage(t.network.loadNetworkError);
+        } finally {
+            setIsLoading(false);
+        }
     }, [t.network.loadNetworkError]);
+
+    useEffect(() => {
+        loadNetworkData();
+    }, [loadNetworkData]);
 
     // Perform user search
     const handleSearch = async (e: React.FormEvent) => {
