@@ -52,7 +52,7 @@ export const ViewSong: React.FC = () => {
     setError(null);
     try {
       await deleteSong(id);
-      navigate({ to: '/home', search: { tab: 'songs' } });
+      navigate({ to: '/home', search: { tab: 'songs' } as never });
     } catch (err) {
       setError(err instanceof Error ? err.message : t.viewSong.errorDeleteFailed);
       setIsDeleting(false);

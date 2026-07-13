@@ -7,6 +7,7 @@ import {
     updateZikresourceHandler,
     deleteZikresourceHandler
 } from './api/zikresource.controller';
+import { ZikresourceResponse } from './api/zikresource.dto';
 import { errorMiddleware } from '../application/middleware/error.middleware';
 import { describe, it, expect, beforeEach, jest } from '@jest/globals';
 import { VALID_TOKEN } from '../application/middleware/mock-auth.middleware';
@@ -141,10 +142,11 @@ describe('ZikresourceController Integration', () => {
         expect(response.body).toHaveLength(2);
         
         // Assert creator name matching
-        const res1 = response.body.find((r: any) => r._id === '1');
-        const res2 = response.body.find((r: any) => r._id === '2');
-        expect(res1.creatorName).toBe('User 123');
-        expect(res2.creatorName).toBe('Other User');
+        const body = response.body as ZikresourceResponse[];
+        const res1 = body.find((r) => r._id === '1');
+        const res2 = body.find((r) => r._id === '2');
+        expect(res1?.creatorName).toBe('User 123');
+        expect(res2?.creatorName).toBe('Other User');
     });
 
     it('GET /zikresources?createdBy=other-user should only return items created by other-user', async () => {
