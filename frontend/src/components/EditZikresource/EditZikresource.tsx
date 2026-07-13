@@ -113,7 +113,7 @@ export const EditZikresource: React.FC = () => {
       });
 
       setSuccess(true);
-      setTimeout(() => navigate({ to: `/zikresources/${id}` as never }), 1200);
+      setTimeout(() => navigate({ to: `/zikresources/${id}` as never, replace: true }), 1200);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
     } finally {

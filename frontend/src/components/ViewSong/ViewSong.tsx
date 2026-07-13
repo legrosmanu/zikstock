@@ -15,6 +15,14 @@ export const ViewSong: React.FC = () => {
   const { id } = useParams({ from: '/songs/$id' }) as { id: string };
   const { t } = useTranslation();
 
+  const handleBack = () => {
+    if (window.history.length > 1) {
+      window.history.back();
+    } else {
+      navigate({ to: '/home' });
+    }
+  };
+
   const [isLoading, setIsLoading] = useState(true);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -89,9 +97,9 @@ export const ViewSong: React.FC = () => {
     return (
       <div className="manage-loading-container">
         <p style={{ color: '#ef4444' }}>{t.viewSong.notFound}</p>
-        <button className="btn-back-dashboard" onClick={() => navigate({ to: '/home' })} style={{ marginTop: '1rem' }}>
+        <button className="btn-back-dashboard" onClick={handleBack} style={{ marginTop: '1rem' }}>
           <ArrowLeft size={16} />
-          <span>{t.common.backToHome}</span>
+          <span>{t.common.back}</span>
         </button>
       </div>
     );
@@ -103,10 +111,10 @@ export const ViewSong: React.FC = () => {
       <nav className="create-page-nav">
         <button
           className="btn-back-dashboard"
-          onClick={() => navigate({ to: '/home' })}
+          onClick={handleBack}
         >
           <ArrowLeft size={16} />
-          <span>{t.common.backToHome}</span>
+          <span>{t.common.back}</span>
         </button>
         <div className="create-page-logo">
           <div className="create-page-logo-icon">

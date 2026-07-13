@@ -83,7 +83,7 @@ export const Home: React.FC = () => {
     } finally {
       setIsLoadingData(false);
     }
-  }, [token]);
+  }, [token, t.dashboard.errorFetchData]);
 
   useEffect(() => {
     fetchAllData();

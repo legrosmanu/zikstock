@@ -23,6 +23,7 @@ export interface TranslationSchema {
     resourcesCountSingular: string;
     resourcesCountPlural: string;
     backToHome: string;
+    back: string;
     by: string;
     errorSomethingWentWrong: string;
     saving: string;

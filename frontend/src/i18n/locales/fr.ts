@@ -25,6 +25,7 @@ export const fr: TranslationSchema = {
     resourcesCountSingular: 'Ressource',
     resourcesCountPlural: 'Ressources',
     backToHome: 'Retour à l\'accueil',
+    back: 'Retour',
     by: 'par',
     errorSomethingWentWrong: 'Une erreur est survenue. Veuillez réessayer.',
     saving: 'Enregistrement...'

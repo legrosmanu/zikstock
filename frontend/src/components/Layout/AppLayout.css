@@ -576,3 +576,28 @@
     min-width: 100% !important;
   }
 }
+
+@media (max-width: 576px) {
+  .btn-back span,
+  .btn-back-dashboard span {
+    display: none !important;
+  }
+  
+  .btn-back,
+  .btn-back-dashboard {
+    padding: 0 !important;
+    width: 36px !important;
+    height: 36px !important;
+    border-radius: 50% !important;
+    justify-content: center !important;
+    gap: 0 !important;
+    min-width: 36px !important;
+  }
+}
+
+@media (max-width: 400px) {
+  .create-logo-text,
+  .create-page-logo-text {
+    display: none !important;
+  }
+}

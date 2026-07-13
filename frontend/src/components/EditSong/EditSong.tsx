@@ -97,7 +97,7 @@ export const EditSong: React.FC = () => {
         zikresourceIds: selectedZikresourceIds,
       });
       setSuccess(true);
-      setTimeout(() => navigate({ to: `/songs/${id}` as never }), 1200);
+      setTimeout(() => navigate({ to: `/songs/${id}` as never, replace: true }), 1200);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to update song.');
     } finally {

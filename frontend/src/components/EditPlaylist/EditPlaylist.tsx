@@ -94,7 +94,7 @@ export const EditPlaylist: React.FC = () => {
         zikresourceIds: selectedZikresourceIds,
       });
       setSuccess(true);
-      setTimeout(() => navigate({ to: `/playlists/${id}` as never }), 1200);
+      setTimeout(() => navigate({ to: `/playlists/${id}` as never, replace: true }), 1200);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to update playlist.');
     } finally {
