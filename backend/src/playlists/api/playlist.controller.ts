@@ -10,6 +10,8 @@ import { PlaylistSchema, PlaylistResponse, PlaylistIdParamSchema, UserPayloadSch
 import { Playlist } from '../domain/playlist.domain';
 import { StatusCodes } from 'http-status-codes';
 import { AppError } from '../../application/middleware/error.middleware';
+import { findUsersByIds } from '../../users/repositories/firestore-user.repository';
+import { getFilterUserId } from '../../application/query.utils';
 
 const toResponse = (domain: Playlist): PlaylistResponse => ({
     _id: domain.id,
@@ -47,8 +49,29 @@ export const getAllPlaylistsHandler = async (req: Request, res: Response, next: 
             throw new AppError(StatusCodes.UNAUTHORIZED, `User identity validation failed: ${userValidation.error.message}`);
         }
         const createdBy = userValidation.data.sub;
-        const result = await getAllPlaylists(createdBy);
-        res.json(result.map(toResponse));
+
+        const filterUserId = getFilterUserId({
+            scope: req.query.scope as string,
+            createdBy: req.query.createdBy as string,
+            currentUserId: createdBy,
+        });
+
+        const result = await getAllPlaylists(filterUserId);
+        
+        const creatorIds = Array.from(new Set(result.map(p => p.createdBy)));
+        const creators = await findUsersByIds(creatorIds);
+        const creatorMap = new Map(creators.map(u => [u.id, u]));
+
+        const responseList = result.map(item => {
+            const creator = creatorMap.get(item.createdBy);
+            return {
+                ...toResponse(item),
+                creatorName: creator?.name,
+                creatorPicture: creator?.picture
+            };
+        });
+
+        res.json(responseList);
     } catch (error) {
         next(error);
     }
@@ -60,12 +83,7 @@ export const getPlaylistByIdHandler = async (req: Request, res: Response, next: 
         if (!paramValidation.success) {
             throw new AppError(StatusCodes.BAD_REQUEST, `Validation failed: ${paramValidation.error.message}`);
         }
-        const userValidation = UserPayloadSchema.safeParse(req.user);
-        if (!userValidation.success) {
-            throw new AppError(StatusCodes.UNAUTHORIZED, `User identity validation failed: ${userValidation.error.message}`);
-        }
-        const createdBy = userValidation.data.sub;
-        const result = await getPlaylistById(paramValidation.data.id, createdBy);
+        const result = await getPlaylistById(paramValidation.data.id);
         res.json(toResponse(result));
     } catch (error) {
         next(error);

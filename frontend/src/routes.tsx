@@ -16,6 +16,7 @@ import { ViewPlaylist } from './components/ViewPlaylist/ViewPlaylist';
 import { EditPlaylist } from './components/EditPlaylist/EditPlaylist';
 import { AppLayout } from './components/Layout/AppLayout';
 import { Network } from './components/Network/Network';
+import { Search } from './components/Search/Search';
 
 async function WittAuth<T>(apiCall?: () => Promise<T>): Promise<T | undefined> {
   try {
@@ -223,6 +224,21 @@ const networkRoute = createRoute({
   component: Network,
 });
 
+// Search Route (/search)
+const searchRoute = createRoute({
+  loader: () => WittAuth(),
+  getParentRoute: () => rootRoute,
+  path: '/search',
+  validateSearch: (search: Record<string, unknown>): { tab?: 'zikresources' | 'songs' | 'playlists' } => {
+    const tab = search.tab as string | undefined;
+    if (tab === 'zikresources' || tab === 'songs' || tab === 'playlists') {
+      return { tab };
+    }
+    return {};
+  },
+  component: Search,
+});
+
 // Build the Route Tree
 const routeTree = rootRoute.addChildren([
   indexRoute,
@@ -238,6 +254,7 @@ const routeTree = rootRoute.addChildren([
   viewPlaylistRoute,
   editPlaylistRoute,
   networkRoute,
+  searchRoute,
 ]);
 
 // Create the Router

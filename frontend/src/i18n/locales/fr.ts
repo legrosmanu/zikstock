@@ -33,7 +33,8 @@ export const fr: TranslationSchema = {
     zikresources: 'Zikresources',
     playlists: 'Playlists',
     songs: 'Morceaux',
-    network: 'Réseau'
+    network: 'Réseau',
+    search: 'Recherche'
   },
   landing: {
     companionBadge: 'Votre compagnon musical',
@@ -222,5 +223,14 @@ export const fr: TranslationSchema = {
     resourcesSectionTitle: 'Zikresources Associées',
     noResourcesText: 'Aucune ressource associée trouvée pour ce morceau.',
     btnOpenLink: 'Ouvrir le lien'
+  },
+  search: {
+    title: 'Recherche Globale & Découverte',
+    subtitle: 'Explorez les zikresources, morceaux et playlists de la base de données et découvrez les partages des membres de votre réseau.',
+    searchPlaceholder: 'Rechercher par titre, artiste, tags...',
+    addedBy: 'Ajouté par',
+    networkMemberBadge: 'Membre du réseau',
+    noItemsFound: 'Aucun élément ne correspond à votre recherche.',
+    showOnlyNetwork: 'Uniquement les membres de mon réseau'
   }
 };

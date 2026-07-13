@@ -50,13 +50,10 @@ export const createPlaylist = async (partial: Omit<Playlist, 'id' | 'createdAt' 
     return savePlaylist(playlist);
 };
 
-export const getPlaylistById = async (id: string, userId?: string): Promise<Playlist> => {
+export const getPlaylistById = async (id: string): Promise<Playlist> => {
     const playlist = await findPlaylistById(id);
     if (!playlist) {
         throw new AppError(StatusCodes.NOT_FOUND, `Playlist with id ${id} not found`);
-    }
-    if (userId && playlist.createdBy !== userId) {
-        throw new AppError(StatusCodes.FORBIDDEN, `Access denied to playlist with id ${id}`);
     }
     return playlist;
 };

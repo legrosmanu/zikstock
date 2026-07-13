@@ -96,12 +96,12 @@ describe('SongService', () => {
         };
         await songRepo.saveSong(song);
 
-        const result = await getSongById('song-1', 'user-123');
+        const result = await getSongById('song-1');
         expect(result.id).toBe('song-1');
         expect(result.title).toBe('Test Song');
     });
 
-    it('should throw FORBIDDEN on getSongById if song does not belong to user', async () => {
+    it('should allow getting a song by id even if it belongs to another user', async () => {
         const song: Song = {
             id: 'song-1',
             title: 'Test Song',
@@ -113,6 +113,8 @@ describe('SongService', () => {
         };
         await songRepo.saveSong(song);
 
-        await expect(getSongById('song-1', 'user-123')).rejects.toThrow('Access denied to song with id song-1');
+        const result = await getSongById('song-1');
+        expect(result.id).toBe('song-1');
+        expect(result.createdBy).toBe('other-user');
     });
 });

@@ -113,8 +113,25 @@ describe('PlaylistService', () => {
         };
         await playlistRepo.savePlaylist(playlist);
 
-        const result = await getPlaylistById('playlist-1', 'user-123');
+        const result = await getPlaylistById('playlist-1');
         expect(result.id).toBe('playlist-1');
         expect(result.name).toBe('Test List');
+    });
+
+    it('should allow getting a playlist by id even if it belongs to another user', async () => {
+        const playlist: Playlist = {
+            id: 'playlist-1',
+            name: 'Test List',
+            description: 'Desc',
+            songIds: ['song-1'],
+            createdBy: 'other-user',
+            createdAt: '2026-06-14T00:00:00Z',
+            updatedAt: '2026-06-14T00:00:00Z',
+        };
+        await playlistRepo.savePlaylist(playlist);
+
+        const result = await getPlaylistById('playlist-1');
+        expect(result.id).toBe('playlist-1');
+        expect(result.createdBy).toBe('other-user');
     });
 });

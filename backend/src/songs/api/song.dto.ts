@@ -22,6 +22,8 @@ export interface SongResponse {
     artist: string;
     zikresourceIds: string[];
     createdBy: string;
+    creatorName?: string;
+    creatorPicture?: string;
     createdAt: string;
     updatedAt: string;
 }

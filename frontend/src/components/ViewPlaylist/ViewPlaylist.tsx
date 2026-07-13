@@ -8,6 +8,7 @@ import type { Playlist } from '../../infra/playlist.api';
 import type { Song } from '../../infra/song.api';
 import type { Zikresource } from '../../infra/zikresource.api';
 import { useTranslation } from '../../hooks/useTranslation';
+import { useAuthStore } from '../../store/authStore';
 import '../CreateSong/CreateSong.css';
 import './ViewPlaylist.css';
 
@@ -23,6 +24,9 @@ export const ViewPlaylist: React.FC = () => {
   const [playlist, setPlaylist] = useState<Playlist | null>(null);
   const [associatedSongs, setAssociatedSongs] = useState<Song[]>([]);
   const [associatedZikresources, setAssociatedZikresources] = useState<Zikresource[]>([]);
+
+  const user = useAuthStore((state) => state.user);
+  const isOwner = user?.sub === playlist?.createdBy;
 
   useEffect(() => {
     const loadData = async () => {
@@ -117,47 +121,49 @@ export const ViewPlaylist: React.FC = () => {
 
         {error && <div className="create-page-error" style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)', color: '#ef4444', padding: '1rem', borderRadius: '8px', marginBottom: '1.5rem', fontSize: '0.9rem' }}>{error}</div>}
 
-        <div className="manage-top-actions" style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <button
-            type="button"
-            className="btn-edit-playlist"
-            onClick={() => navigate({ to: `/playlists/${id}/edit` as never })}
-          >
-            <Edit size={14} />
-            <span>{t.viewPlaylist.btnEdit}</span>
-          </button>
-
-          {!showDeleteConfirm ? (
+        {isOwner && (
+          <div className="manage-top-actions" style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <button
               type="button"
-              className="btn-delete-resource"
-              onClick={() => setShowDeleteConfirm(true)}
+              className="btn-edit-playlist"
+              onClick={() => navigate({ to: `/playlists/${id}/edit` as never })}
             >
-              <Trash2 size={14} />
-              <span>{t.viewPlaylist.btnDelete}</span>
+              <Edit size={14} />
+              <span>{t.viewPlaylist.btnEdit}</span>
             </button>
-          ) : (
-            <div className="delete-confirm-group">
-              <span className="delete-confirm-text">{t.viewZikresource.confirmDeleteText}</span>
+
+            {!showDeleteConfirm ? (
               <button
                 type="button"
-                className="btn-confirm-delete"
-                onClick={handleDelete}
-                disabled={isDeleting}
+                className="btn-delete-resource"
+                onClick={() => setShowDeleteConfirm(true)}
               >
-                {isDeleting ? <Loader2 size={12} className="spinning" /> : t.viewZikresource.btnConfirmDelete}
+                <Trash2 size={14} />
+                <span>{t.viewPlaylist.btnDelete}</span>
               </button>
-              <button
-                type="button"
-                className="btn-cancel-delete"
-                onClick={() => setShowDeleteConfirm(false)}
-                disabled={isDeleting}
-              >
-                {t.common.cancel}
-              </button>
-            </div>
-          )}
-        </div>
+            ) : (
+              <div className="delete-confirm-group">
+                <span className="delete-confirm-text">{t.viewZikresource.confirmDeleteText}</span>
+                <button
+                  type="button"
+                  className="btn-confirm-delete"
+                  onClick={handleDelete}
+                  disabled={isDeleting}
+                >
+                  {isDeleting ? <Loader2 size={12} className="spinning" /> : t.viewZikresource.btnConfirmDelete}
+                </button>
+                <button
+                  type="button"
+                  className="btn-cancel-delete"
+                  onClick={() => setShowDeleteConfirm(false)}
+                  disabled={isDeleting}
+                >
+                  {t.common.cancel}
+                </button>
+              </div>
+            )}
+          </div>
+        )}
 
         <div className="playlist-detail-panel glass-panel">
           <h2 className="section-title">{t.viewPlaylist.songsSectionTitle}</h2>

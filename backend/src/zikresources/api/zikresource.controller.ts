@@ -10,6 +10,8 @@ import { ZikresourceSchema, ZikresourceResponse } from './zikresource.dto';
 import { Zikresource } from '../domain/zikresource.domain';
 import { StatusCodes } from 'http-status-codes';
 import { AppError } from '../../application/middleware/error.middleware';
+import { findUsersByIds } from '../../users/repositories/firestore-user.repository';
+import { getFilterUserId } from '../../application/query.utils';
 
 
 const toResponse = (domain: Zikresource): ZikresourceResponse => ({
@@ -42,9 +44,28 @@ export const createZikresourceHandler = async (req: Request, res: Response, next
 
 export const getAllZikresourcesHandler = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const createdBy = req.user?.sub;
-        const result = await getAllZikresources(createdBy);
-        res.json(result.map(toResponse));
+        const filterUserId = getFilterUserId({
+            scope: req.query.scope as string,
+            createdBy: req.query.createdBy as string,
+            currentUserId: req.user?.sub,
+        });
+
+        const result = await getAllZikresources(filterUserId);
+        
+        const creatorIds = Array.from(new Set(result.map(r => r.createdBy)));
+        const creators = await findUsersByIds(creatorIds);
+        const creatorMap = new Map(creators.map(u => [u.id, u]));
+
+        const responseList = result.map(item => {
+            const creator = creatorMap.get(item.createdBy);
+            return {
+                ...toResponse(item),
+                creatorName: creator?.name,
+                creatorPicture: creator?.picture
+            };
+        });
+
+        res.json(responseList);
     } catch (error) {
         next(error);
     }

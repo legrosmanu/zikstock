@@ -10,6 +10,8 @@ export interface ZikresourceTag {
 export interface Zikresource {
   _id: string;
   createdBy: string;
+  creatorName?: string;
+  creatorPicture?: string;
   url: string;
   artist: string;
   title: string;
@@ -17,8 +19,18 @@ export interface Zikresource {
   tags?: ZikresourceTag[];
 }
 
-export const fetchZikresources = (): Promise<Zikresource[]> => {
-  return authenticatedGet<Zikresource[]>('/zikresources');
+export interface FetchParams {
+  scope?: 'all' | 'mine';
+  createdBy?: string;
+}
+
+export const fetchZikresources = (params?: FetchParams): Promise<Zikresource[]> => {
+  const query = new URLSearchParams();
+  if (params?.scope) query.append('scope', params.scope);
+  if (params?.createdBy) query.append('createdBy', params.createdBy);
+  const queryString = query.toString();
+  const url = queryString ? `/zikresources?${queryString}` : '/zikresources';
+  return authenticatedGet<Zikresource[]>(url);
 };
 
 export const fetchZikresourceById = (id: string): Promise<Zikresource> => {

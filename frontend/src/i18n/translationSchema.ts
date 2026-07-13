@@ -32,6 +32,7 @@ export interface TranslationSchema {
     playlists: string;
     songs: string;
     network: string;
+    search: string;
   };
   landing: {
     companionBadge: string;
@@ -220,6 +221,15 @@ export interface TranslationSchema {
     resourcesSectionTitle: string;
     noResourcesText: string;
     btnOpenLink: string;
+  };
+  search: {
+    title: string;
+    subtitle: string;
+    searchPlaceholder: string;
+    addedBy: string;
+    networkMemberBadge: string;
+    noItemsFound: string;
+    showOnlyNetwork: string;
   };
 }
 

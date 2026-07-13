@@ -4,6 +4,7 @@ import { useNavigate, useParams } from '@tanstack/react-router';
 import { fetchZikresourceById, deleteZikresource } from '../../infra/zikresource.api';
 import type { Zikresource } from '../../infra/zikresource.api';
 import { useTranslation } from '../../hooks/useTranslation';
+import { useAuthStore } from '../../store/authStore';
 import '../CreateZikresource/CreateZikresource.css';
 import './ViewZikresource.css';
 
@@ -17,6 +18,9 @@ export const ViewZikresource: React.FC = () => {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [resource, setResource] = useState<Zikresource | null>(null);
+
+  const user = useAuthStore((state) => state.user);
+  const isOwner = user?.sub === resource?.createdBy;
 
   useEffect(() => {
     const loadResource = async () => {
@@ -113,49 +117,51 @@ export const ViewZikresource: React.FC = () => {
           </a>
         </div>
 
-        <div className="manage-top-actions">
-          <div className="action-buttons-left">
-            <button
-              type="button"
-              className="btn-edit-resource"
-              onClick={() => navigate({ to: `/zikresources/${id}/edit` as never })}
-            >
-              <Edit size={14} />
-              <span>{t.viewZikresource.btnEdit}</span>
-            </button>
-          </div>
-
-          {!showDeleteConfirm ? (
-            <button
-              type="button"
-              className="btn-delete-resource"
-              onClick={() => setShowDeleteConfirm(true)}
-            >
-              <Trash2 size={14} />
-              <span>{t.viewZikresource.btnDelete}</span>
-            </button>
-          ) : (
-            <div className="delete-confirm-group">
-              <span className="delete-confirm-text">{t.viewZikresource.confirmDeleteText}</span>
+        {isOwner && (
+          <div className="manage-top-actions">
+            <div className="action-buttons-left">
               <button
                 type="button"
-                className="btn-confirm-delete"
-                onClick={handleDelete}
-                disabled={isDeleting}
+                className="btn-edit-resource"
+                onClick={() => navigate({ to: `/zikresources/${id}/edit` as never })}
               >
-                {isDeleting ? <Loader2 size={12} className="spinning" /> : t.viewZikresource.btnConfirmDelete}
-              </button>
-              <button
-                type="button"
-                className="btn-cancel-delete"
-                onClick={() => setShowDeleteConfirm(false)}
-                disabled={isDeleting}
-              >
-                {t.common.cancel}
+                <Edit size={14} />
+                <span>{t.viewZikresource.btnEdit}</span>
               </button>
             </div>
-          )}
-        </div>
+
+            {!showDeleteConfirm ? (
+              <button
+                type="button"
+                className="btn-delete-resource"
+                onClick={() => setShowDeleteConfirm(true)}
+              >
+                <Trash2 size={14} />
+                <span>{t.viewZikresource.btnDelete}</span>
+              </button>
+            ) : (
+              <div className="delete-confirm-group">
+                <span className="delete-confirm-text">{t.viewZikresource.confirmDeleteText}</span>
+                <button
+                  type="button"
+                  className="btn-confirm-delete"
+                  onClick={handleDelete}
+                  disabled={isDeleting}
+                >
+                  {isDeleting ? <Loader2 size={12} className="spinning" /> : t.viewZikresource.btnConfirmDelete}
+                </button>
+                <button
+                  type="button"
+                  className="btn-cancel-delete"
+                  onClick={() => setShowDeleteConfirm(false)}
+                  disabled={isDeleting}
+                >
+                  {t.common.cancel}
+                </button>
+              </div>
+            )}
+          </div>
+        )}
 
         <div className="detail-panel glass-panel">
           <div className="detail-item">

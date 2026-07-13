@@ -33,7 +33,8 @@ export const en: TranslationSchema = {
     zikresources: 'Zikresources',
     playlists: 'Playlists',
     songs: 'Songs',
-    network: 'Network'
+    network: 'Network',
+    search: 'Search'
   },
   landing: {
     companionBadge: 'Your Musical Companion',
@@ -222,5 +223,14 @@ export const en: TranslationSchema = {
     resourcesSectionTitle: 'Associated Zikresources',
     noResourcesText: 'No associated resources found for this song.',
     btnOpenLink: 'Open Link'
+  },
+  search: {
+    title: 'Global Search & Discovery',
+    subtitle: 'Explore zikresources, songs, and playlists from the database and see what network members are sharing.',
+    searchPlaceholder: 'Search by title, artist, tags...',
+    addedBy: 'Added by',
+    networkMemberBadge: 'Network Member',
+    noItemsFound: 'No items found matching your search.',
+    showOnlyNetwork: 'Show only network members'
   }
 };

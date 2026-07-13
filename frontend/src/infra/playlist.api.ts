@@ -7,12 +7,24 @@ export interface Playlist {
   songIds: string[];
   zikresourceIds?: string[];
   createdBy: string;
+  creatorName?: string;
+  creatorPicture?: string;
   createdAt: string;
   updatedAt: string;
 }
 
-export const fetchPlaylists = (): Promise<Playlist[]> => {
-  return authenticatedGet<Playlist[]>('/playlists');
+export interface FetchParams {
+  scope?: 'all' | 'mine';
+  createdBy?: string;
+}
+
+export const fetchPlaylists = (params?: FetchParams): Promise<Playlist[]> => {
+  const query = new URLSearchParams();
+  if (params?.scope) query.append('scope', params.scope);
+  if (params?.createdBy) query.append('createdBy', params.createdBy);
+  const queryString = query.toString();
+  const url = queryString ? `/playlists?${queryString}` : '/playlists';
+  return authenticatedGet<Playlist[]>(url);
 };
 
 export const fetchPlaylistById = (id: string): Promise<Playlist> => {

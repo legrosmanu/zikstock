@@ -22,6 +22,8 @@ export interface PlaylistResponse {
     name: string;
     description?: string;
     createdBy: string;
+    creatorName?: string;
+    creatorPicture?: string;
     songIds: string[];
     zikresourceIds: string[];
     createdAt: string;

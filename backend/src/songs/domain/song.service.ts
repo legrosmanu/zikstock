@@ -35,13 +35,10 @@ export const createSong = async (partial: Omit<Song, 'id' | 'createdAt' | 'updat
     return saveSong(song);
 };
 
-export const getSongById = async (id: string, userId?: string): Promise<Song> => {
+export const getSongById = async (id: string): Promise<Song> => {
     const song = await findSongById(id);
     if (!song) {
         throw new AppError(StatusCodes.NOT_FOUND, `Song with id ${id} not found`);
-    }
-    if (userId && song.createdBy !== userId) {
-        throw new AppError(StatusCodes.FORBIDDEN, `Access denied to song with id ${id}`);
     }
     return song;
 };
