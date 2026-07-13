@@ -16,19 +16,25 @@ import * as firestorePlaylistRepo from './repositories/firestore-playlist.reposi
 import * as mockPlaylistRepo from './repositories/mock-playlist.repository';
 import * as firestoreSongRepo from '../songs/repositories/firestore-song.repository';
 import * as firestoreZikresourceRepo from '../zikresources/repositories/firestore-zikresource.repository';
+import * as firestoreUserRepo from '../users/repositories/firestore-user.repository';
+import * as mockUserRepo from '../users/repositories/mock-user.repository';
 
 // Mock the modules
 jest.mock('../application/middleware/google-auth.middleware');
 jest.mock('./repositories/firestore-playlist.repository');
 jest.mock('../songs/repositories/firestore-song.repository');
 jest.mock('../zikresources/repositories/firestore-zikresource.repository');
+jest.mock('../users/repositories/firestore-user.repository');
 
 describe('PlaylistController Integration', () => {
     let app: express.Express;
 
     beforeEach(() => {
         mockPlaylistRepo.clearData();
+        mockUserRepo.clearData();
         jest.clearAllMocks();
+
+        jest.mocked(firestoreUserRepo.findUsersByIds).mockImplementation(mockUserRepo.findUsersByIds);
 
         // Mock Auth Middleware
         jest.mocked(googleAuthMiddleware.authMiddleware).mockImplementation(mockAuthMiddleware.authMiddleware);

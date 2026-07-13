@@ -14,17 +14,23 @@ import * as googleAuthMiddleware from '../application/middleware/google-auth.mid
 import * as mockAuthMiddleware from '../application/middleware/mock-auth.middleware';
 import * as firestoreRepo from './repositories/firestore-zikresource.repository';
 import * as mockRepo from './repositories/mock-zikresource.repository';
+import * as firestoreUserRepo from '../users/repositories/firestore-user.repository';
+import * as mockUserRepo from '../users/repositories/mock-user.repository';
 
 // Mock the modules
 jest.mock('../application/middleware/google-auth.middleware');
 jest.mock('./repositories/firestore-zikresource.repository');
+jest.mock('../users/repositories/firestore-user.repository');
 
 describe('ZikresourceController Integration', () => {
     let app: express.Express;
 
     beforeEach(() => {
         mockRepo.clearData();
+        mockUserRepo.clearData();
         jest.clearAllMocks();
+
+        jest.mocked(firestoreUserRepo.findUsersByIds).mockImplementation(mockUserRepo.findUsersByIds);
 
         // Map the mocked functions to the mock implementations
         jest.mocked(googleAuthMiddleware.authMiddleware).mockImplementation(mockAuthMiddleware.authMiddleware);
@@ -107,17 +113,52 @@ describe('ZikresourceController Integration', () => {
         expect(response.body.timestamp).toBeDefined();
     });
 
-    it('GET /zikresources should return all zikresources', async () => {
+    it('GET /zikresources should filter by current user by default', async () => {
         await mockRepo.saveZikresource({ id: '1', createdBy: 'user-123', url: 'https://u1.com', artist: 'a1', title: 't1', type: 'video', tags: [] });
-        await mockRepo.saveZikresource({ id: '2', createdBy: 'user-123', url: 'https://u2.com', artist: 'a2', title: 't2', type: 'video', tags: [] });
+        await mockRepo.saveZikresource({ id: '2', createdBy: 'other-user', url: 'https://u2.com', artist: 'a2', title: 't2', type: 'video', tags: [] });
 
         const response = await request(app)
             .get('/zikresources')
+            .set('Authorization', `Bearer ${VALID_TOKEN}`); // VALID_TOKEN corresponds to user-123
+
+        expect(response.status).toBe(200);
+        expect(response.body).toHaveLength(1);
+        expect(response.body[0]._id).toBe('1');
+    });
+
+    it('GET /zikresources?scope=all should return all zikresources from all users', async () => {
+        await mockUserRepo.saveUser({ id: 'user-123', email: 'u123@test.com', name: 'User 123', createdAt: '', updatedAt: '' });
+        await mockUserRepo.saveUser({ id: 'other-user', email: 'other@test.com', name: 'Other User', createdAt: '', updatedAt: '' });
+
+        await mockRepo.saveZikresource({ id: '1', createdBy: 'user-123', url: 'https://u1.com', artist: 'a1', title: 't1', type: 'video', tags: [] });
+        await mockRepo.saveZikresource({ id: '2', createdBy: 'other-user', url: 'https://u2.com', artist: 'a2', title: 't2', type: 'video', tags: [] });
+
+        const response = await request(app)
+            .get('/zikresources?scope=all')
             .set('Authorization', `Bearer ${VALID_TOKEN}`);
 
         expect(response.status).toBe(200);
         expect(response.body).toHaveLength(2);
-        expect(response.body[0]._id).toBe('1');
+        
+        // Assert creator name matching
+        const res1 = response.body.find((r: any) => r._id === '1');
+        const res2 = response.body.find((r: any) => r._id === '2');
+        expect(res1.creatorName).toBe('User 123');
+        expect(res2.creatorName).toBe('Other User');
+    });
+
+    it('GET /zikresources?createdBy=other-user should only return items created by other-user', async () => {
+        await mockRepo.saveZikresource({ id: '1', createdBy: 'user-123', url: 'https://u1.com', artist: 'a1', title: 't1', type: 'video', tags: [] });
+        await mockRepo.saveZikresource({ id: '2', createdBy: 'other-user', url: 'https://u2.com', artist: 'a2', title: 't2', type: 'video', tags: [] });
+
+        const response = await request(app)
+            .get('/zikresources?createdBy=other-user')
+            .set('Authorization', `Bearer ${VALID_TOKEN}`);
+
+        expect(response.status).toBe(200);
+        expect(response.body).toHaveLength(1);
+        expect(response.body[0]._id).toBe('2');
+        expect(response.body[0].createdBy).toBe('other-user');
     });
 
     it('PUT /zikresources/:id should update a zikresource', async () => {

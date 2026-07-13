@@ -33,8 +33,8 @@ export const ViewPlaylist: React.FC = () => {
       try {
         const [playlistData, allSongs, allZikresources] = await Promise.all([
           fetchPlaylistById(id),
-          fetchSongs(),
-          fetchZikresources(),
+          fetchSongs({ scope: 'all' }),
+          fetchZikresources({ scope: 'all' }),
         ]);
         setPlaylist(playlistData);
         

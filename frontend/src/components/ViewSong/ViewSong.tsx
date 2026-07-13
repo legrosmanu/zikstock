@@ -30,7 +30,7 @@ export const ViewSong: React.FC = () => {
       try {
         const [songData, allResources] = await Promise.all([
           fetchSongById(id),
-          fetchZikresources(),
+          fetchZikresources({ scope: 'all' }),
         ]);
         setSong(songData);
         
