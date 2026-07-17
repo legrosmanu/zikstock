@@ -193,6 +193,8 @@
   cursor: pointer;
   position: relative;
   overflow: hidden;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .url-card-anchor:hover {
@@ -204,11 +206,85 @@
 
 .url-card-url {
   font-family: monospace;
-  font-size: 1rem;
+  font-size: 0.8rem;
+  color: var(--text-muted, #9ca3af);
+  word-break: break-all;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+  display: block;
+}
+
+.url-card-info-group {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.url-card-icon-wrapper {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 1px solid var(--border-subtle);
+}
+
+.url-card-favicon {
+  width: 20px;
+  height: 20px;
+}
+
+.url-card-text-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+  flex: 1;
+  text-align: left;
+  overflow: hidden;
+}
+
+.url-card-site-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.url-card-domain {
+  font-size: 1.25rem;
+  font-weight: bold;
   color: var(--text-primary);
   word-break: break-all;
-  font-weight: 500;
-  flex: 1;
+  line-height: 1.2;
+}
+
+.view-resource-subtitle-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 0.5rem;
+}
+
+.view-resource-artist {
+  color: var(--text-secondary);
+  font-size: 1rem;
+}
+
+.view-resource-separator {
+  color: var(--text-secondary);
+  opacity: 0.5;
 }
 
 .url-card-action {
@@ -229,6 +305,36 @@
 .url-card-anchor:hover .url-card-action {
   transform: translateX(3px);
   box-shadow: 0 6px 16px rgba(139, 92, 246, 0.4);
+}
+
+@media (max-width: 600px) {
+  .url-card-anchor {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1.25rem;
+    padding: 1.25rem 1rem;
+  }
+  
+  .url-card-info-group {
+    width: 100%;
+  }
+  
+  .url-card-action {
+    justify-content: center;
+    width: 100%;
+    max-width: 340px;
+    align-self: center;
+    box-sizing: border-box;
+  }
+  
+  .view-resource-subtitle-row {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  
+  .view-resource-separator {
+    display: none;
+  }
 }
 
 .type-badge {

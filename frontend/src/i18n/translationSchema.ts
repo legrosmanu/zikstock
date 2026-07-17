@@ -199,6 +199,7 @@ export interface TranslationSchema {
     btnConfirmDelete: string;
     typeLabel: string;
     tagsLabel: string;
+    siteLabel: string;
   };
   viewPlaylist: {
     errorLoadFailed: string;

@@ -200,7 +200,8 @@ export const en: TranslationSchema = {
     confirmDeleteText: 'Are you sure?',
     btnConfirmDelete: 'Yes, Delete',
     typeLabel: 'Resource Type',
-    tagsLabel: 'Tags'
+    tagsLabel: 'Tags',
+    siteLabel: 'Source website'
   },
   viewPlaylist: {
     errorLoadFailed: 'Failed to load playlist details.',

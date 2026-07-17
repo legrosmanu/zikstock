@@ -8,6 +8,15 @@ import { useAuthStore } from '../../store/authStore';
 import '../CreateZikresource/CreateZikresource.css';
 import './ViewZikresource.css';
 
+const getDomainName = (urlStr: string) => {
+  try {
+    const url = new URL(urlStr);
+    return url.hostname.replace('www.', '');
+  } catch {
+    return urlStr;
+  }
+};
+
 export const ViewZikresource: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams({ from: '/zikresources/$id' }) as { id: string };
@@ -111,17 +120,52 @@ export const ViewZikresource: React.FC = () => {
       <main className="create-main">
         <div className="create-header">
           <h1 className="create-title">{resource.title}</h1>
-          <p className="create-subtitle">
-            {t.common.by} {resource.artist}
-          </p>
+          <div className="view-resource-subtitle-row">
+            <span className="view-resource-artist">{t.common.by} {resource.artist}</span>
+            <span className="view-resource-separator">•</span>
+            <span className={`type-badge type-${resource.type}`}>
+              {getResourceLabel(resource.type)}
+            </span>
+          </div>
         </div>
 
         {error && <div className="create-error-banner" style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)', color: '#ef4444', padding: '1rem', borderRadius: '8px', marginBottom: '1.5rem', fontSize: '0.9rem' }}>{error}</div>}
 
-        <div className="primary-cta-container">
-          <a href={resource.url} target="_blank" rel="noopener noreferrer" className="btn-primary-cta">
-            <span>{t.viewZikresource.goToLink}</span>
-            <ExternalLink size={18} />
+        <div className="url-highlight-card">
+          <a href={resource.url} target="_blank" rel="noopener noreferrer" className="url-card-anchor">
+            <div className="url-card-info-group">
+              <div className="url-card-icon-wrapper">
+                <img
+                  src={`https://www.google.com/s2/favicons?domain=${getDomainName(resource.url)}&sz=64`}
+                  alt="Site Icon"
+                  className="url-card-favicon"
+                  onError={(e) => {
+                    (e.target as HTMLElement).style.display = 'none';
+                    const parent = (e.target as HTMLElement).parentElement;
+                    if (parent) {
+                      const iconSvg = document.createElement('div');
+                      iconSvg.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-globe"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>`;
+                      parent.appendChild(iconSvg.firstChild!);
+                    }
+                  }}
+                />
+              </div>
+              <div className="url-card-text-group">
+                <span className="url-card-site-label">
+                  {t.viewZikresource.siteLabel}
+                </span>
+                <span className="url-card-domain">
+                  {getDomainName(resource.url)}
+                </span>
+                <span className="url-card-url" title={resource.url}>
+                  {resource.url.length > 50 ? `${resource.url.substring(0, 50)}...` : resource.url}
+                </span>
+              </div>
+            </div>
+            <div className="url-card-action">
+              <span>{t.viewZikresource.goToLink}</span>
+              <ExternalLink size={16} />
+            </div>
           </a>
         </div>
 
@@ -171,20 +215,8 @@ export const ViewZikresource: React.FC = () => {
           </div>
         )}
 
-        <div className="detail-panel glass-panel">
-          <div className="detail-item">
-            <div className="detail-label">
-              <Music size={16} />
-              <span>{t.viewZikresource.typeLabel}</span>
-            </div>
-            <div className="detail-value">
-              <span className={`type-badge type-${resource.type}`}>
-                {getResourceLabel(resource.type)}
-              </span>
-            </div>
-          </div>
-
-          {resource.tags && resource.tags.length > 0 && (
+        {resource.tags && resource.tags.length > 0 && (
+          <div className="detail-panel glass-panel">
             <div className="detail-item">
               <div className="detail-label">
                 <Tag size={16} />
@@ -198,8 +230,8 @@ export const ViewZikresource: React.FC = () => {
                 ))}
               </div>
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </main>
     </div>
   );

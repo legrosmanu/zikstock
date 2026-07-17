@@ -41,7 +41,7 @@ export const fr: TranslationSchema = {
     companionBadge: 'Votre compagnon musical',
     titleFirst: 'Organisez votre',
     titleGradient: 'Parcours Musical',
-    subtitle: 'Enregistrez et organisez les ressources nécessaires pour apprendre de nouveaux morceaux. Le compagnon idéal pour s\'entraînement seul ou créer des répertoires à jouer entre amis.',
+    subtitle: 'Enregistrez et organisez les ressources nécessaires pour apprendre de nouveaux morceaux. Le compagnon idéal pour s\'entraîner seul ou créer des répertoires à jouer entre amis.',
     getStarted: 'Commencer',
     discoverFeatures: 'Découvrir les fonctionnalités',
     feature1Title: 'Apprenez de nouveaux morceaux',
@@ -200,7 +200,8 @@ export const fr: TranslationSchema = {
     confirmDeleteText: 'Êtes-vous sûr ?',
     btnConfirmDelete: 'Oui, Supprimer',
     typeLabel: 'Type de ressource',
-    tagsLabel: 'Tags'
+    tagsLabel: 'Tags',
+    siteLabel: 'Site source'
   },
   viewPlaylist: {
     errorLoadFailed: 'Impossible de charger les détails de la playlist.',
