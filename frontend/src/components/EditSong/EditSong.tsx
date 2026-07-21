@@ -110,7 +110,7 @@ export const EditSong: React.FC = () => {
     setError(null);
     try {
       await deleteSong(id);
-      navigate({ to: '/home', search: { tab: 'songs' } });
+      navigate({ to: '/home', search: { tab: 'songs' } as never });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to delete song.');
       setIsDeleting(false);

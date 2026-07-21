@@ -147,7 +147,8 @@ export const en: TranslationSchema = {
     errorArtistRequired: 'Artist name is required.',
     errorTitleRequired: 'Title is required.',
     successSaving: '✅ Zikresource saved! Redirecting…',
-    saveButton: 'Save Zikresource'
+    saveButton: 'Save Zikresource',
+    autoFilledHint: 'Suggested from URL'
   },
   createPlaylist: {
     title: 'Create a Playlist',

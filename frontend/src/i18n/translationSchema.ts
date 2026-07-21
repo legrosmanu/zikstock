@@ -146,6 +146,7 @@ export interface TranslationSchema {
     errorTitleRequired: string;
     successSaving: string;
     saveButton: string;
+    autoFilledHint: string;
   };
   createPlaylist: {
     title: string;

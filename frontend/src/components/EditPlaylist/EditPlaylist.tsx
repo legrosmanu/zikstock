@@ -107,7 +107,7 @@ export const EditPlaylist: React.FC = () => {
     setError(null);
     try {
       await deletePlaylist(id);
-      navigate({ to: '/home', search: { tab: 'playlists' } });
+      navigate({ to: '/home', search: { tab: 'playlists' } as never });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to delete playlist.');
       setIsDeleting(false);

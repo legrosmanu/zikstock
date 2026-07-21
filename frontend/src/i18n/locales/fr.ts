@@ -147,7 +147,8 @@ export const fr: TranslationSchema = {
     errorArtistRequired: 'Le nom de l\'artiste est requis.',
     errorTitleRequired: 'Le titre est requis.',
     successSaving: '✅ Zikresource enregistrée ! Redirection...',
-    saveButton: 'Enregistrer la Zikresource'
+    saveButton: 'Enregistrer la Zikresource',
+    autoFilledHint: 'Suggéré depuis l\'URL'
   },
   createPlaylist: {
     title: 'Créer une Playlist',

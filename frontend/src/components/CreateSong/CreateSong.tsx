@@ -87,7 +87,7 @@ export const CreateSong: React.FC = () => {
         artist: artist.trim(),
         zikresourceIds: selectedZikresourceIds,
       });
-      navigate({ to: '/home', search: { tab: 'songs' } });
+      navigate({ to: '/home', search: { tab: 'songs' } as never });
     } catch (err) {
       setError(err instanceof Error ? err.message : t.createSong.errorCreateFailed);
     } finally {

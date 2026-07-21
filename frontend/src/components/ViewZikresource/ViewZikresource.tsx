@@ -59,7 +59,7 @@ export const ViewZikresource: React.FC = () => {
     setError(null);
     try {
       await deleteZikresource(id);
-      navigate({ to: '/home', search: { tab: 'zikresources' } });
+      navigate({ to: '/home', search: { tab: 'zikresources' } as never });
     } catch (err) {
       setError(err instanceof Error ? err.message : t.viewZikresource.errorDeleteFailed);
       setIsDeleting(false);

@@ -68,7 +68,7 @@ export const ViewPlaylist: React.FC = () => {
     setError(null);
     try {
       await deletePlaylist(id);
-      navigate({ to: '/home', search: { tab: 'playlists' } });
+      navigate({ to: '/home', search: { tab: 'playlists' } as never });
     } catch (err) {
       setError(err instanceof Error ? err.message : t.viewPlaylist.errorDeleteFailed);
       setIsDeleting(false);

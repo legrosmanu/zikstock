@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Music, ArrowLeft, Plus, X, Link, User, FileText, Tag, Loader2 } from 'lucide-react';
+import { Music, ArrowLeft, Plus, X, Link, User, FileText, Tag, Loader2, Sparkles } from 'lucide-react';
 import { useNavigate } from '@tanstack/react-router';
 import { authenticatedPost } from '../../infra/httpClient';
 import { useTranslation } from '../../hooks/useTranslation';
+import { extractMetadataFromUrl } from './urlMetadataExtractor';
 import './CreateZikresource.css';
 
 interface TagItem {
@@ -38,14 +39,55 @@ export const CreateZikresource: React.FC = () => {
     tags: [],
   });
 
+  const [autoFilled, setAutoFilled] = useState<{ artist: boolean; title: boolean; type: boolean }>({
+    artist: false,
+    title: false,
+    type: false,
+  });
+
   const [tagInput, setTagInput] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
+  const applyUrlMetadata = (url: string) => {
+    const metadata = extractMetadataFromUrl(url);
+
+    const nextAutoFilled = { ...autoFilled };
+
+    setForm((prevForm) => {
+      const nextForm = { ...prevForm };
+
+      (['artist', 'title', 'type'] as const).forEach((field) => {
+        const metaValue = metadata[field];
+        const isCurrentlyAutoFilled = autoFilled[field];
+        const isCurrentlyEmpty = !prevForm[field]?.trim();
+
+        if (metaValue) {
+          if (isCurrentlyAutoFilled || isCurrentlyEmpty) {
+            nextForm[field] = metaValue;
+            nextAutoFilled[field] = true;
+          }
+        } else if (isCurrentlyAutoFilled) {
+          nextForm[field] = '';
+          nextAutoFilled[field] = false;
+        }
+      });
+
+      return nextForm;
+    });
+
+    setAutoFilled(nextAutoFilled);
+  };
+
   const handleChange = (field: keyof Omit<FormState, 'tags'>, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }));
+    setAutoFilled((prev) => ({ ...prev, [field]: false }));
     setError(null);
+
+    if (field === 'url') {
+      applyUrlMetadata(value);
+    }
   };
 
   const addTag = (label: string) => {
@@ -97,7 +139,7 @@ export const CreateZikresource: React.FC = () => {
       await authenticatedPost(endpoint, body);
 
       setSuccess(true);
-      setTimeout(() => navigate({ to: '/home', search: { tab: 'zikresources' } }), 1200);
+      setTimeout(() => navigate({ to: '/home', search: { tab: 'zikresources' } as never }), 1200);
     } catch (err) {
       setError(err instanceof Error ? err.message : t.common.errorSomethingWentWrong);
     } finally {
@@ -158,16 +200,24 @@ export const CreateZikresource: React.FC = () => {
             />
           </div>
 
-          {/* Artist */}
+           {/* Artist */}
           <div className="form-group">
-            <label className="form-label" htmlFor="field-artist">
-              <User size={15} />
-              {t.createZikresource.fieldArtist} <span className="form-required">*</span>
-            </label>
+            <div className="label-row">
+              <label className="form-label" htmlFor="field-artist">
+                <User size={15} />
+                {t.createZikresource.fieldArtist} <span className="form-required">*</span>
+              </label>
+              {autoFilled.artist && (
+                <span className="autofill-badge" title={t.createZikresource.autoFilledHint}>
+                  <Sparkles size={12} />
+                  <span>{t.createZikresource.autoFilledHint}</span>
+                </span>
+              )}
+            </div>
             <input
               id="field-artist"
               type="text"
-              className="form-input"
+              className={`form-input ${autoFilled.artist ? 'autofilled-glow' : ''}`}
               placeholder="e.g. Pink Floyd"
               value={form.artist}
               onChange={(e) => handleChange('artist', e.target.value)}
@@ -177,14 +227,22 @@ export const CreateZikresource: React.FC = () => {
 
           {/* Title */}
           <div className="form-group">
-            <label className="form-label" htmlFor="field-title">
-              <FileText size={15} />
-              {t.createZikresource.fieldTitle} <span className="form-required">*</span>
-            </label>
+            <div className="label-row">
+              <label className="form-label" htmlFor="field-title">
+                <FileText size={15} />
+                {t.createZikresource.fieldTitle} <span className="form-required">*</span>
+              </label>
+              {autoFilled.title && (
+                <span className="autofill-badge" title={t.createZikresource.autoFilledHint}>
+                  <Sparkles size={12} />
+                  <span>{t.createZikresource.autoFilledHint}</span>
+                </span>
+              )}
+            </div>
             <input
               id="field-title"
               type="text"
-              className="form-input"
+              className={`form-input ${autoFilled.title ? 'autofilled-glow' : ''}`}
               placeholder="e.g. Wish You Were Here"
               value={form.title}
               onChange={(e) => handleChange('title', e.target.value)}
@@ -194,18 +252,29 @@ export const CreateZikresource: React.FC = () => {
 
           {/* Type */}
           <div className="form-group">
-            <label className="form-label" htmlFor="field-type">
-              <FileText size={15} />
-              {t.createZikresource.fieldType}
-            </label>
+            <div className="label-row">
+              <label className="form-label" htmlFor="field-type">
+                <FileText size={15} />
+                {t.createZikresource.fieldType}
+              </label>
+              {autoFilled.type && (
+                <span className="autofill-badge" title={t.createZikresource.autoFilledHint}>
+                  <Sparkles size={12} />
+                  <span>{t.createZikresource.autoFilledHint}</span>
+                </span>
+              )}
+            </div>
             <div className="type-grid">
               {RESOURCE_TYPES.map(({ value, label }) => (
                 <button
                   key={value}
                   type="button"
                   id={`type-${value}`}
-                  className={`type-chip ${form.type === value ? 'selected' : ''}`}
-                  onClick={() => setForm((prev) => ({ ...prev, type: prev.type === value ? '' : value }))}
+                  className={`type-chip ${form.type === value ? 'selected' : ''} ${autoFilled.type && form.type === value ? 'autofilled-glow' : ''}`}
+                  onClick={() => {
+                    setForm((prev) => ({ ...prev, type: prev.type === value ? '' : value }));
+                    setAutoFilled((prev) => ({ ...prev, type: false }));
+                  }}
                   disabled={isSubmitting}
                 >
                   {label}
