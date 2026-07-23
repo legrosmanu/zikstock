@@ -8,6 +8,7 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
+    "test": "node --test --test-reporter=spec 'src/**/*.test.ts'",
     "docker:build": "docker build -t zikstock-frontend ."
   },
   "dependencies": {

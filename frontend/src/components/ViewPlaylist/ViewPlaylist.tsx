@@ -130,15 +130,17 @@ export const ViewPlaylist: React.FC = () => {
         {error && <div className="create-page-error" style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)', color: '#ef4444', padding: '1rem', borderRadius: '8px', marginBottom: '1.5rem', fontSize: '0.9rem' }}>{error}</div>}
 
         {isOwner && (
-          <div className="manage-top-actions" style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <button
-              type="button"
-              className="btn-edit-playlist"
-              onClick={() => navigate({ to: `/playlists/${id}/edit` as never })}
-            >
-              <Edit size={14} />
-              <span>{t.viewPlaylist.btnEdit}</span>
-            </button>
+          <div className="manage-top-actions">
+            <div className="action-buttons-left">
+              <button
+                type="button"
+                className="btn-edit-playlist"
+                onClick={() => navigate({ to: `/playlists/${id}/edit` as never })}
+              >
+                <Edit size={14} />
+                <span>{t.viewPlaylist.btnEdit}</span>
+              </button>
+            </div>
 
             {!showDeleteConfirm ? (
               <button

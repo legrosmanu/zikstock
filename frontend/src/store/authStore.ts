@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { normalizeUserProfile } from './userProfile.utils';
 
 export interface UserProfile {
   sub: string;
@@ -72,7 +73,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
       const data = await response.json();
       const accessToken = data.accessToken as string;
-      const user = (data.user || decodeJwt(accessToken)) as UserProfile;
+      const user = normalizeUserProfile((data.user || decodeJwt(accessToken)) as Record<string, unknown>);
 
       localStorage.setItem('zikstock_access_token', accessToken);
       set({
@@ -116,7 +117,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
       const data = await response.json();
       const accessToken = data.accessToken as string;
-      const user = (data.user || decodeJwt(accessToken)) as UserProfile;
+      const user = normalizeUserProfile((data.user || decodeJwt(accessToken)) as Record<string, unknown>);
 
       localStorage.setItem('zikstock_access_token', accessToken);
       set({

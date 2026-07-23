@@ -68,7 +68,7 @@ describe('ZikresourceService', () => {
     });
 
     it('should not throw error if zikresource not found on delete', async () => {
-        await expect(deleteZikresource('non-existent')).resolves.not.toThrow();
+        await expect(deleteZikresource('non-existent', 'user-123')).resolves.not.toThrow();
     });
 
     it('should get all zikresources', async () => {
@@ -133,5 +133,63 @@ describe('ZikresourceService', () => {
             tags: [{ label: 'TO_PLAY', value: 'new' }]
         };
         await expect(updateZikresource('non-existent', updates)).rejects.toThrow('Zikresource with id non-existent not found');
+    });
+
+    it('should throw FORBIDDEN when updating a zikresource that belongs to another user', async () => {
+        const original: Zikresource = {
+            id: 'zik-owned-by-other',
+            createdBy: 'other-user',
+            url: 'https://example.com/original',
+            artist: 'Other Artist',
+            title: 'Other Title',
+            type: 'video',
+            tags: []
+        };
+        await repo.saveZikresource(original);
+
+        const updates: Omit<Zikresource, 'id'> = {
+            createdBy: 'user-123',
+            url: 'https://example.com/hack',
+            artist: 'Hacked Artist',
+            title: 'Hacked Title',
+            type: 'video',
+            tags: []
+        };
+
+        await expect(updateZikresource('zik-owned-by-other', updates)).rejects.toThrow(
+            'You do not have permission to modify this zikresource.'
+        );
+    });
+
+    it('should throw FORBIDDEN when deleting a zikresource that belongs to another user', async () => {
+        const original: Zikresource = {
+            id: 'zik-owned-by-other',
+            createdBy: 'other-user',
+            url: 'https://example.com/original',
+            artist: 'Other Artist',
+            title: 'Other Title',
+            type: 'video',
+            tags: []
+        };
+        await repo.saveZikresource(original);
+
+        await expect(deleteZikresource('zik-owned-by-other', 'user-123')).rejects.toThrow(
+            'You do not have permission to delete this zikresource.'
+        );
+    });
+
+    it('should delete a zikresource when the user is the owner', async () => {
+        const original: Zikresource = {
+            id: 'zik-mine',
+            createdBy: 'user-123',
+            url: 'https://example.com/mine',
+            artist: 'My Artist',
+            title: 'My Title',
+            type: 'video',
+            tags: []
+        };
+        await repo.saveZikresource(original);
+
+        await expect(deleteZikresource('zik-mine', 'user-123')).resolves.not.toThrow();
     });
 });

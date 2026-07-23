@@ -53,7 +53,7 @@ export const updateSong = async (id: string, partial: Omit<Song, 'id' | 'created
         throw new AppError(StatusCodes.NOT_FOUND, `Song with id ${id} not found`);
     }
     if (partial.createdBy !== existing.createdBy) {
-        throw new AppError(StatusCodes.FORBIDDEN, `You cannot change the owner of the song.`);
+        throw new AppError(StatusCodes.FORBIDDEN, `You do not have permission to modify this song.`);
     }
     await validateZikresources(partial.zikresourceIds, partial.createdBy);
     const updated: Song = {

@@ -68,7 +68,7 @@ export const updatePlaylist = async (id: string, partial: Omit<Playlist, 'id' | 
         throw new AppError(StatusCodes.NOT_FOUND, `Playlist with id ${id} not found`);
     }
     if (partial.createdBy !== existing.createdBy) {
-        throw new AppError(StatusCodes.FORBIDDEN, `You cannot change the owner of the playlist.`);
+        throw new AppError(StatusCodes.FORBIDDEN, `You do not have permission to modify this playlist.`);
     }
     await validateSongs(partial.songIds, partial.createdBy);
     await validateZikresources(partial.zikresourceIds || [], partial.createdBy);

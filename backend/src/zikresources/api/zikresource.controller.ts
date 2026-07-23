@@ -99,7 +99,11 @@ export const updateZikresourceHandler = async (req: Request, res: Response, next
 
 export const deleteZikresourceHandler = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        await deleteZikresource(req.params.id as string);
+        const userId = req.user?.sub;
+        if (!userId) {
+            throw new AppError(StatusCodes.UNAUTHORIZED, 'User identity is missing from token');
+        }
+        await deleteZikresource(req.params.id as string, userId);
         res.status(StatusCodes.NO_CONTENT).send();
     } catch (error) {
         next(error);

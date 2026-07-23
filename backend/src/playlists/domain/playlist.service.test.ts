@@ -1,6 +1,8 @@
 import {
     createPlaylist,
-    getPlaylistById
+    getPlaylistById,
+    updatePlaylist,
+    deletePlaylist
 } from './playlist.service';
 import { Playlist } from './playlist.domain';
 import { describe, it, expect, beforeEach, jest } from '@jest/globals';
@@ -133,5 +135,43 @@ describe('PlaylistService', () => {
         const result = await getPlaylistById('playlist-1');
         expect(result.id).toBe('playlist-1');
         expect(result.createdBy).toBe('other-user');
+    });
+
+    it('should throw FORBIDDEN when updating a playlist that belongs to another user', async () => {
+        const existing: Playlist = {
+            id: 'playlist-owned-by-other',
+            name: 'Original',
+            songIds: [],
+            createdBy: 'other-user',
+            createdAt: '2026-06-14T00:00:00Z',
+            updatedAt: '2026-06-14T00:00:00Z',
+        };
+        await playlistRepo.savePlaylist(existing);
+
+        const updates: Omit<Playlist, 'id' | 'createdAt' | 'updatedAt'> = {
+            name: 'Hacked',
+            songIds: [],
+            createdBy: 'user-123',
+        };
+
+        await expect(updatePlaylist('playlist-owned-by-other', updates)).rejects.toThrow(
+            'You do not have permission to modify this playlist.'
+        );
+    });
+
+    it('should throw FORBIDDEN when deleting a playlist that belongs to another user', async () => {
+        const existing: Playlist = {
+            id: 'playlist-owned-by-other',
+            name: 'Original',
+            songIds: [],
+            createdBy: 'other-user',
+            createdAt: '2026-06-14T00:00:00Z',
+            updatedAt: '2026-06-14T00:00:00Z',
+        };
+        await playlistRepo.savePlaylist(existing);
+
+        await expect(deletePlaylist('playlist-owned-by-other', 'user-123')).rejects.toThrow(
+            'You do not have permission to delete this playlist.'
+        );
     });
 });

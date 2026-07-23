@@ -348,6 +348,7 @@ describe('ZikresourceController Firestore Integration', () => {
             const testId = 'test-delete-id';
             await db.collection('zikresources').doc(testId).set({
                 id: testId,
+                createdBy: 'user-123',
                 url: 'https://example.com/delete',
                 artist: 'Delete Artist',
                 title: 'Delete Title',

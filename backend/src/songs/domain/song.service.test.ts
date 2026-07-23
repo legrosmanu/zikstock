@@ -1,6 +1,8 @@
 import {
     createSong,
-    getSongById
+    getSongById,
+    updateSong,
+    deleteSong
 } from './song.service';
 import { Song } from './song.domain';
 import { describe, it, expect, beforeEach, jest } from '@jest/globals';
@@ -116,5 +118,46 @@ describe('SongService', () => {
         const result = await getSongById('song-1');
         expect(result.id).toBe('song-1');
         expect(result.createdBy).toBe('other-user');
+    });
+
+    it('should throw FORBIDDEN when updating a song that belongs to another user', async () => {
+        const existing: Song = {
+            id: 'song-owned-by-other',
+            title: 'Original',
+            artist: 'Original Artist',
+            zikresourceIds: [],
+            createdBy: 'other-user',
+            createdAt: '2026-06-14T00:00:00Z',
+            updatedAt: '2026-06-14T00:00:00Z',
+        };
+        await songRepo.saveSong(existing);
+
+        const updates: Omit<Song, 'id' | 'createdAt' | 'updatedAt'> = {
+            title: 'Hacked',
+            artist: 'Hacker',
+            zikresourceIds: [],
+            createdBy: 'user-123',
+        };
+
+        await expect(updateSong('song-owned-by-other', updates)).rejects.toThrow(
+            'You do not have permission to modify this song.'
+        );
+    });
+
+    it('should throw FORBIDDEN when deleting a song that belongs to another user', async () => {
+        const existing: Song = {
+            id: 'song-owned-by-other',
+            title: 'Original',
+            artist: 'Original Artist',
+            zikresourceIds: [],
+            createdBy: 'other-user',
+            createdAt: '2026-06-14T00:00:00Z',
+            updatedAt: '2026-06-14T00:00:00Z',
+        };
+        await songRepo.saveSong(existing);
+
+        await expect(deleteSong('song-owned-by-other', 'user-123')).rejects.toThrow(
+            'You do not have permission to delete this song.'
+        );
     });
 });

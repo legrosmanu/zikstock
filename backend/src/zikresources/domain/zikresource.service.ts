@@ -36,7 +36,7 @@ export const updateZikresource = async (id: string, partial: Omit<Zikresource, '
         throw new AppError(StatusCodes.NOT_FOUND, `Zikresource with id ${id} not found`);
     }
     if (partial.createdBy !== existing?.createdBy) {
-        throw new AppError(StatusCodes.FORBIDDEN, `You cannot change the owner of the zikresource.`)
+        throw new AppError(StatusCodes.FORBIDDEN, `You do not have permission to modify this zikresource.`);
     }
     const updated: Zikresource = {
         ...existing,
@@ -46,10 +46,13 @@ export const updateZikresource = async (id: string, partial: Omit<Zikresource, '
     return updateZikresourceInDb(updated);
 };
 
-export const deleteZikresource = async (id: string): Promise<void> => {
+export const deleteZikresource = async (id: string, userId: string): Promise<void> => {
     const existing = await findZikresourceById(id);
     if (!existing) {
         return;
+    }
+    if (existing.createdBy !== userId) {
+        throw new AppError(StatusCodes.FORBIDDEN, `You do not have permission to delete this zikresource.`);
     }
     await deleteZikresourceFromDb(id);
 };
