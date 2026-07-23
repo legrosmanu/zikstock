@@ -53,33 +53,31 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(loggingMiddleware);
 
-// CORS Middleware to support development and production frontend API requests
+// CORS Middleware to support development and production frontend API requests with credentials
 app.use((req, res, next) => {
     const origin = req.headers.origin;
-    const allowedOrigins = [
-        'http://localhost:',
-        'http://127.0.0.1:',
-        process.env.FRONTEND_URL ? process.env.FRONTEND_URL.replace(/\/$/, '') : ''
-    ].filter(Boolean) as string[];
 
-    let isAllowed = false;
     if (origin) {
+        const allowedOrigins = [
+            'http://localhost',
+            'http://127.0.0.1',
+            process.env.FRONTEND_URL ? process.env.FRONTEND_URL.replace(/\/$/, '') : ''
+        ].filter(Boolean);
+
+        let isAllowed = false;
         for (const allowed of allowedOrigins) {
-            if (origin.startsWith(allowed) || origin === allowed) {
+            if (origin === allowed || origin.startsWith(`${allowed}:`) || origin.startsWith(allowed)) {
                 isAllowed = true;
                 break;
             }
         }
-    }
 
-    // Fallback: If FRONTEND_URL is not defined, allow any origin to prevent breaking installations
-    const allowOrigin = origin && (isAllowed || !process.env.FRONTEND_URL) ? origin : '';
-
-    if (allowOrigin) {
-        res.header('Access-Control-Allow-Origin', allowOrigin);
-        res.header('Access-Control-Allow-Credentials', 'true');
-    } else {
-        res.header('Access-Control-Allow-Origin', '*');
+        // When requests carry credentials (cookies), Access-Control-Allow-Origin MUST match exact origin
+        // and cannot use wildcard '*'. Reflect the origin if allowed or if FRONTEND_URL is unconfigured.
+        if (isAllowed || !process.env.FRONTEND_URL) {
+            res.header('Access-Control-Allow-Origin', origin);
+            res.header('Access-Control-Allow-Credentials', 'true');
+        }
     }
 
     res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
