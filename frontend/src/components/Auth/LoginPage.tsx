@@ -45,11 +45,8 @@ export const LoginPage: React.FC = () => {
         try {
           window.google.accounts.id.initialize({
             client_id: clientId,
-            callback: (response) => {
-              const success = login(response.credential);
-              if (success) {
-                // Auth store state change automatically redirects via App.tsx
-              }
+            callback: async (response) => {
+              await login(response.credential);
             },
             auto_select: false,
           });

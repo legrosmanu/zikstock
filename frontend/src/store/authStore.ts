@@ -13,10 +13,13 @@ interface AuthState {
   user: UserProfile | null;
   isAuthenticated: boolean;
   isInitializing: boolean;
-  login: (token: string) => boolean;
+  login: (googleToken: string) => Promise<boolean>;
+  refreshSession: () => Promise<boolean>;
   logout: () => void;
-  initialize: () => void;
+  initialize: () => Promise<void>;
 }
+
+const getApiUrl = (): string => import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 // Pure utility to safely decode a JWT payload in the browser
 const decodeJwt = (token: string): UserProfile | null => {
@@ -36,34 +39,109 @@ const decodeJwt = (token: string): UserProfile | null => {
     );
     return JSON.parse(jsonPayload);
   } catch (error) {
-    console.error('Error decoding Google ID Token:', error);
+    console.error('Error decoding JWT Token:', error);
     return null;
   }
 };
 
-export const useAuthStore = create<AuthState>((set) => ({
+const isTokenValid = (token: string): boolean => {
+  const decoded = decodeJwt(token);
+  if (!decoded || typeof decoded.exp !== 'number') return false;
+  // Buffer of 30 seconds
+  return decoded.exp > Math.floor(Date.now() / 1000) + 30;
+};
+
+export const useAuthStore = create<AuthState>((set, get) => ({
   token: null,
   user: null,
   isAuthenticated: false,
   isInitializing: true,
 
-  login: (token: string) => {
-    const decoded = decodeJwt(token);
-    if (!decoded) {
+  login: async (googleToken: string) => {
+    try {
+      const response = await fetch(`${getApiUrl()}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ googleToken }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Login failed with status ${response.status}`);
+      }
+
+      const data = await response.json();
+      const accessToken = data.accessToken as string;
+      const user = (data.user || decodeJwt(accessToken)) as UserProfile;
+
+      localStorage.setItem('zikstock_access_token', accessToken);
+      set({
+        token: accessToken,
+        user,
+        isAuthenticated: true,
+      });
+      return true;
+    } catch (err) {
+      console.error('Failed to log in with backend auth:', err);
+      // Fallback: try decoding directly if offline / mock mode
+      const decoded = decodeJwt(googleToken);
+      if (decoded) {
+        localStorage.setItem('zikstock_access_token', googleToken);
+        set({
+          token: googleToken,
+          user: decoded,
+          isAuthenticated: true,
+        });
+        return true;
+      }
       return false;
     }
-
-    localStorage.setItem('zikstock_token', token);
-    set({
-      token,
-      user: decoded,
-      isAuthenticated: true,
-    });
-    return true;
   },
 
+  refreshSession: async (): Promise<boolean> => {
+    try {
+      const savedToken = localStorage.getItem('zikstock_access_token') || localStorage.getItem('zikstock_token');
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      
+      const response = await fetch(`${getApiUrl()}/auth/refresh`, {
+        method: 'POST',
+        headers,
+        credentials: 'include',
+        body: JSON.stringify({ refreshToken: savedToken }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Refresh session failed');
+      }
+
+      const data = await response.json();
+      const accessToken = data.accessToken as string;
+      const user = (data.user || decodeJwt(accessToken)) as UserProfile;
+
+      localStorage.setItem('zikstock_access_token', accessToken);
+      set({
+        token: accessToken,
+        user,
+        isAuthenticated: true,
+        isInitializing: false,
+      });
+      return true;
+    } catch (err) {
+      console.warn('Session refresh failed:', err);
+      get().logout();
+      set({ isInitializing: false });
+      return false;
+    }
+  },
 
   logout: () => {
+    // Attempt backend logout to clear httpOnly cookie
+    fetch(`${getApiUrl()}/auth/logout`, {
+      method: 'POST',
+      credentials: 'include',
+    }).catch((err) => console.warn('Logout API request failed:', err));
+
+    localStorage.removeItem('zikstock_access_token');
     localStorage.removeItem('zikstock_token');
     localStorage.removeItem('zikstock_mock_user');
     
@@ -80,38 +158,30 @@ export const useAuthStore = create<AuthState>((set) => ({
       token: null,
       user: null,
       isAuthenticated: false,
+      isInitializing: false,
     });
   },
 
-  initialize: () => {
-    const savedToken = localStorage.getItem('zikstock_token');
-    if (!savedToken) {
-      set({ isInitializing: false });
-      return;
+  initialize: async () => {
+    const savedToken = localStorage.getItem('zikstock_access_token') || localStorage.getItem('zikstock_token');
+    
+    if (savedToken && isTokenValid(savedToken)) {
+      const decoded = decodeJwt(savedToken);
+      if (decoded) {
+        set({
+          token: savedToken,
+          user: decoded,
+          isAuthenticated: true,
+          isInitializing: false,
+        });
+        return;
+      }
     }
 
-
-    // Restore real Google Sign In session
-    const decoded = decodeJwt(savedToken);
-    if (decoded) {
-      set({
-        token: savedToken,
-        user: decoded,
-        isAuthenticated: true,
-        isInitializing: false,
-      });
-    } else {
-      localStorage.removeItem('zikstock_token');
-      set({
-        token: null,
-        user: null,
-        isAuthenticated: false,
-        isInitializing: false,
-      });
-    }
+    // Token missing or expired -> attempt silent refresh using HttpOnly cookie or stored refresh token
+    await get().refreshSession();
   },
 }));
 
-// Initialize the store synchronously on load to recover any session immediately
+// Initialize the store on load
 useAuthStore.getState().initialize();
-

@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import express from 'express';
+import cookieParser from 'cookie-parser';
 import {
     createZikresourceHandler,
     getAllZikresourcesHandler,
@@ -39,13 +40,17 @@ import {
     deleteConnectionHandler,
     listNetworkHandler
 } from './connections/api/connection.controller';
-
-
+import {
+    loginHandler,
+    refreshHandler,
+    logoutHandler
+} from './auth/api/auth.controller';
 
 const app = express();
 const port = process.env.PORT || 3000;
 
 app.use(express.json());
+app.use(cookieParser());
 app.use(loggingMiddleware);
 
 // CORS Middleware to support development and production frontend API requests
@@ -92,7 +97,12 @@ initializeGoogleAuthStrategy();
 
 app.get('/health', healthCheck);
 
-// Zikresource Routes (protected — requires a valid Google ID token)
+// Auth Routes (public)
+app.post('/auth/login', loginHandler);
+app.post('/auth/refresh', refreshHandler);
+app.post('/auth/logout', logoutHandler);
+
+// Zikresource Routes (protected)
 app.post('/zikresources', authMiddleware, createZikresourceHandler);
 app.get('/zikresources', authMiddleware, getAllZikresourcesHandler);
 app.get('/zikresources/:id', authMiddleware, getZikresourceByIdHandler);
@@ -122,8 +132,6 @@ app.post('/connections', authMiddleware, requestConnectionHandler);
 app.get('/connections', authMiddleware, listNetworkHandler);
 app.put('/connections/:id', authMiddleware, acceptConnectionHandler);
 app.delete('/connections/:id', authMiddleware, deleteConnectionHandler);
-
-
 
 // Global Error Handler
 app.use(errorMiddleware);

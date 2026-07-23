@@ -4,6 +4,7 @@ import { Strategy as JwtStrategy, ExtractJwt, StrategyOptionsWithoutRequest } fr
 import jwksRsa from 'jwks-rsa';
 import { AppError } from './error.middleware';
 import { StatusCodes } from 'http-status-codes';
+import { verifyAccessToken } from '../../auth/domain/auth.service';
 
 export interface JwtPayload {
     sub: string;
@@ -41,10 +42,28 @@ export const initializeGoogleAuthStrategy = (): void => {
 };
 
 /**
- * Middleware that verifies the Google ID token sent in the Authorization header.
- * Returns 401 if the token is missing or invalid.
+ * Middleware that verifies the Zikstock Access Token sent in Authorization header.
+ * Falls back to Google ID Token validation if needed.
+ * Returns 401 if missing or invalid.
  */
 export const authMiddleware = (req: Request, res: Response, next: NextFunction): void => {
+    const authHeader = req.headers['authorization'];
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return next(new AppError(StatusCodes.UNAUTHORIZED, 'Unauthorized'));
+    }
+
+    const token = authHeader.slice(7);
+
+    // 1. Try verifying as Zikstock Access Token
+    try {
+        const payload = verifyAccessToken(token);
+        req.user = payload;
+        return next();
+    } catch {
+        // Not a valid Zikstock Access Token, fallback to Google ID token verification
+    }
+
+    // 2. Fallback to Google ID Token verification
     passport.authenticate('google-jwt', { session: false }, (err: unknown, user: Express.User | false) => {
         if (err || !user) {
             return next(new AppError(StatusCodes.UNAUTHORIZED, 'Unauthorized'));
