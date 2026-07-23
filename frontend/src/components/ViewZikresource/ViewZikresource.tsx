@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Music, ArrowLeft, Tag, Loader2, Trash2, ExternalLink, Edit } from 'lucide-react';
+import { ArrowLeft, Tag, Loader2, Trash2, ExternalLink, Edit } from 'lucide-react';
 import { useNavigate, useParams } from '@tanstack/react-router';
 import { fetchZikresourceById, deleteZikresource } from '../../infra/zikresource.api';
 import type { Zikresource } from '../../infra/zikresource.api';
@@ -21,14 +21,6 @@ export const ViewZikresource: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams({ from: '/zikresources/$id' }) as { id: string };
   const { t } = useTranslation();
-
-  const handleBack = () => {
-    if (window.history.length > 1) {
-      window.history.back();
-    } else {
-      navigate({ to: '/home' });
-    }
-  };
 
   const [isLoading, setIsLoading] = useState(true);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -89,9 +81,9 @@ export const ViewZikresource: React.FC = () => {
     return (
       <div className="manage-loading-container">
         <p style={{ color: '#ef4444' }}>{t.viewZikresource.notFound}</p>
-        <button className="btn-back" onClick={handleBack} style={{ marginTop: '1rem' }}>
+        <button className="btn-back" onClick={() => navigate({ to: '/home', search: { tab: 'zikresources' } as never })} style={{ marginTop: '1rem' }}>
           <ArrowLeft size={16} />
-          <span>{t.common.back}</span>
+          <span>{t.common.backToHome || 'Home'}</span>
         </button>
       </div>
     );
@@ -99,23 +91,6 @@ export const ViewZikresource: React.FC = () => {
 
   return (
     <div className="create-container">
-      {/* Nav */}
-      <nav className="create-nav">
-        <button
-          className="btn-back"
-          onClick={handleBack}
-        >
-          <ArrowLeft size={16} />
-          <span>{t.common.back}</span>
-        </button>
-        <div className="create-logo">
-          <div className="create-logo-icon">
-            <Music size={20} />
-          </div>
-          <span className="create-logo-text">Zikstock</span>
-        </div>
-      </nav>
-
       {/* Page */}
       <main className="create-main">
         <div className="create-header">

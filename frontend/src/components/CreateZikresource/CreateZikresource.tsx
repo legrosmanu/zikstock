@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Music, ArrowLeft, Plus, X, Link, User, FileText, Tag, Loader2, Sparkles } from 'lucide-react';
+import { Plus, X, Link, User, FileText, Tag, Loader2, Sparkles } from 'lucide-react';
 import { useNavigate } from '@tanstack/react-router';
 import { authenticatedPost } from '../../infra/httpClient';
 import { useTranslation } from '../../hooks/useTranslation';
@@ -139,7 +139,7 @@ export const CreateZikresource: React.FC = () => {
       await authenticatedPost(endpoint, body);
 
       setSuccess(true);
-      setTimeout(() => navigate({ to: '/home', search: { tab: 'zikresources' } as never }), 1200);
+      setTimeout(() => navigate({ to: '/home', search: { tab: 'zikresources' } as never, replace: true }), 1200);
     } catch (err) {
       setError(err instanceof Error ? err.message : t.common.errorSomethingWentWrong);
     } finally {
@@ -149,24 +149,6 @@ export const CreateZikresource: React.FC = () => {
 
   return (
     <div className="create-container">
-      {/* Nav */}
-      <nav className="create-nav">
-        <button
-          id="btn-back-to-dashboard"
-          className="btn-back"
-          onClick={() => navigate({ to: '/home' })}
-        >
-          <ArrowLeft size={16} />
-          <span>{t.common.backToHome}</span>
-        </button>
-        <div className="create-logo">
-          <div className="create-logo-icon">
-            <Music size={20} />
-          </div>
-          <span className="create-logo-text">Zikstock</span>
-        </div>
-      </nav>
-
       {/* Page */}
       <main className="create-main">
         <div className="create-header">
@@ -368,7 +350,7 @@ export const CreateZikresource: React.FC = () => {
               type="button"
               id="btn-cancel"
               className="btn-cancel"
-              onClick={() => navigate({ to: '/home' })}
+              onClick={() => navigate({ to: '/home', search: { tab: 'zikresources' } as never, replace: true })}
               disabled={isSubmitting}
             >
               {t.common.cancel}

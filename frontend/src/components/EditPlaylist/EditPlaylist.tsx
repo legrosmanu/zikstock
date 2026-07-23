@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Music, ArrowLeft, Search, Check, Loader2, Trash2, BookOpen, Video, HelpCircle } from 'lucide-react';
+import { Music, Search, Check, Loader2, Trash2, BookOpen, Video, HelpCircle } from 'lucide-react';
 import { useNavigate, useParams } from '@tanstack/react-router';
 import { fetchSongs } from '../../infra/song.api';
 import type { Song } from '../../infra/song.api';
@@ -126,23 +126,6 @@ export const EditPlaylist: React.FC = () => {
 
   return (
     <div className="create-page-container">
-      {/* Nav */}
-      <nav className="create-page-nav">
-        <button
-          className="btn-back-dashboard"
-          onClick={() => navigate({ to: `/playlists/${id}` as never })}
-        >
-          <ArrowLeft size={16} />
-          <span>Back to View</span>
-        </button>
-        <div className="create-page-logo">
-          <div className="create-page-logo-icon">
-            <Music size={20} />
-          </div>
-          <span className="create-page-logo-text">Zikstock</span>
-        </div>
-      </nav>
-
       {/* Page Content */}
       <main className="create-page-main animate-fade-in">
         <div className="create-page-header">
@@ -308,7 +291,7 @@ export const EditPlaylist: React.FC = () => {
             <button
               type="button"
               className="btn-secondary-action"
-              onClick={() => navigate({ to: `/playlists/${id}` as never })}
+              onClick={() => navigate({ to: `/playlists/${id}` as never, replace: true })}
               disabled={isSubmitting}
             >
               Cancel

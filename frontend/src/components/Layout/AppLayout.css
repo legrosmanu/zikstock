@@ -237,16 +237,8 @@
   .app-main-viewport {
     margin-left: 0;
     width: 100vw;
-  }
-
-  .app-main-viewport.with-mobile-bars {
     padding-top: 60px;
     padding-bottom: 65px;
-  }
-
-  .app-main-viewport.subpage-viewport {
-    padding-top: 0;
-    padding-bottom: 0;
   }
 
   /* Sticky Top Bar on Mobile */

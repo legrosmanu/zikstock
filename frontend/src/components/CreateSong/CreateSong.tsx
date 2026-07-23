@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Music, ArrowLeft, Search, FileText, Video, Check, Loader2 } from 'lucide-react';
+import { Music, Search, FileText, Video, Check, Loader2 } from 'lucide-react';
 import { useNavigate } from '@tanstack/react-router';
 import { fetchZikresources } from '../../infra/zikresource.api';
 import type { Zikresource } from '../../infra/zikresource.api';
@@ -87,7 +87,7 @@ export const CreateSong: React.FC = () => {
         artist: artist.trim(),
         zikresourceIds: selectedZikresourceIds,
       });
-      navigate({ to: '/home', search: { tab: 'songs' } as never });
+      navigate({ to: '/home', search: { tab: 'songs' } as never, replace: true });
     } catch (err) {
       setError(err instanceof Error ? err.message : t.createSong.errorCreateFailed);
     } finally {
@@ -97,23 +97,6 @@ export const CreateSong: React.FC = () => {
 
   return (
     <div className="create-page-container">
-      {/* Nav */}
-      <nav className="create-page-nav">
-        <button
-          className="btn-back-dashboard"
-          onClick={() => navigate({ to: '/home' })}
-        >
-          <ArrowLeft size={16} />
-          <span>{t.common.backToHome}</span>
-        </button>
-        <div className="create-page-logo">
-          <div className="create-page-logo-icon">
-            <Music size={20} />
-          </div>
-          <span className="create-page-logo-text">Zikstock</span>
-        </div>
-      </nav>
-
       {/* Page Content */}
       <main className="create-page-main animate-fade-in">
         <div className="create-page-header">
@@ -203,7 +186,7 @@ export const CreateSong: React.FC = () => {
             <button
               type="button"
               className="btn-secondary-action"
-              onClick={() => navigate({ to: '/home' })}
+              onClick={() => navigate({ to: '/home', search: { tab: 'songs' } as never, replace: true })}
               disabled={isSubmitting}
             >
               {t.common.cancel}

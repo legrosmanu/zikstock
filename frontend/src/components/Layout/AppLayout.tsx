@@ -94,9 +94,6 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
     navigate({ to: '/login', replace: true });
   };
 
-  // Determine if we are on a main tab view or subpage
-  const isMainView = currentPath === '/home' || currentPath === '/network' || currentPath === '/search';
-
   return (
     <div className="app-shell-layout">
       {/* ── Desktop Left Sidebar ── */}
@@ -198,124 +195,120 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
       </aside>
 
       {/* ── Mobile Viewports ── */}
-      {/* Mobile Top Header (only on main views) */}
-      {isMainView && (
-        <header className="mobile-header">
-          <div className="mobile-header-brand">
-            <div className="brand-logo-icon">
-              <Music size={18} />
-            </div>
-            <span className="brand-logo-text">Zikstock</span>
+      {/* Mobile Top Header */}
+      <header className="mobile-header">
+        <div className="mobile-header-brand" onClick={() => navigateToSection('zikresources')} style={{ cursor: 'pointer' }}>
+          <div className="brand-logo-icon">
+            <Music size={18} />
           </div>
+          <span className="brand-logo-text">Zikstock</span>
+        </div>
 
-          <div className="mobile-header-actions" ref={dropdownRef}>
-            <button
-              className="mobile-theme-toggle"
-              onClick={toggleTheme}
-              aria-label="Toggle theme"
-            >
-              {theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
-            </button>
+        <div className="mobile-header-actions" ref={dropdownRef}>
+          <button
+            className="mobile-theme-toggle"
+            onClick={toggleTheme}
+            aria-label="Toggle theme"
+          >
+            {theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
+          </button>
 
-            <button
-              className="mobile-avatar-btn"
-              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              aria-label="User menu"
-            >
-              {user?.picture ? (
-                <img src={user.picture} alt={user.name} className="mobile-avatar" />
-              ) : (
-                <div className="mobile-avatar fallback">
-                  <User size={16} />
-                </div>
-              )}
-            </button>
-
-            {/* Glassmorphic Dropdown Menu */}
-            {isDropdownOpen && (
-              <div className="mobile-dropdown glass-panel animate-slide-down">
-                {user && (
-                  <div className="dropdown-user-info">
-                    <span className="dropdown-name">{user.name || t.common.profileFallbackName}</span>
-                    <span className="dropdown-email">{user.email}</span>
-                  </div>
-                )}
-                <hr className="dropdown-divider" />
-                <button
-                  className="dropdown-item language-toggle"
-                  onClick={() => {
-                    setLocale(locale === 'en' ? 'fr' : 'en');
-                  }}
-                >
-                  <Globe size={16} />
-                  <span>{locale === 'en' ? 'Français' : 'English'}</span>
-                </button>
-                <button className="dropdown-item logout" onClick={handleSignOut}>
-                  <LogOut size={16} />
-                  <span>{t.common.signOut}</span>
-                </button>
+          <button
+            className="mobile-avatar-btn"
+            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+            aria-label="User menu"
+          >
+            {user?.picture ? (
+              <img src={user.picture} alt={user.name} className="mobile-avatar" />
+            ) : (
+              <div className="mobile-avatar fallback">
+                <User size={16} />
               </div>
             )}
-          </div>
-        </header>
-      )}
+          </button>
+
+          {/* Glassmorphic Dropdown Menu */}
+          {isDropdownOpen && (
+            <div className="mobile-dropdown glass-panel animate-slide-down">
+              {user && (
+                <div className="dropdown-user-info">
+                  <span className="dropdown-name">{user.name || t.common.profileFallbackName}</span>
+                  <span className="dropdown-email">{user.email}</span>
+                </div>
+              )}
+              <hr className="dropdown-divider" />
+              <button
+                className="dropdown-item language-toggle"
+                onClick={() => {
+                  setLocale(locale === 'en' ? 'fr' : 'en');
+                }}
+              >
+                <Globe size={16} />
+                <span>{locale === 'en' ? 'Français' : 'English'}</span>
+              </button>
+              <button className="dropdown-item logout" onClick={handleSignOut}>
+                <LogOut size={16} />
+                <span>{t.common.signOut}</span>
+              </button>
+            </div>
+          )}
+        </div>
+      </header>
 
       {/* ── Content Container ── */}
-      <div className={`app-main-viewport ${isMainView ? 'with-mobile-bars' : 'subpage-viewport'}`}>
+      <div className="app-main-viewport with-mobile-bars">
         <main className="app-content">
           {children}
         </main>
       </div>
 
-      {/* Mobile Bottom Tab Bar (only on main views) */}
-      {isMainView && (
-        <nav className="mobile-bottom-nav">
-          <button
-            className={`mobile-tab-item ${activeSection === 'zikresources' ? 'active' : ''}`}
-            onClick={() => navigateToSection('zikresources')}
-          >
-            <FileText size={20} />
-            <span className="tab-label">{t.sidebar.zikresources}</span>
-          </button>
+      {/* Mobile Bottom Tab Bar */}
+      <nav className="mobile-bottom-nav">
+        <button
+          className={`mobile-tab-item ${activeSection === 'zikresources' ? 'active' : ''}`}
+          onClick={() => navigateToSection('zikresources')}
+        >
+          <FileText size={20} />
+          <span className="tab-label">{t.sidebar.zikresources}</span>
+        </button>
 
-          <button
-            className={`mobile-tab-item ${activeSection === 'playlists' ? 'active' : ''}`}
-            onClick={() => navigateToSection('playlists')}
-          >
-            <Folder size={20} />
-            <span className="tab-label">{t.sidebar.playlists}</span>
-          </button>
+        <button
+          className={`mobile-tab-item ${activeSection === 'playlists' ? 'active' : ''}`}
+          onClick={() => navigateToSection('playlists')}
+        >
+          <Folder size={20} />
+          <span className="tab-label">{t.sidebar.playlists}</span>
+        </button>
 
-          <button
-            className={`mobile-tab-item ${activeSection === 'songs' ? 'active' : ''}`}
-            onClick={() => navigateToSection('songs')}
-          >
-            <Music size={20} />
-            <span className="tab-label">{t.sidebar.songs}</span>
-          </button>
+        <button
+          className={`mobile-tab-item ${activeSection === 'songs' ? 'active' : ''}`}
+          onClick={() => navigateToSection('songs')}
+        >
+          <Music size={20} />
+          <span className="tab-label">{t.sidebar.songs}</span>
+        </button>
 
-          <button
-            className={`mobile-tab-item ${activeSection === 'search' ? 'active' : ''}`}
-            onClick={() => navigateToSection('search')}
-          >
-            <Search size={20} />
-            <span className="tab-label">{t.sidebar.search || 'Search'}</span>
-          </button>
+        <button
+          className={`mobile-tab-item ${activeSection === 'search' ? 'active' : ''}`}
+          onClick={() => navigateToSection('search')}
+        >
+          <Search size={20} />
+          <span className="tab-label">{t.sidebar.search || 'Search'}</span>
+        </button>
 
-          <button
-            className={`mobile-tab-item ${activeSection === 'network' ? 'active' : ''}`}
-            onClick={() => navigateToSection('network')}
-          >
-            <div className="mobile-tab-icon-wrapper">
-              <Users size={20} />
-              {incomingCount > 0 && (
-                <span className="mobile-badge-count animate-pulse">{incomingCount}</span>
-              )}
-            </div>
-            <span className="tab-label">{t.sidebar.network}</span>
-          </button>
-        </nav>
-      )}
+        <button
+          className={`mobile-tab-item ${activeSection === 'network' ? 'active' : ''}`}
+          onClick={() => navigateToSection('network')}
+        >
+          <div className="mobile-tab-icon-wrapper">
+            <Users size={20} />
+            {incomingCount > 0 && (
+              <span className="mobile-badge-count animate-pulse">{incomingCount}</span>
+            )}
+          </div>
+          <span className="tab-label">{t.sidebar.network}</span>
+        </button>
+      </nav>
     </div>
   );
 };

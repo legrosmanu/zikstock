@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Music, ArrowLeft, X, Link, User, FileText, Tag, Loader2, Trash2, ExternalLink, Sparkles } from 'lucide-react';
+import { X, Link, User, FileText, Tag, Loader2, Trash2, ExternalLink, Sparkles } from 'lucide-react';
 import { useNavigate, useParams } from '@tanstack/react-router';
 import { fetchZikresourceById, updateZikresource, deleteZikresource } from '../../infra/zikresource.api';
 import type { ZikresourceTag, ZikresourceType } from '../../infra/zikresource.api';
@@ -189,23 +189,6 @@ export const EditZikresource: React.FC = () => {
 
   return (
     <div className="create-container">
-      {/* Nav */}
-      <nav className="create-nav">
-        <button
-          className="btn-back"
-          onClick={() => navigate({ to: `/zikresources/${id}` as never })}
-        >
-          <ArrowLeft size={16} />
-          <span>Back to View</span>
-        </button>
-        <div className="create-logo">
-          <div className="create-logo-icon">
-            <Music size={20} />
-          </div>
-          <span className="create-logo-text">Zikstock</span>
-        </div>
-      </nav>
-
       {/* Page */}
       <main className="create-main">
         <div className="create-header">
@@ -431,7 +414,7 @@ export const EditZikresource: React.FC = () => {
               type="button"
               className="btn-submit"
               style={{ background: 'transparent', border: '1px solid var(--border-subtle)', color: 'var(--text-secondary)' }}
-              onClick={() => navigate({ to: `/zikresources/${id}` as never })}
+              onClick={() => navigate({ to: `/zikresources/${id}` as never, replace: true })}
               disabled={isSubmitting}
             >
               Cancel

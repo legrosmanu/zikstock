@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Music, ArrowLeft, Search, Check, Loader2, BookOpen, Video, HelpCircle } from 'lucide-react';
+import { Music, Search, Check, Loader2, BookOpen, Video, HelpCircle } from 'lucide-react';
 import { useNavigate } from '@tanstack/react-router';
 import { fetchSongs } from '../../infra/song.api';
 import type { Song } from '../../infra/song.api';
@@ -86,7 +86,7 @@ export const CreatePlaylist: React.FC = () => {
         songIds: selectedSongIds,
         zikresourceIds: selectedZikresourceIds,
       });
-      navigate({ to: '/home', search: { tab: 'playlists' } as never });
+      navigate({ to: '/home', search: { tab: 'playlists' } as never, replace: true });
     } catch (err) {
       setError(err instanceof Error ? err.message : t.createPlaylist.errorCreateFailed);
     } finally {
@@ -96,23 +96,6 @@ export const CreatePlaylist: React.FC = () => {
 
   return (
     <div className="create-page-container">
-      {/* Nav */}
-      <nav className="create-page-nav">
-        <button
-          className="btn-back-dashboard"
-          onClick={() => navigate({ to: '/home' })}
-        >
-          <ArrowLeft size={16} />
-          <span>{t.common.backToHome}</span>
-        </button>
-        <div className="create-page-logo">
-          <div className="create-page-logo-icon">
-            <Music size={20} />
-          </div>
-          <span className="create-page-logo-text">Zikstock</span>
-        </div>
-      </nav>
-
       {/* Page Content */}
       <main className="create-page-main animate-fade-in">
         <div className="create-page-header">
@@ -253,7 +236,7 @@ export const CreatePlaylist: React.FC = () => {
             <button
               type="button"
               className="btn-secondary-action"
-              onClick={() => navigate({ to: '/home' })}
+              onClick={() => navigate({ to: '/home', search: { tab: 'playlists' } as never, replace: true })}
               disabled={isSubmitting}
             >
               {t.common.cancel}
