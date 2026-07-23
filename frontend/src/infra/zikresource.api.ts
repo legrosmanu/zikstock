@@ -1,6 +1,6 @@
 import { authenticatedGet, authenticatedDelete, authenticatedPut } from './httpClient';
 
-export type ZikresourceType = 'tablature' | 'video' | 'backing-track' | 'other';
+export type ZikresourceType = 'tablature' | 'video' | 'backing-track' | 'lyrics' | 'other';
 
 export interface ZikresourceTag {
   label: string;

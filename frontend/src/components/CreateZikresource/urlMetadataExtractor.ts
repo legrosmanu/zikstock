@@ -1,4 +1,4 @@
-export type ZikresourceType = 'tablature' | 'video' | 'backing-track' | 'other';
+export type ZikresourceType = 'tablature' | 'video' | 'backing-track' | 'lyrics' | 'other';
 
 export interface UrlMetadata {
   artist?: string;
@@ -79,7 +79,7 @@ const parseSongsterr = (segments: string[]): UrlMetadata => {
 /** Genius — /Artist-name-song-title-lyrics */
 const parseGenius = (segments: string[]): UrlMetadata => {
   const lastSegment = segments[segments.length - 1];
-  if (!lastSegment || !lastSegment.endsWith('-lyrics')) return {};
+  if (!lastSegment || !lastSegment.endsWith('-lyrics')) return { type: 'lyrics' };
 
   const withoutSuffix = lastSegment.replace(/-lyrics$/i, '');
   const { artist, title } = splitAtMidpoint(withoutSuffix);
@@ -87,13 +87,14 @@ const parseGenius = (segments: string[]): UrlMetadata => {
   return {
     artist: artist ? capitalizeHyphenSlug(artist) : undefined,
     title: title ? capitalizeHyphenSlug(title) : undefined,
+    type: 'lyrics',
   };
 };
 
 /** AZLyrics — /lyrics/artistname/songtitle.html */
 const parseAZLyrics = (segments: string[]): UrlMetadata => {
   const lyricsIdx = segments.indexOf('lyrics');
-  if (lyricsIdx === -1 || segments.length <= lyricsIdx + 2) return {};
+  if (lyricsIdx === -1 || segments.length <= lyricsIdx + 2) return { type: 'lyrics' };
 
   const artistSlug = segments[lyricsIdx + 1];
   const titleSlug = segments[lyricsIdx + 2].replace(/\.html?$/, '');
@@ -101,6 +102,7 @@ const parseAZLyrics = (segments: string[]): UrlMetadata => {
   return {
     artist: capitalizeFirst(artistSlug),
     title: capitalizeFirst(titleSlug),
+    type: 'lyrics',
   };
 };
 

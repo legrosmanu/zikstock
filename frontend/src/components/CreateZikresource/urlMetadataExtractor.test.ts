@@ -51,12 +51,14 @@ describe('extractMetadataFromUrl', () => {
     );
     assert.strictEqual(result.artist, 'Red Hot Chili Peppers');
     assert.strictEqual(result.title, 'Under The Bridge');
+    assert.strictEqual(result.type, 'lyrics');
   });
 
-  it('should not extract from Genius non-lyrics URLs', () => {
+  it('should not extract artist/title from Genius non-lyrics URLs but retain lyrics type', () => {
     const result = extractMetadataFromUrl('https://genius.com/artists/Red-hot-chili-peppers');
     assert.strictEqual(result.artist, undefined);
     assert.strictEqual(result.title, undefined);
+    assert.strictEqual(result.type, 'lyrics');
   });
 
   // ── AZLyrics ───────────────────────────────────────────
@@ -67,6 +69,7 @@ describe('extractMetadataFromUrl', () => {
     );
     assert.strictEqual(result.artist, 'Blackkeys');
     assert.strictEqual(result.title, 'Thingsaintliketheyusedtobe');
+    assert.strictEqual(result.type, 'lyrics');
   });
 
   // ── 911Tabs ────────────────────────────────────────────

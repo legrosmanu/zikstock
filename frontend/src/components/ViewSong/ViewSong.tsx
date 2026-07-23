@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Music, ArrowLeft, Loader2, Trash2, Edit, FileText, Video, ExternalLink } from 'lucide-react';
+import { Music, ArrowLeft, Loader2, Trash2, Edit, FileText, Video, Mic, ExternalLink } from 'lucide-react';
 import { useNavigate, useParams } from '@tanstack/react-router';
 import { fetchSongById, deleteSong } from '../../infra/song.api';
 import { fetchZikresources } from '../../infra/zikresource.api';
@@ -64,6 +64,7 @@ export const ViewSong: React.FC = () => {
     switch (type) {
       case 'tablature': return <FileText size={14} />;
       case 'video': return <Video size={14} />;
+      case 'lyrics': return <Mic size={14} />;
       default: return <Music size={14} />;
     }
   };
@@ -72,6 +73,8 @@ export const ViewSong: React.FC = () => {
     switch (type) {
       case 'tablature': return t.dashboard.typeTablature;
       case 'video': return t.dashboard.typeVideo;
+      case 'lyrics': return t.dashboard.typeLyrics;
+      case 'other': return t.dashboard.typeOther;
       default: return t.dashboard.typeBackingTrack;
     }
   };

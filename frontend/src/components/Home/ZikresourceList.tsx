@@ -1,5 +1,5 @@
 import React from 'react';
-import { BookOpen, Video, Music, HelpCircle, ChevronRight } from 'lucide-react';
+import { BookOpen, Video, Music, Mic, HelpCircle, ChevronRight } from 'lucide-react';
 import { useNavigate } from '@tanstack/react-router';
 import type { Zikresource } from '../../infra/zikresource.api';
 import { useTranslation } from '../../hooks/useTranslation';
@@ -17,6 +17,7 @@ export const ZikresourceList: React.FC<ZikresourceListProps> = ({ resources }) =
       case 'tablature': return <BookOpen size={18} />;
       case 'video': return <Video size={18} />;
       case 'backing-track': return <Music size={18} />;
+      case 'lyrics': return <Mic size={18} />;
       default: return <HelpCircle size={18} />;
     }
   };
@@ -26,6 +27,7 @@ export const ZikresourceList: React.FC<ZikresourceListProps> = ({ resources }) =
       case 'tablature': return t.dashboard.typeTablature;
       case 'video': return t.dashboard.typeVideo;
       case 'backing-track': return t.dashboard.typeBackingTrack;
+      case 'lyrics': return t.dashboard.typeLyrics;
       default: return t.dashboard.typeOther;
     }
   };

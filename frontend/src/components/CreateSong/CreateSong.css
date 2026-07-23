@@ -244,6 +244,11 @@
   color: #f472b6;
 }
 
+.item-badge.type-lyrics {
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  color: #f59e0b;
+}
+
 .form-actions-row {
   display: flex;
   justify-content: flex-end;

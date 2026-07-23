@@ -89,6 +89,7 @@ export interface TranslationSchema {
     filterTabs: string;
     filterVideos: string;
     filterTracks: string;
+    filterLyrics: string;
     filterOther: string;
     errorFetchData: string;
     noPlaylistsFound: string;
@@ -97,6 +98,7 @@ export interface TranslationSchema {
     typeTablature: string;
     typeVideo: string;
     typeBackingTrack: string;
+    typeLyrics: string;
     typeOther: string;
   };
   network: {

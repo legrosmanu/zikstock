@@ -95,6 +95,7 @@ export const Home: React.FC = () => {
       if (selectedType === 'tabs' && resource.type !== 'tablature') return false;
       if (selectedType === 'videos' && resource.type !== 'video') return false;
       if (selectedType === 'backing-tracks' && resource.type !== 'backing-track') return false;
+      if (selectedType === 'lyrics' && resource.type !== 'lyrics') return false;
       if (selectedType === 'other' && resource.type !== 'other') return false;
     }
 
@@ -231,6 +232,7 @@ export const Home: React.FC = () => {
                     { id: 'tabs', label: t.dashboard.filterTabs },
                     { id: 'videos', label: t.dashboard.filterVideos },
                     { id: 'backing-tracks', label: t.dashboard.filterTracks },
+                    { id: 'lyrics', label: t.dashboard.filterLyrics },
                     { id: 'other', label: t.dashboard.filterOther }
                   ].map((chip) => (
                     <button

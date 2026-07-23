@@ -12,6 +12,7 @@ const RESOURCE_TYPES = [
   { value: 'tablature', label: '🎼 Tab / Sheet Music' },
   { value: 'video', label: '🎬 Video Tutorial' },
   { value: 'backing-track', label: '🎵 Backing Track' },
+  { value: 'lyrics', label: '🎤 Lyrics / Paroles' },
 ];
 
 const PRESET_TAGS = ['beginner', 'intermediate', 'advanced', 'jazz', 'rock', 'blues', 'classical', 'fingerstyle'];

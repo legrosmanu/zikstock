@@ -64,6 +64,7 @@ export const ViewZikresource: React.FC = () => {
       case 'tablature': return `🎼 ${t.dashboard.typeTablature}`;
       case 'video': return `🎬 ${t.dashboard.typeVideo}`;
       case 'backing-track': return `🎵 ${t.dashboard.typeBackingTrack}`;
+      case 'lyrics': return `🎤 ${t.dashboard.typeLyrics}`;
       default: return `❓ ${t.dashboard.typeOther}`;
     }
   };

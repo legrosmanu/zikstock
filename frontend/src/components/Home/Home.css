@@ -435,6 +435,12 @@
   border: 1px solid rgba(16, 185, 129, 0.15);
 }
 
+.card-icon-wrapper.type-lyrics {
+  color: #f59e0b;
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.15);
+}
+
 .card-icon-wrapper.type-other {
   color: var(--text-secondary);
   background: rgba(120, 120, 120, 0.15);
@@ -496,6 +502,11 @@
 .card-type-badge.type-backing-track {
   color: #10b981;
   background: rgba(16, 185, 129, 0.08);
+}
+
+.card-type-badge.type-lyrics {
+  color: #f59e0b;
+  background: rgba(245, 158, 11, 0.08);
 }
 
 .card-type-badge.type-other {

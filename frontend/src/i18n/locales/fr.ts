@@ -91,6 +91,7 @@ export const fr: TranslationSchema = {
     filterTabs: '🎼 Partitions',
     filterVideos: '🎬 Vidéos',
     filterTracks: '🎵 Accompagnements',
+    filterLyrics: '🎤 Paroles',
     filterOther: '❓ Autres',
     errorFetchData: 'Échec de la récupération des données de votre espace de travail.',
     noPlaylistsFound: 'Aucune playlist trouvée. Créez une Playlist pour organiser votre répertoire.',
@@ -99,6 +100,7 @@ export const fr: TranslationSchema = {
     typeTablature: 'Partition / Tab',
     typeVideo: 'Tutoriel Vidéo',
     typeBackingTrack: 'Accompagnement',
+    typeLyrics: 'Paroles / Lyrics',
     typeOther: 'Autre'
   },
   network: {

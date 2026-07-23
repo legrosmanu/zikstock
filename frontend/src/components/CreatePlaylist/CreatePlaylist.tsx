@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Music, Search, Check, Loader2, BookOpen, Video, HelpCircle } from 'lucide-react';
+import { Music, Search, Check, Loader2, BookOpen, Video, Mic, HelpCircle } from 'lucide-react';
 import { useNavigate } from '@tanstack/react-router';
 import { fetchSongs } from '../../infra/song.api';
 import type { Song } from '../../infra/song.api';
@@ -172,11 +172,13 @@ export const CreatePlaylist: React.FC = () => {
                         {res.type === 'tablature' && <BookOpen size={12} />}
                         {res.type === 'video' && <Video size={12} />}
                         {res.type === 'backing-track' && <Music size={12} />}
+                        {res.type === 'lyrics' && <Mic size={12} />}
                         {res.type === 'other' && <HelpCircle size={12} />}
                         <span style={{ marginLeft: '4px' }}>
                           {res.type === 'tablature' && t.dashboard.typeTablature}
                           {res.type === 'video' && t.dashboard.typeVideo}
                           {res.type === 'backing-track' && t.dashboard.typeBackingTrack}
+                          {res.type === 'lyrics' && t.dashboard.typeLyrics}
                           {res.type === 'other' && t.dashboard.typeOther}
                         </span>
                       </div>

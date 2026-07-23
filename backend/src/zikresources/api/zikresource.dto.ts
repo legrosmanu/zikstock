@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const ZIKRESOURCE_TYPES = ['tablature', 'video', 'backing-track', 'other'] as const;
+export const ZIKRESOURCE_TYPES = ['tablature', 'video', 'backing-track', 'lyrics', 'other'] as const;
 export type ZikresourceType = typeof ZIKRESOURCE_TYPES[number];
 
 export const ZikresourceSchema = z.object({

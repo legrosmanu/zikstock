@@ -91,6 +91,7 @@ export const en: TranslationSchema = {
     filterTabs: '🎼 Tabs',
     filterVideos: '🎬 Videos',
     filterTracks: '🎵 Tracks',
+    filterLyrics: '🎤 Lyrics',
     filterOther: '❓ Other',
     errorFetchData: 'Failed to retrieve your practice workspace data.',
     noPlaylistsFound: 'No playlists found. Create a Playlist to organize your repertoire.',
@@ -99,6 +100,7 @@ export const en: TranslationSchema = {
     typeTablature: 'Tab / Sheet',
     typeVideo: 'Video Tutorial',
     typeBackingTrack: 'Backing Track',
+    typeLyrics: 'Lyrics',
     typeOther: 'Other'
   },
   network: {

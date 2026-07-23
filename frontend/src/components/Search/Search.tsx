@@ -7,6 +7,7 @@ import {
   FileText,
   BookOpen,
   Video,
+  Mic,
   HelpCircle,
   Users,
   ChevronRight,
@@ -114,6 +115,7 @@ export const Search: React.FC = () => {
       if (selectedResourceType === 'tabs' && resource.type !== 'tablature') return false;
       if (selectedResourceType === 'videos' && resource.type !== 'video') return false;
       if (selectedResourceType === 'backing-tracks' && resource.type !== 'backing-track') return false;
+      if (selectedResourceType === 'lyrics' && resource.type !== 'lyrics') return false;
       if (selectedResourceType === 'other' && resource.type !== 'other') return false;
     }
 
@@ -177,6 +179,7 @@ export const Search: React.FC = () => {
       case 'tablature': return <BookOpen size={18} />;
       case 'video': return <Video size={18} />;
       case 'backing-track': return <Music size={18} />;
+      case 'lyrics': return <Mic size={18} />;
       default: return <HelpCircle size={18} />;
     }
   };
@@ -186,6 +189,7 @@ export const Search: React.FC = () => {
       case 'tablature': return t.dashboard.typeTablature;
       case 'video': return t.dashboard.typeVideo;
       case 'backing-track': return t.dashboard.typeBackingTrack;
+      case 'lyrics': return t.dashboard.typeLyrics;
       default: return t.dashboard.typeOther;
     }
   };
@@ -254,6 +258,7 @@ export const Search: React.FC = () => {
                     { id: 'tabs', label: t.dashboard.filterTabs },
                     { id: 'videos', label: t.dashboard.filterVideos },
                     { id: 'backing-tracks', label: t.dashboard.filterTracks },
+                    { id: 'lyrics', label: t.dashboard.filterLyrics },
                     { id: 'other', label: t.dashboard.filterOther }
                   ].map((chip) => (
                     <button

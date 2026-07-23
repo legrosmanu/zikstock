@@ -29,6 +29,7 @@ export const CreateZikresource: React.FC = () => {
     { value: 'tablature', label: `🎼 ${t.dashboard.typeTablature}` },
     { value: 'video', label: `🎬 ${t.dashboard.typeVideo}` },
     { value: 'backing-track', label: `🎵 ${t.dashboard.typeBackingTrack}` },
+    { value: 'lyrics', label: `🎤 ${t.dashboard.typeLyrics}` },
   ];
 
   const [form, setForm] = useState<FormState>({

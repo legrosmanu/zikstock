@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Music, Search, FileText, Video, Check, Loader2, Trash2 } from 'lucide-react';
+import { Music, Search, FileText, Video, Mic, Check, Loader2, Trash2 } from 'lucide-react';
 import { useNavigate, useParams } from '@tanstack/react-router';
 import { fetchZikresources } from '../../infra/zikresource.api';
 import type { Zikresource } from '../../infra/zikresource.api';
@@ -54,6 +54,7 @@ export const EditSong: React.FC = () => {
     switch (type) {
       case 'tablature': return <FileText size={14} />;
       case 'video': return <Video size={14} />;
+      case 'lyrics': return <Mic size={14} />;
       default: return <Music size={14} />;
     }
   };
@@ -62,6 +63,7 @@ export const EditSong: React.FC = () => {
     switch (type) {
       case 'tablature': return 'Tab';
       case 'video': return 'Video';
+      case 'lyrics': return 'Lyrics';
       default: return 'Track';
     }
   };
