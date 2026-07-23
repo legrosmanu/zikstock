@@ -53,30 +53,47 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(loggingMiddleware);
 
-// CORS Middleware to support development and production frontend API requests with credentials
+const isOriginAllowed = (origin: string): boolean => {
+    // Always allow local development origins
+    if (origin.startsWith('http://localhost') || origin.startsWith('http://127.0.0.1')) {
+        return true;
+    }
+
+    const rawFrontendUrls = process.env.FRONTEND_URL;
+    if (!rawFrontendUrls) {
+        return true;
+    }
+
+    // Support single or comma-separated list of allowed origins
+    const allowedList = rawFrontendUrls
+        .split(',')
+        .map((u) => u.trim().replace(/\/$/, ''))
+        .filter(Boolean);
+
+    for (const allowed of allowedList) {
+        if (
+            origin === allowed ||
+            origin.startsWith(`${allowed}:`) ||
+            origin === allowed.replace('://www.', '://') ||
+            origin === allowed.replace('://', '://www.')
+        ) {
+            return true;
+        }
+    }
+
+    return false;
+};
+
+// CORS Middleware supporting credentials (cookies)
 app.use((req, res, next) => {
     const origin = req.headers.origin;
 
     if (origin) {
-        const allowedOrigins = [
-            'http://localhost',
-            'http://127.0.0.1',
-            process.env.FRONTEND_URL ? process.env.FRONTEND_URL.replace(/\/$/, '') : ''
-        ].filter(Boolean);
-
-        let isAllowed = false;
-        for (const allowed of allowedOrigins) {
-            if (origin === allowed || origin.startsWith(`${allowed}:`) || origin.startsWith(allowed)) {
-                isAllowed = true;
-                break;
-            }
-        }
-
-        // When requests carry credentials (cookies), Access-Control-Allow-Origin MUST match exact origin
-        // and cannot use wildcard '*'. Reflect the origin if allowed or if FRONTEND_URL is unconfigured.
-        if (isAllowed || !process.env.FRONTEND_URL) {
+        if (isOriginAllowed(origin)) {
             res.header('Access-Control-Allow-Origin', origin);
             res.header('Access-Control-Allow-Credentials', 'true');
+        } else {
+            logger.warn(`[CORS] Blocked request from origin "${origin}". Configured FRONTEND_URL: "${process.env.FRONTEND_URL || 'NOT_SET'}"`);
         }
     }
 
