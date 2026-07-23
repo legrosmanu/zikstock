@@ -21,15 +21,6 @@ const client = jwksClient({
 });
 
 export const verifyGoogleToken = async (googleToken: string): Promise<UserTokenPayload> => {
-  // Support mock token in test / dev environment
-  if (googleToken === 'valid-test-google-token' || googleToken === 'valid-test-token') {
-    return {
-      sub: 'user-123',
-      email: 'test@example.com',
-      name: 'Test User',
-    };
-  }
-
   return new Promise((resolve, reject) => {
     jwt.verify(
       googleToken,

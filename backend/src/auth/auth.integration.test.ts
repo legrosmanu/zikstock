@@ -2,10 +2,12 @@ import request from 'supertest';
 import express from 'express';
 import cookieParser from 'cookie-parser';
 import { loginHandler, refreshHandler, logoutHandler } from './api/auth.controller';
-import { errorMiddleware } from '../application/middleware/error.middleware';
+import { errorMiddleware, AppError } from '../application/middleware/error.middleware';
 import { describe, it, expect, beforeEach, jest } from '@jest/globals';
+import { StatusCodes } from 'http-status-codes';
 import * as firestoreUserRepo from '../users/repositories/firestore-user.repository';
 import * as mockUserRepo from '../users/repositories/mock-user.repository';
+import * as authService from './domain/auth.service';
 
 jest.mock('../users/repositories/firestore-user.repository');
 
@@ -18,6 +20,18 @@ describe('Auth API Integration', () => {
 
         jest.mocked(firestoreUserRepo.saveUser).mockImplementation(mockUserRepo.saveUser);
         jest.mocked(firestoreUserRepo.findUserById).mockImplementation(mockUserRepo.findUserById);
+
+        // Mock verifyGoogleToken for integration test execution
+        jest.spyOn(authService, 'verifyGoogleToken').mockImplementation(async (googleToken: string) => {
+            if (googleToken === 'valid-test-google-token') {
+                return {
+                    sub: 'user-123',
+                    email: 'test@example.com',
+                    name: 'Test User',
+                };
+            }
+            throw new AppError(StatusCodes.UNAUTHORIZED, 'Invalid Google token');
+        });
 
         app = express();
         app.use(express.json());
