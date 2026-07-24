@@ -227,9 +227,9 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
             )}
           </button>
 
-          {/* Glassmorphic Dropdown Menu */}
+          {/* Mobile Profile Dropdown */}
           {isDropdownOpen && (
-            <div className="mobile-dropdown glass-panel animate-slide-down">
+            <div className="mobile-dropdown animate-slide-down">
               {user && (
                 <div className="dropdown-user-info">
                   <span className="dropdown-name">{user.name || t.common.profileFallbackName}</span>
