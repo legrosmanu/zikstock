@@ -12,6 +12,27 @@ import { syncUser, getUserProfile } from '../../users/domain/user.service';
 const COOKIE_NAME = 'zikstock_refresh_token';
 const REFRESH_MAX_AGE_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
 
+const getCookieOptions = () => {
+  const isProduction = process.env.NODE_ENV === 'production';
+  return {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: (isProduction ? 'none' : 'lax') as 'none' | 'lax',
+    path: '/',
+    maxAge: REFRESH_MAX_AGE_MS,
+  };
+};
+
+const getClearCookieOptions = () => {
+  const isProduction = process.env.NODE_ENV === 'production';
+  return {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: (isProduction ? 'none' : 'lax') as 'none' | 'lax',
+    path: '/',
+  };
+};
+
 export const loginHandler = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const googleToken = req.body.googleToken || req.body.credential;
@@ -31,12 +52,7 @@ export const loginHandler = async (req: Request, res: Response, next: NextFuncti
     const accessToken = generateAccessToken(payload);
     const refreshToken = generateRefreshToken({ sub: user.id, email: user.email });
 
-    res.cookie(COOKIE_NAME, refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: REFRESH_MAX_AGE_MS,
-    });
+    res.cookie(COOKIE_NAME, refreshToken, getCookieOptions());
 
     res.status(StatusCodes.OK).json({
       accessToken,
@@ -67,12 +83,7 @@ export const refreshHandler = async (req: Request, res: Response, next: NextFunc
 
     const newRefreshToken = generateRefreshToken({ sub: user.id, email: user.email });
 
-    res.cookie(COOKIE_NAME, newRefreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: REFRESH_MAX_AGE_MS,
-    });
+    res.cookie(COOKIE_NAME, newRefreshToken, getCookieOptions());
 
     res.status(StatusCodes.OK).json({
       accessToken,
@@ -85,11 +96,7 @@ export const refreshHandler = async (req: Request, res: Response, next: NextFunc
 
 export const logoutHandler = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    res.clearCookie(COOKIE_NAME, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-    });
+    res.clearCookie(COOKIE_NAME, getClearCookieOptions());
     res.status(StatusCodes.OK).json({ message: 'Logged out successfully' });
   } catch (error) {
     next(error);

@@ -101,14 +101,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   refreshSession: async (): Promise<boolean> => {
     try {
-      const savedToken = localStorage.getItem('zikstock_access_token') || localStorage.getItem('zikstock_token');
-      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-      
       const response = await fetch(`${getApiUrl()}/auth/refresh`, {
         method: 'POST',
-        headers,
+        headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ refreshToken: savedToken }),
       });
 
       if (!response.ok) {
