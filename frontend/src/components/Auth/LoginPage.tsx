@@ -48,7 +48,7 @@ export const LoginPage: React.FC = () => {
             callback: async (response) => {
               await login(response.credential);
             },
-            auto_select: false,
+            auto_select: true,
           });
 
           // Wait a tick to ensure the DOM element with ID 'login-google-signin-button' is mounted
