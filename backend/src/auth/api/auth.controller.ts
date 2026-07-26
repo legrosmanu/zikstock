@@ -87,6 +87,7 @@ export const refreshHandler = async (req: Request, res: Response, next: NextFunc
 
     res.status(StatusCodes.OK).json({
       accessToken,
+      refreshToken: newRefreshToken,
       user,
     });
   } catch (error) {

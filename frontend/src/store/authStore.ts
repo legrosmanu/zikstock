@@ -73,9 +73,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
       const data = await response.json();
       const accessToken = data.accessToken as string;
+      const refreshToken = data.refreshToken as string | undefined;
       const user = normalizeUserProfile((data.user || decodeJwt(accessToken)) as Record<string, unknown>);
 
       localStorage.setItem('zikstock_access_token', accessToken);
+      if (refreshToken) {
+        localStorage.setItem('zikstock_refresh_token', refreshToken);
+      }
+
       set({
         token: accessToken,
         user,
@@ -101,10 +106,13 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   refreshSession: async (): Promise<boolean> => {
     try {
+      const savedRefreshToken = localStorage.getItem('zikstock_refresh_token') || undefined;
+
       const response = await fetch(`${getApiUrl()}/auth/refresh`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
+        body: JSON.stringify({ refreshToken: savedRefreshToken }),
       });
 
       if (!response.ok) {
@@ -113,9 +121,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
       const data = await response.json();
       const accessToken = data.accessToken as string;
+      const newRefreshToken = data.refreshToken as string | undefined;
       const user = normalizeUserProfile((data.user || decodeJwt(accessToken)) as Record<string, unknown>);
 
       localStorage.setItem('zikstock_access_token', accessToken);
+      if (newRefreshToken) {
+        localStorage.setItem('zikstock_refresh_token', newRefreshToken);
+      }
+
       set({
         token: accessToken,
         user,
@@ -139,6 +152,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     }).catch((err) => console.warn('Logout API request failed:', err));
 
     localStorage.removeItem('zikstock_access_token');
+    localStorage.removeItem('zikstock_refresh_token');
     localStorage.removeItem('zikstock_token');
     localStorage.removeItem('zikstock_mock_user');
     
