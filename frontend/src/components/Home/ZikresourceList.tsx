@@ -49,7 +49,7 @@ export const ZikresourceList: React.FC<ZikresourceListProps> = ({ resources }) =
             key={resource._id}
             className="playlist-row-card glass-panel"
             style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.75rem', position: 'relative', cursor: 'pointer' }}
-            onClick={() => navigate({ to: '/zikresources/$id', params: { id: resource._id } })}
+            onClick={() => navigate({ to: `/zikresources/${resource._id}` })}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>

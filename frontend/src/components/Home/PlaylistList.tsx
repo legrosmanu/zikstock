@@ -29,7 +29,7 @@ export const PlaylistList: React.FC<PlaylistListProps> = ({ playlists }) => {
             key={playlist._id}
             className="playlist-row-card glass-panel"
             style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.75rem', position: 'relative', cursor: 'pointer' }}
-            onClick={() => navigate({ to: '/playlists/$id', params: { id: playlist._id } })}
+            onClick={() => navigate({ to: `/playlists/${playlist._id}` })}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
