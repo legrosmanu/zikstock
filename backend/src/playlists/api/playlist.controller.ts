@@ -42,6 +42,34 @@ export const createPlaylistHandler = async (req: Request, res: Response, next: N
     }
 };
 
+export const getMyPlaylistsHandler = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const userValidation = UserPayloadSchema.safeParse(req.user);
+        if (!userValidation.success) {
+            throw new AppError(StatusCodes.UNAUTHORIZED, `User identity validation failed: ${userValidation.error.message}`);
+        }
+        const createdBy = userValidation.data.sub;
+        const result = await getAllPlaylists(createdBy);
+        
+        const creatorIds = Array.from(new Set(result.map(p => p.createdBy)));
+        const creators = await findUsersByIds(creatorIds);
+        const creatorMap = new Map(creators.map(u => [u.id, u]));
+
+        const responseList = result.map(item => {
+            const creator = creatorMap.get(item.createdBy);
+            return {
+                ...toResponse(item),
+                creatorName: creator?.name,
+                creatorPicture: creator?.picture
+            };
+        });
+
+        res.json(responseList);
+    } catch (error) {
+        next(error);
+    }
+};
+
 export const getAllPlaylistsHandler = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const userValidation = UserPayloadSchema.safeParse(req.user);

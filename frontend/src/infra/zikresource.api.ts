@@ -25,12 +25,13 @@ export interface FetchParams {
 }
 
 export const fetchZikresources = (params?: FetchParams): Promise<Zikresource[]> => {
-  const query = new URLSearchParams();
-  if (params?.scope) query.append('scope', params.scope);
-  if (params?.createdBy) query.append('createdBy', params.createdBy);
-  const queryString = query.toString();
-  const url = queryString ? `/zikresources?${queryString}` : '/zikresources';
-  return authenticatedGet<Zikresource[]>(url);
+  if (params?.createdBy) {
+    return authenticatedGet<Zikresource[]>(`/zikresources?createdBy=${encodeURIComponent(params.createdBy)}`);
+  }
+  if (params?.scope === 'all') {
+    return authenticatedGet<Zikresource[]>('/zikresources');
+  }
+  return authenticatedGet<Zikresource[]>('/me/zikresources');
 };
 
 export const fetchZikresourceById = (id: string): Promise<Zikresource> => {

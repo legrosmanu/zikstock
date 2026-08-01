@@ -19,12 +19,13 @@ export interface FetchParams {
 }
 
 export const fetchPlaylists = (params?: FetchParams): Promise<Playlist[]> => {
-  const query = new URLSearchParams();
-  if (params?.scope) query.append('scope', params.scope);
-  if (params?.createdBy) query.append('createdBy', params.createdBy);
-  const queryString = query.toString();
-  const url = queryString ? `/playlists?${queryString}` : '/playlists';
-  return authenticatedGet<Playlist[]>(url);
+  if (params?.createdBy) {
+    return authenticatedGet<Playlist[]>(`/playlists?createdBy=${encodeURIComponent(params.createdBy)}`);
+  }
+  if (params?.scope === 'all') {
+    return authenticatedGet<Playlist[]>('/playlists');
+  }
+  return authenticatedGet<Playlist[]>('/me/playlists');
 };
 
 export const fetchPlaylistById = (id: string): Promise<Playlist> => {

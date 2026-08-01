@@ -2,6 +2,7 @@ import request from 'supertest';
 import express from 'express';
 import {
     createZikresourceHandler,
+    getMyZikresourcesHandler,
     getAllZikresourcesHandler,
     getZikresourceByIdHandler,
     updateZikresourceHandler,
@@ -46,6 +47,7 @@ describe('ZikresourceController Integration', () => {
         app = express();
         app.use(express.json());
         // Use the mocked middleware here directly or reference it from googleAuthMiddleware
+        app.get('/me/zikresources', googleAuthMiddleware.authMiddleware, getMyZikresourcesHandler);
         app.post('/zikresources', googleAuthMiddleware.authMiddleware, createZikresourceHandler);
         app.get('/zikresources', googleAuthMiddleware.authMiddleware, getAllZikresourcesHandler);
         app.get('/zikresources/:id', googleAuthMiddleware.authMiddleware, getZikresourceByIdHandler);
@@ -114,12 +116,12 @@ describe('ZikresourceController Integration', () => {
         expect(response.body.timestamp).toBeDefined();
     });
 
-    it('GET /zikresources should filter by current user by default', async () => {
+    it('GET /me/zikresources should filter by current user', async () => {
         await mockRepo.saveZikresource({ id: '1', createdBy: 'user-123', url: 'https://u1.com', artist: 'a1', title: 't1', type: 'video', tags: [] });
         await mockRepo.saveZikresource({ id: '2', createdBy: 'other-user', url: 'https://u2.com', artist: 'a2', title: 't2', type: 'video', tags: [] });
 
         const response = await request(app)
-            .get('/zikresources')
+            .get('/me/zikresources')
             .set('Authorization', `Bearer ${VALID_TOKEN}`); // VALID_TOKEN corresponds to user-123
 
         expect(response.status).toBe(200);

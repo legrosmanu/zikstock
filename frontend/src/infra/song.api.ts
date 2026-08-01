@@ -18,12 +18,13 @@ export interface FetchParams {
 }
 
 export const fetchSongs = (params?: FetchParams): Promise<Song[]> => {
-  const query = new URLSearchParams();
-  if (params?.scope) query.append('scope', params.scope);
-  if (params?.createdBy) query.append('createdBy', params.createdBy);
-  const queryString = query.toString();
-  const url = queryString ? `/songs?${queryString}` : '/songs';
-  return authenticatedGet<Song[]>(url);
+  if (params?.createdBy) {
+    return authenticatedGet<Song[]>(`/songs?createdBy=${encodeURIComponent(params.createdBy)}`);
+  }
+  if (params?.scope === 'all') {
+    return authenticatedGet<Song[]>('/songs');
+  }
+  return authenticatedGet<Song[]>('/me/songs');
 };
 
 export const fetchSongById = (id: string): Promise<Song> => {

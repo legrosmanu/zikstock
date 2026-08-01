@@ -3,6 +3,7 @@ import express from 'express';
 import cookieParser from 'cookie-parser';
 import {
     createZikresourceHandler,
+    getMyZikresourcesHandler,
     getAllZikresourcesHandler,
     getZikresourceByIdHandler,
     updateZikresourceHandler,
@@ -10,6 +11,7 @@ import {
 } from './zikresources/api/zikresource.controller';
 import {
     createSongHandler,
+    getMySongsHandler,
     getAllSongsHandler,
     getSongByIdHandler,
     updateSongHandler,
@@ -17,6 +19,7 @@ import {
 } from './songs/api/song.controller';
 import {
     createPlaylistHandler,
+    getMyPlaylistsHandler,
     getAllPlaylistsHandler,
     getPlaylistByIdHandler,
     updatePlaylistHandler,
@@ -116,6 +119,11 @@ app.get('/health', healthCheck);
 app.post('/auth/login', loginHandler);
 app.post('/auth/refresh', refreshHandler);
 app.post('/auth/logout', logoutHandler);
+
+// Me / My Resources Routes (protected)
+app.get('/me/zikresources', authMiddleware, getMyZikresourcesHandler);
+app.get('/me/songs', authMiddleware, getMySongsHandler);
+app.get('/me/playlists', authMiddleware, getMyPlaylistsHandler);
 
 // Zikresource Routes (protected)
 app.post('/zikresources', authMiddleware, createZikresourceHandler);

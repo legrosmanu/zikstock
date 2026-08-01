@@ -2,6 +2,7 @@ import request from 'supertest';
 import express from 'express';
 import {
     createSongHandler,
+    getMySongsHandler,
     getAllSongsHandler,
     getSongByIdHandler,
     updateSongHandler,
@@ -64,6 +65,7 @@ describe('SongController Integration', () => {
 
         app = express();
         app.use(express.json());
+        app.get('/me/songs', googleAuthMiddleware.authMiddleware, getMySongsHandler);
         app.post('/songs', googleAuthMiddleware.authMiddleware, createSongHandler);
         app.get('/songs', googleAuthMiddleware.authMiddleware, getAllSongsHandler);
         app.get('/songs/:id', googleAuthMiddleware.authMiddleware, getSongByIdHandler);
@@ -75,6 +77,35 @@ describe('SongController Integration', () => {
     it('GET /songs should return 401 when no token is present', async () => {
         const response = await request(app).get('/songs');
         expect(response.status).toBe(401);
+    });
+
+    it('GET /me/songs should return user-specific songs', async () => {
+        await mockSongRepo.saveSong({
+            id: 'song-1',
+            title: 'My Song',
+            artist: 'Me',
+            zikresourceIds: [],
+            createdBy: 'user-123',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+        });
+        await mockSongRepo.saveSong({
+            id: 'song-2',
+            title: 'Other Song',
+            artist: 'Other',
+            zikresourceIds: [],
+            createdBy: 'user-456',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+        });
+
+        const response = await request(app)
+            .get('/me/songs')
+            .set('Authorization', `Bearer ${VALID_TOKEN}`);
+
+        expect(response.status).toBe(200);
+        expect(response.body).toHaveLength(1);
+        expect(response.body[0].title).toBe('My Song');
     });
 
     it('POST /songs should create a song when body is valid', async () => {

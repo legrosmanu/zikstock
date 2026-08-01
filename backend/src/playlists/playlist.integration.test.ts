@@ -2,6 +2,7 @@ import request from 'supertest';
 import express from 'express';
 import {
     createPlaylistHandler,
+    getMyPlaylistsHandler,
     getAllPlaylistsHandler,
     getPlaylistByIdHandler,
     updatePlaylistHandler,
@@ -82,6 +83,7 @@ describe('PlaylistController Integration', () => {
 
         app = express();
         app.use(express.json());
+        app.get('/me/playlists', googleAuthMiddleware.authMiddleware, getMyPlaylistsHandler);
         app.post('/playlists', googleAuthMiddleware.authMiddleware, createPlaylistHandler);
         app.get('/playlists', googleAuthMiddleware.authMiddleware, getAllPlaylistsHandler);
         app.get('/playlists/:id', googleAuthMiddleware.authMiddleware, getPlaylistByIdHandler);
@@ -93,6 +95,35 @@ describe('PlaylistController Integration', () => {
     it('GET /playlists should return 401 when no token is present', async () => {
         const response = await request(app).get('/playlists');
         expect(response.status).toBe(401);
+    });
+
+    it('GET /me/playlists should return user-specific playlists', async () => {
+        await mockPlaylistRepo.savePlaylist({
+            id: 'p-1',
+            name: 'My Playlist',
+            songIds: [],
+            zikresourceIds: [],
+            createdBy: 'user-123',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+        });
+        await mockPlaylistRepo.savePlaylist({
+            id: 'p-2',
+            name: 'Other Playlist',
+            songIds: [],
+            zikresourceIds: [],
+            createdBy: 'user-456',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+        });
+
+        const response = await request(app)
+            .get('/me/playlists')
+            .set('Authorization', `Bearer ${VALID_TOKEN}`);
+
+        expect(response.status).toBe(200);
+        expect(response.body).toHaveLength(1);
+        expect(response.body[0].name).toBe('My Playlist');
     });
 
     it('POST /playlists should create a playlist when body is valid', async () => {

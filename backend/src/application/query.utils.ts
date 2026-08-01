@@ -12,8 +12,8 @@ export const getFilterUserId = (params: FilterUserIdParams): string | undefined 
   if (params.createdBy) {
     return params.createdBy;
   }
-  if (params.scope === 'all') {
-    return undefined;
+  if (params.scope === 'mine') {
+    return params.currentUserId;
   }
-  return params.currentUserId;
+  return undefined;
 };

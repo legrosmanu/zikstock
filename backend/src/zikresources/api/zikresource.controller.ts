@@ -42,6 +42,33 @@ export const createZikresourceHandler = async (req: Request, res: Response, next
     }
 };
 
+export const getMyZikresourcesHandler = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const userId = req.user?.sub;
+        if (!userId) {
+            throw new AppError(StatusCodes.UNAUTHORIZED, 'User identity is missing from token');
+        }
+        const result = await getAllZikresources(userId);
+        
+        const creatorIds = Array.from(new Set(result.map(r => r.createdBy)));
+        const creators = await findUsersByIds(creatorIds);
+        const creatorMap = new Map(creators.map(u => [u.id, u]));
+
+        const responseList = result.map(item => {
+            const creator = creatorMap.get(item.createdBy);
+            return {
+                ...toResponse(item),
+                creatorName: creator?.name,
+                creatorPicture: creator?.picture
+            };
+        });
+
+        res.json(responseList);
+    } catch (error) {
+        next(error);
+    }
+};
+
 export const getAllZikresourcesHandler = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const filterUserId = getFilterUserId({

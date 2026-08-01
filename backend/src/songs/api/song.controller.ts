@@ -41,6 +41,34 @@ export const createSongHandler = async (req: Request, res: Response, next: NextF
     }
 };
 
+export const getMySongsHandler = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const userValidation = UserPayloadSchema.safeParse(req.user);
+        if (!userValidation.success) {
+            throw new AppError(StatusCodes.UNAUTHORIZED, `User identity validation failed: ${userValidation.error.message}`);
+        }
+        const createdBy = userValidation.data.sub;
+        const result = await getAllSongs(createdBy);
+        
+        const creatorIds = Array.from(new Set(result.map(s => s.createdBy)));
+        const creators = await findUsersByIds(creatorIds);
+        const creatorMap = new Map(creators.map(u => [u.id, u]));
+
+        const responseList = result.map(item => {
+            const creator = creatorMap.get(item.createdBy);
+            return {
+                ...toResponse(item),
+                creatorName: creator?.name,
+                creatorPicture: creator?.picture
+            };
+        });
+
+        res.json(responseList);
+    } catch (error) {
+        next(error);
+    }
+};
+
 export const getAllSongsHandler = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const userValidation = UserPayloadSchema.safeParse(req.user);

@@ -3,6 +3,7 @@ import express from 'express';
 import * as admin from 'firebase-admin';
 import {
     createZikresourceHandler,
+    getMyZikresourcesHandler,
     getAllZikresourcesHandler,
     getZikresourceByIdHandler,
     updateZikresourceHandler,
@@ -65,6 +66,7 @@ describe('ZikresourceController Firestore Integration', () => {
 
         app = express();
         app.use(express.json());
+        app.get('/me/zikresources', googleAuthMiddleware.authMiddleware, getMyZikresourcesHandler);
         app.post('/zikresources', googleAuthMiddleware.authMiddleware, createZikresourceHandler);
         app.get('/zikresources', googleAuthMiddleware.authMiddleware, getAllZikresourcesHandler);
         app.get('/zikresources/:id', googleAuthMiddleware.authMiddleware, getZikresourceByIdHandler);
