@@ -203,6 +203,8 @@ export interface TranslationSchema {
     typeLabel: string;
     tagsLabel: string;
     siteLabel: string;
+    previewTitle: string;
+    previewUnavailable: string;
   };
   viewPlaylist: {
     errorLoadFailed: string;

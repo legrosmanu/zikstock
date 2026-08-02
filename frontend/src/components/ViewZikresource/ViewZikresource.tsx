@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Tag, Loader2, Trash2, ExternalLink, Edit } from 'lucide-react';
+import { ArrowLeft, Tag, Loader2, Trash2, ExternalLink, Edit, EyeOff } from 'lucide-react';
 import { useNavigate, useParams } from '@tanstack/react-router';
 import { fetchZikresourceById, deleteZikresource } from '../../infra/zikresource.api';
 import type { Zikresource } from '../../infra/zikresource.api';
@@ -17,6 +17,57 @@ const getDomainName = (urlStr: string) => {
   }
 };
 
+interface EmbedInfo {
+  embedUrl: string | null;
+  isSupported: boolean;
+}
+
+const getEmbedInfo = (urlStr: string): EmbedInfo => {
+  try {
+    const url = new URL(urlStr);
+    const hostname = url.hostname.toLowerCase().replace('www.', '');
+
+    if (hostname.includes('youtube.com') || hostname.includes('youtu.be')) {
+      let videoId = '';
+      if (hostname.includes('youtu.be')) {
+        videoId = url.pathname.slice(1);
+      } else if (url.pathname.startsWith('/watch')) {
+        videoId = url.searchParams.get('v') || '';
+      } else if (url.pathname.startsWith('/shorts/')) {
+        videoId = url.pathname.replace('/shorts/', '');
+      } else if (url.pathname.startsWith('/embed/')) {
+        return { embedUrl: urlStr, isSupported: true };
+      }
+      if (videoId) {
+        return { embedUrl: `https://www.youtube.com/embed/${videoId}`, isSupported: true };
+      }
+    }
+
+    if (hostname.includes('spotify.com')) {
+      if (url.pathname.startsWith('/embed/')) {
+        return { embedUrl: urlStr, isSupported: true };
+      }
+      return { embedUrl: `https://open.spotify.com/embed${url.pathname}`, isSupported: true };
+    }
+
+    if (hostname.includes('vimeo.com')) {
+      const match = url.pathname.match(/\/(\d+)/);
+      if (match) {
+        return { embedUrl: `https://player.vimeo.com/video/${match[1]}`, isSupported: true };
+      }
+    }
+
+    if (hostname.includes('drive.google.com') && url.pathname.includes('/file/d/')) {
+      const embedUrl = urlStr.replace(/\/view.*$/, '/preview');
+      return { embedUrl, isSupported: true };
+    }
+
+    return { embedUrl: urlStr, isSupported: true };
+  } catch {
+    return { embedUrl: null, isSupported: false };
+  }
+};
+
 export const ViewZikresource: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams({ from: '/zikresources/$id' }) as { id: string };
@@ -27,6 +78,7 @@ export const ViewZikresource: React.FC = () => {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [resource, setResource] = useState<Zikresource | null>(null);
+  const [hasIframeError, setHasIframeError] = useState(false);
 
   const user = useAuthStore((state) => state.user);
   const isOwner = user?.sub === resource?.createdBy;
@@ -89,6 +141,8 @@ export const ViewZikresource: React.FC = () => {
       </div>
     );
   }
+
+  const embedInfo = resource ? getEmbedInfo(resource.url) : { embedUrl: null, isSupported: false };
 
   return (
     <div className="create-container">
@@ -208,6 +262,30 @@ export const ViewZikresource: React.FC = () => {
             </div>
           </div>
         )}
+
+        <div className="resource-preview-panel glass-panel">
+          <div className="resource-preview-header">
+            <h2 className="resource-preview-title">{t.viewZikresource.previewTitle}</h2>
+          </div>
+          {embedInfo.isSupported && embedInfo.embedUrl && !hasIframeError ? (
+            <div className="resource-iframe-container">
+              <iframe
+                src={embedInfo.embedUrl}
+                title={resource.title}
+                className="resource-iframe"
+                sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-autoplay"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen
+                onError={() => setHasIframeError(true)}
+              />
+            </div>
+          ) : (
+            <div className="resource-preview-fallback">
+              <EyeOff size={24} className="preview-fallback-icon" />
+              <p className="preview-fallback-text">{t.viewZikresource.previewUnavailable}</p>
+            </div>
+          )}
+        </div>
       </main>
     </div>
   );

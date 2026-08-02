@@ -204,7 +204,9 @@ export const fr: TranslationSchema = {
     btnConfirmDelete: 'Oui, Supprimer',
     typeLabel: 'Type de ressource',
     tagsLabel: 'Tags',
-    siteLabel: 'Site source'
+    siteLabel: 'Site source',
+    previewTitle: 'Aperçu de la ressource',
+    previewUnavailable: 'L\'aperçu n\'est pas disponible pour ce site.'
   },
   viewPlaylist: {
     errorLoadFailed: 'Impossible de charger les détails de la playlist.',
