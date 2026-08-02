@@ -45,3 +45,7 @@ export const updateZikresource = (id: string, resource: Omit<Zikresource, '_id' 
 export const deleteZikresource = (id: string): Promise<void> => {
   return authenticatedDelete<void>(`/zikresources/${id}`);
 };
+
+export const checkZikresourceEmbeddability = (url: string): Promise<{ embeddable: boolean }> => {
+  return authenticatedGet<{ embeddable: boolean }>(`/zikresources/check-embed?url=${encodeURIComponent(url)}`);
+};

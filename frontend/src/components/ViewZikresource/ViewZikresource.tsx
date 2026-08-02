@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Tag, Loader2, Trash2, ExternalLink, Edit, EyeOff } from 'lucide-react';
 import { useNavigate, useParams } from '@tanstack/react-router';
-import { fetchZikresourceById, deleteZikresource } from '../../infra/zikresource.api';
+import { fetchZikresourceById, deleteZikresource, checkZikresourceEmbeddability } from '../../infra/zikresource.api';
 import type { Zikresource } from '../../infra/zikresource.api';
 import { useTranslation } from '../../hooks/useTranslation';
 import { useAuthStore } from '../../store/authStore';
@@ -77,12 +77,39 @@ export const ViewZikresource: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [resource, setResource] = useState<Zikresource | null>(null);
   const [hasIframeError, setHasIframeError] = useState(false);
+  const [isEmbeddable, setIsEmbeddable] = useState<boolean | null>(null);
 
   const user = useAuthStore((state) => state.user);
   const isOwner = user?.sub === resource?.createdBy;
 
   useEffect(() => {
     setHasIframeError(false);
+    if (!resource?.url) {
+      setIsEmbeddable(null);
+      return;
+    }
+
+    let isMounted = true;
+
+    const checkEmbeddability = async () => {
+      try {
+        const res = await checkZikresourceEmbeddability(resource.url);
+        if (isMounted) {
+          setIsEmbeddable(res.embeddable);
+        }
+      } catch (err) {
+        console.warn('Embeddability check failed:', err);
+        if (isMounted) {
+          setIsEmbeddable(false);
+        }
+      }
+    };
+
+    checkEmbeddability();
+
+    return () => {
+      isMounted = false;
+    };
   }, [id, resource?.url]);
 
   useEffect(() => {
@@ -280,11 +307,11 @@ export const ViewZikresource: React.FC = () => {
           </div>
         )}
 
-        <div className="resource-preview-panel glass-panel">
-          <div className="resource-preview-header">
-            <h2 className="resource-preview-title">{t.viewZikresource.previewTitle}</h2>
-          </div>
-          {!hasIframeError && embedUrl ? (
+        {isEmbeddable !== false && !hasIframeError && embedUrl ? (
+          <div className="resource-preview-panel glass-panel">
+            <div className="resource-preview-header">
+              <h2 className="resource-preview-title">{t.viewZikresource.previewTitle}</h2>
+            </div>
             <div className="resource-iframe-container">
               <iframe
                 src={embedUrl}
@@ -297,13 +324,13 @@ export const ViewZikresource: React.FC = () => {
                 onError={() => setHasIframeError(true)}
               />
             </div>
-          ) : (
-            <div className="resource-preview-fallback">
-              <EyeOff size={22} className="preview-fallback-icon" />
-              <p className="preview-fallback-text">{t.viewZikresource.previewUnavailable}</p>
-            </div>
-          )}
-        </div>
+          </div>
+        ) : (
+          <div className="resource-preview-fallback">
+            <EyeOff size={16} className="preview-fallback-icon" />
+            <span className="preview-fallback-text">{t.viewZikresource.previewUnavailable}</span>
+          </div>
+        )}
       </main>
     </div>
   );

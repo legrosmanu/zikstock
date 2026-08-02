@@ -4,7 +4,8 @@ import {
     getAllZikresources,
     getZikresourceById,
     updateZikresource,
-    deleteZikresource
+    deleteZikresource,
+    checkEmbeddability
 } from '../domain/zikresource.service';
 import { ZikresourceSchema, ZikresourceResponse } from './zikresource.dto';
 import { Zikresource } from '../domain/zikresource.domain';
@@ -132,6 +133,19 @@ export const deleteZikresourceHandler = async (req: Request, res: Response, next
         }
         await deleteZikresource(req.params.id as string, userId);
         res.status(StatusCodes.NO_CONTENT).send();
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const checkEmbeddabilityHandler = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const targetUrl = req.query.url as string;
+        if (!targetUrl) {
+            throw new AppError(StatusCodes.BAD_REQUEST, 'Query parameter "url" is required.');
+        }
+        const result = await checkEmbeddability(targetUrl);
+        res.json(result);
     } catch (error) {
         next(error);
     }

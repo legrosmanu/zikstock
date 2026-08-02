@@ -7,6 +7,7 @@ import {
     updateZikresourceInDb,
     deleteZikresourceFromDb
 } from '../repositories/firestore-zikresource.repository';
+import { checkHttpFrameEmbeddability } from '../repositories/http-embeddability.repository';
 import { AppError } from '../../application/middleware/error.middleware';
 import { StatusCodes } from 'http-status-codes';
 
@@ -55,6 +56,30 @@ export const deleteZikresource = async (id: string, userId: string): Promise<voi
         throw new AppError(StatusCodes.FORBIDDEN, `You do not have permission to delete this zikresource.`);
     }
     await deleteZikresourceFromDb(id);
+};
+
+const isKnownEmbeddablePlatform = (hostname: string, pathname: string): boolean => {
+    const h = hostname.toLowerCase().replace('www.', '');
+    if (h.includes('youtube.com') || h.includes('youtu.be')) return true;
+    if (h.includes('spotify.com')) return true;
+    if (h.includes('vimeo.com')) return true;
+    if (h.includes('drive.google.com') && pathname.includes('/file/d/')) return true;
+    if (h.includes('soundcloud.com')) return true;
+    return false;
+};
+
+export const checkEmbeddability = async (urlStr: string): Promise<{ embeddable: boolean }> => {
+    try {
+        const url = new URL(urlStr);
+        if (isKnownEmbeddablePlatform(url.hostname, url.pathname)) {
+            return { embeddable: true };
+        }
+
+        const canFrame = await checkHttpFrameEmbeddability(urlStr);
+        return { embeddable: canFrame };
+    } catch {
+        return { embeddable: false };
+    }
 };
 
 

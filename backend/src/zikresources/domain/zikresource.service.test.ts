@@ -3,7 +3,8 @@ import {
     getZikresourceById,
     getAllZikresources,
     updateZikresource,
-    deleteZikresource
+    deleteZikresource,
+    checkEmbeddability
 } from './zikresource.service';
 import { Zikresource } from './zikresource.domain';
 import { describe, it, expect, beforeEach, jest } from '@jest/globals';
@@ -191,5 +192,22 @@ describe('ZikresourceService', () => {
         await repo.saveZikresource(original);
 
         await expect(deleteZikresource('zik-mine', 'user-123')).resolves.not.toThrow();
+    });
+
+    describe('checkEmbeddability', () => {
+        it('should return embeddable: true for YouTube URLs', async () => {
+            const result = await checkEmbeddability('https://www.youtube.com/watch?v=dQw4w9WgXcQ');
+            expect(result).toEqual({ embeddable: true });
+        });
+
+        it('should return embeddable: true for Spotify URLs', async () => {
+            const result = await checkEmbeddability('https://open.spotify.com/track/12345');
+            expect(result).toEqual({ embeddable: true });
+        });
+
+        it('should return embeddable: false for invalid URLs', async () => {
+            const result = await checkEmbeddability('not-a-valid-url');
+            expect(result).toEqual({ embeddable: false });
+        });
     });
 });
