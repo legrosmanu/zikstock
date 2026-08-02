@@ -17,12 +17,7 @@ const getDomainName = (urlStr: string) => {
   }
 };
 
-interface EmbedInfo {
-  embedUrl: string | null;
-  isSupported: boolean;
-}
-
-const getEmbedInfo = (urlStr: string): EmbedInfo => {
+const getEmbedUrl = (urlStr: string): string => {
   try {
     const url = new URL(urlStr);
     const hostname = url.hostname.toLowerCase().replace('www.', '');
@@ -36,35 +31,38 @@ const getEmbedInfo = (urlStr: string): EmbedInfo => {
       } else if (url.pathname.startsWith('/shorts/')) {
         videoId = url.pathname.replace('/shorts/', '');
       } else if (url.pathname.startsWith('/embed/')) {
-        return { embedUrl: urlStr, isSupported: true };
+        return urlStr;
       }
       if (videoId) {
-        return { embedUrl: `https://www.youtube.com/embed/${videoId}`, isSupported: true };
+        return `https://www.youtube.com/embed/${videoId}`;
       }
     }
 
     if (hostname.includes('spotify.com')) {
       if (url.pathname.startsWith('/embed/')) {
-        return { embedUrl: urlStr, isSupported: true };
+        return urlStr;
       }
-      return { embedUrl: `https://open.spotify.com/embed${url.pathname}`, isSupported: true };
+      return `https://open.spotify.com/embed${url.pathname}`;
     }
 
     if (hostname.includes('vimeo.com')) {
       const match = url.pathname.match(/\/(\d+)/);
       if (match) {
-        return { embedUrl: `https://player.vimeo.com/video/${match[1]}`, isSupported: true };
+        return `https://player.vimeo.com/video/${match[1]}`;
       }
     }
 
     if (hostname.includes('drive.google.com') && url.pathname.includes('/file/d/')) {
-      const embedUrl = urlStr.replace(/\/view.*$/, '/preview');
-      return { embedUrl, isSupported: true };
+      return urlStr.replace(/\/view.*$/, '/preview');
     }
 
-    return { embedUrl: urlStr, isSupported: true };
+    if (hostname.includes('soundcloud.com')) {
+      return `https://w.soundcloud.com/player/?url=${encodeURIComponent(urlStr)}`;
+    }
+
+    return urlStr;
   } catch {
-    return { embedUrl: null, isSupported: false };
+    return urlStr;
   }
 };
 
@@ -82,6 +80,10 @@ export const ViewZikresource: React.FC = () => {
 
   const user = useAuthStore((state) => state.user);
   const isOwner = user?.sub === resource?.createdBy;
+
+  useEffect(() => {
+    setHasIframeError(false);
+  }, [id, resource?.url]);
 
   useEffect(() => {
     const loadResource = async () => {
@@ -108,6 +110,21 @@ export const ViewZikresource: React.FC = () => {
       setError(err instanceof Error ? err.message : t.viewZikresource.errorDeleteFailed);
       setIsDeleting(false);
       setShowDeleteConfirm(false);
+    }
+  };
+
+  const handleIframeLoad = (e: React.SyntheticEvent<HTMLIFrameElement, Event>) => {
+    const iframe = e.currentTarget;
+    try {
+      if (iframe.contentDocument) {
+        const href = iframe.contentDocument.location.href;
+        const body = iframe.contentDocument.body;
+        if (href === 'about:blank' || !body || body.children.length === 0 || body.innerHTML.trim() === '') {
+          setHasIframeError(true);
+        }
+      }
+    } catch {
+      // SecurityError is normal for working cross-origin pages
     }
   };
 
@@ -142,7 +159,7 @@ export const ViewZikresource: React.FC = () => {
     );
   }
 
-  const embedInfo = resource ? getEmbedInfo(resource.url) : { embedUrl: null, isSupported: false };
+  const embedUrl = resource ? getEmbedUrl(resource.url) : null;
 
   return (
     <div className="create-container">
@@ -267,21 +284,22 @@ export const ViewZikresource: React.FC = () => {
           <div className="resource-preview-header">
             <h2 className="resource-preview-title">{t.viewZikresource.previewTitle}</h2>
           </div>
-          {embedInfo.isSupported && embedInfo.embedUrl && !hasIframeError ? (
+          {!hasIframeError && embedUrl ? (
             <div className="resource-iframe-container">
               <iframe
-                src={embedInfo.embedUrl}
+                src={embedUrl}
                 title={resource.title}
                 className="resource-iframe"
                 sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-autoplay"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 allowFullScreen
+                onLoad={handleIframeLoad}
                 onError={() => setHasIframeError(true)}
               />
             </div>
           ) : (
             <div className="resource-preview-fallback">
-              <EyeOff size={24} className="preview-fallback-icon" />
+              <EyeOff size={22} className="preview-fallback-icon" />
               <p className="preview-fallback-text">{t.viewZikresource.previewUnavailable}</p>
             </div>
           )}
