@@ -384,3 +384,41 @@
 .reverb-sort-select:focus {
   border-color: var(--accent-primary);
 }
+
+/* ── Mobile & Small Screen Media Queries ─────────────────────────── */
+@media (max-width: 600px) {
+  .reverb-cards-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .reverb-toolbar-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+    width: 100%;
+  }
+
+  .reverb-toolbar-right {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .reverb-sort-select {
+    flex: 1;
+    max-width: 170px;
+  }
+
+  .reverb-card.list-mode {
+    flex-wrap: wrap;
+    padding: 0.75rem 0.85rem;
+    gap: 0.75rem;
+  }
+
+  .reverb-card.list-mode .reverb-card-footer {
+    width: 100%;
+    border-top: 1px solid var(--border-subtle);
+    padding-top: 0.5rem;
+    margin-top: 0.25rem;
+  }
+}
