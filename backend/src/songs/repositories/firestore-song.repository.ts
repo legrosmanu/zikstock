@@ -1,4 +1,4 @@
-import * as admin from 'firebase-admin';
+import { Query } from 'firebase-admin/firestore';
 import { Song } from '../domain/song.domain';
 import { getDb } from '../../application/firestore';
 
@@ -16,7 +16,7 @@ export const findSongById = async (id: string): Promise<Song | null> => {
 };
 
 export const findAllSongs = async (userId?: string): Promise<Song[]> => {
-    let query: admin.firestore.Query = getDb().collection(collection);
+    let query: Query = getDb().collection(collection);
     if (userId) {
         query = query.where('createdBy', '==', userId);
     }

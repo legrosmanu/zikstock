@@ -1,4 +1,3 @@
-import * as admin from 'firebase-admin';
 import { Connection } from '../domain/connection.domain';
 import { getDb } from '../../application/firestore';
 

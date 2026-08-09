@@ -1,4 +1,4 @@
-import * as admin from 'firebase-admin';
+import { Query } from 'firebase-admin/firestore';
 import { Zikresource } from '../domain/zikresource.domain';
 import { getDb } from '../../application/firestore';
 
@@ -16,7 +16,7 @@ export const findZikresourceById = async (id: string): Promise<Zikresource | nul
 };
 
 export const findAllZikresources = async (userId?: string): Promise<Zikresource[]> => {
-    let query: admin.firestore.Query = getDb().collection(collection);
+    let query: Query = getDb().collection(collection);
     if (userId) {
         query = query.where('createdBy', '==', userId);
     }
