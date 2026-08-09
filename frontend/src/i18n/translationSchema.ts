@@ -27,6 +27,14 @@ export interface TranslationSchema {
     by: string;
     errorSomethingWentWrong: string;
     saving: string;
+    viewModeGrid: string;
+    viewModeList: string;
+    sortBy: string;
+    sortNewest: string;
+    sortTitleAsc: string;
+    sortArtistAsc: string;
+    clearFilters: string;
+    filtersTitle: string;
   };
   sidebar: {
     zikresources: string;

@@ -2,7 +2,9 @@ import React, { useEffect, useState, useCallback } from 'react';
 import {
   Plus,
   Search,
-  X
+  X,
+  LayoutGrid,
+  List as ListIcon
 } from 'lucide-react';
 import { useNavigate, useSearch } from '@tanstack/react-router';
 import { useAuthStore } from '../../store/authStore';
@@ -21,6 +23,7 @@ import { SongList } from './SongList';
 import { PlaylistList } from './PlaylistList';
 import { IntegrationStatusBar } from './IntegrationStatusBar';
 import './Home.css';
+import '../Cards/Card.css';
 
 export const Home: React.FC = () => {
   const navigate = useNavigate();
@@ -33,6 +36,10 @@ export const Home: React.FC = () => {
 
   // Tab control
   const [activeTab, setActiveTab] = useState<'zikresources' | 'songs' | 'playlists'>(search.tab || 'zikresources');
+
+  // Display mode & sorting
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [sortBy, setSortBy] = useState<'newest' | 'title' | 'artist'>('newest');
 
   // Sync tab from search parameter
   useEffect(() => {
@@ -89,57 +96,72 @@ export const Home: React.FC = () => {
     fetchAllData();
   }, [fetchAllData]);
 
-  // Filter zikresources
-  const filteredResources = zikresources.filter((resource) => {
-    if (selectedType !== 'all') {
-      if (selectedType === 'tabs' && resource.type !== 'tablature') return false;
-      if (selectedType === 'videos' && resource.type !== 'video') return false;
-      if (selectedType === 'backing-tracks' && resource.type !== 'backing-track') return false;
-      if (selectedType === 'lyrics' && resource.type !== 'lyrics') return false;
-      if (selectedType === 'other' && resource.type !== 'other') return false;
-    }
+  // Filter & Sort zikresources
+  const filteredResources = zikresources
+    .filter((resource) => {
+      if (selectedType !== 'all') {
+        if (selectedType === 'tabs' && resource.type !== 'tablature') return false;
+        if (selectedType === 'videos' && resource.type !== 'video') return false;
+        if (selectedType === 'backing-tracks' && resource.type !== 'backing-track') return false;
+        if (selectedType === 'lyrics' && resource.type !== 'lyrics') return false;
+        if (selectedType === 'other' && resource.type !== 'other') return false;
+      }
 
-    if (searchQuery.trim() !== '') {
-      const q = searchQuery.toLowerCase();
-      const matchesTitle = resource.title.toLowerCase().includes(q);
-      const matchesArtist = resource.artist.toLowerCase().includes(q);
-      const matchesTag = resource.tags?.some(
-        (t) => t.label.toLowerCase().includes(q) || t.value.toLowerCase().includes(q)
-      );
-      return matchesTitle || matchesArtist || matchesTag;
-    }
-    return true;
-  });
+      if (searchQuery.trim() !== '') {
+        const q = searchQuery.toLowerCase();
+        const matchesTitle = resource.title.toLowerCase().includes(q);
+        const matchesArtist = resource.artist.toLowerCase().includes(q);
+        const matchesTag = resource.tags?.some(
+          (tag) => tag.label.toLowerCase().includes(q) || tag.value.toLowerCase().includes(q)
+        );
+        return matchesTitle || matchesArtist || matchesTag;
+      }
+      return true;
+    })
+    .sort((a, b) => {
+      if (sortBy === 'title') return a.title.localeCompare(b.title);
+      if (sortBy === 'artist') return (a.artist || '').localeCompare(b.artist || '');
+      return b._id.localeCompare(a._id);
+    });
 
-  // Filter songs
-  const filteredSongs = songs.filter((song) => {
-    if (searchQuery.trim() !== '') {
-      const q = searchQuery.toLowerCase();
-      return song.title.toLowerCase().includes(q) || song.artist.toLowerCase().includes(q);
-    }
-    return true;
-  });
+  // Filter & Sort songs
+  const filteredSongs = songs
+    .filter((song) => {
+      if (searchQuery.trim() !== '') {
+        const q = searchQuery.toLowerCase();
+        return song.title.toLowerCase().includes(q) || song.artist.toLowerCase().includes(q);
+      }
+      return true;
+    })
+    .sort((a, b) => {
+      if (sortBy === 'title') return a.title.localeCompare(b.title);
+      if (sortBy === 'artist') return (a.artist || '').localeCompare(b.artist || '');
+      return b._id.localeCompare(a._id);
+    });
 
-  // Filter playlists
-  const filteredPlaylists = playlists.filter((pl) => {
-    if (searchQuery.trim() !== '') {
-      const q = searchQuery.toLowerCase();
-      return pl.name.toLowerCase().includes(q) || (pl.description && pl.description.toLowerCase().includes(q));
-    }
-    return true;
-  });
+  // Filter & Sort playlists
+  const filteredPlaylists = playlists
+    .filter((pl) => {
+      if (searchQuery.trim() !== '') {
+        const q = searchQuery.toLowerCase();
+        return pl.name.toLowerCase().includes(q) || (pl.description && pl.description.toLowerCase().includes(q));
+      }
+      return true;
+    })
+    .sort((a, b) => {
+      if (sortBy === 'title') return a.name.localeCompare(b.name);
+      return b._id.localeCompare(a._id);
+    });
 
   const hasAddedItems = zikresources.length > 0 || songs.length > 0 || playlists.length > 0;
   const showWelcomeBanner = !isLoadingData && !errorMsg && !hasAddedItems;
 
   return (
-    // Main Content Home
     <main className="dashboard-main animate-fade-in">
-
       {/* Workspace Intro Section */}
       {showWelcomeBanner && <WelcomeBanner />}
 
-      {/* Dashboard Content & Zikresources List / Empty State */}
+      {/* Dashboard Content */}
       <section className="dashboard-content-area">
         {isLoadingData ? (
           <div className="resources-loading-grid">
@@ -175,9 +197,9 @@ export const Home: React.FC = () => {
                   {activeTab === 'playlists' && t.dashboard.titlePlaylists}
                 </h2>
                 <p className="resources-subtitle">
-                  {activeTab === 'zikresources' && `${t.dashboard.subtitleZikresources} (${zikresources.length})`}
-                  {activeTab === 'songs' && `${t.dashboard.subtitleSongs} (${songs.length})`}
-                  {activeTab === 'playlists' && `${t.dashboard.subtitlePlaylists} (${playlists.length})`}
+                  {activeTab === 'zikresources' && `${t.dashboard.subtitleZikresources} (${filteredResources.length})`}
+                  {activeTab === 'songs' && `${t.dashboard.subtitleSongs} (${filteredSongs.length})`}
+                  {activeTab === 'playlists' && `${t.dashboard.subtitlePlaylists} (${filteredPlaylists.length})`}
                 </p>
               </div>
 
@@ -201,7 +223,7 @@ export const Home: React.FC = () => {
               )}
             </div>
 
-            {/* Filters & Search */}
+            {/* Filters & Toolbar Controls */}
             <div className="filters-container glass-panel">
               <div className="search-box">
                 <Search size={16} className="search-icon" />
@@ -247,24 +269,68 @@ export const Home: React.FC = () => {
               )}
             </div>
 
+            {/* Reverb Toolbar Bar (View Switcher & Sorting) */}
+            <div className="reverb-toolbar-row">
+              <div className="reverb-toolbar-left">
+                <span className="reverb-result-count">
+                  {activeTab === 'zikresources' && `${filteredResources.length} ${filteredResources.length === 1 ? t.common.resourcesCountSingular : t.common.resourcesCountPlural}`}
+                  {activeTab === 'songs' && `${filteredSongs.length} ${filteredSongs.length === 1 ? t.common.songsCountSingular : t.common.songsCountPlural}`}
+                  {activeTab === 'playlists' && `${filteredPlaylists.length} ${filteredPlaylists.length === 1 ? 'Playlist' : 'Playlists'}`}
+                </span>
+              </div>
+
+              <div className="reverb-toolbar-right">
+                {/* Sort dropdown */}
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value as 'newest' | 'title' | 'artist')}
+                  className="reverb-sort-select"
+                >
+                  <option value="newest">{t.common.sortNewest}</option>
+                  <option value="title">{t.common.sortTitleAsc}</option>
+                  {activeTab !== 'playlists' && <option value="artist">{t.common.sortArtistAsc}</option>}
+                </select>
+
+                {/* View Mode Toggle */}
+                <div className="reverb-view-toggle">
+                  <button
+                    className={`reverb-view-btn ${viewMode === 'grid' ? 'active' : ''}`}
+                    onClick={() => setViewMode('grid')}
+                    title={t.common.viewModeGrid}
+                  >
+                    <LayoutGrid size={16} />
+                    <span>{t.common.viewModeGrid}</span>
+                  </button>
+                  <button
+                    className={`reverb-view-btn ${viewMode === 'list' ? 'active' : ''}`}
+                    onClick={() => setViewMode('list')}
+                    title={t.common.viewModeList}
+                  >
+                    <ListIcon size={16} />
+                    <span>{t.common.viewModeList}</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
             {/* Resources Tab View */}
             {activeTab === 'zikresources' && (
-              <ZikresourceList resources={filteredResources} />
+              <ZikresourceList resources={filteredResources} viewMode={viewMode} />
             )}
 
             {/* Songs Tab View */}
             {activeTab === 'songs' && (
-              <SongList songs={filteredSongs} />
+              <SongList songs={filteredSongs} viewMode={viewMode} />
             )}
 
             {/* Playlists Tab View */}
             {activeTab === 'playlists' && (
-              <PlaylistList playlists={filteredPlaylists} />
+              <PlaylistList playlists={filteredPlaylists} viewMode={viewMode} />
             )}
           </div>
         )}
 
-        {/* Secure Integration Live Check Status */}
+        {/* Integration Status */}
         <IntegrationStatusBar connectionStatus={connectionStatus} />
       </section>
     </main>

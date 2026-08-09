@@ -28,7 +28,15 @@ export const fr: TranslationSchema = {
     back: 'Retour',
     by: 'par',
     errorSomethingWentWrong: 'Une erreur est survenue. Veuillez réessayer.',
-    saving: 'Enregistrement...'
+    saving: 'Enregistrement...',
+    viewModeGrid: 'Grille',
+    viewModeList: 'Liste',
+    sortBy: 'Trier par :',
+    sortNewest: 'Récemment ajoutés',
+    sortTitleAsc: 'Titre (A-Z)',
+    sortArtistAsc: 'Artiste (A-Z)',
+    clearFilters: 'Effacer les filtres',
+    filtersTitle: 'Filtres'
   },
   sidebar: {
     zikresources: 'Zikresources',

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Music, ArrowLeft, Loader2, Trash2, Edit, FileText, Video, Mic, ExternalLink } from 'lucide-react';
+import { ArrowLeft, Loader2, Trash2, Edit } from 'lucide-react';
 import { useNavigate, useParams } from '@tanstack/react-router';
 import { fetchSongById, deleteSong } from '../../infra/song.api';
 import { fetchZikresources } from '../../infra/zikresource.api';
@@ -7,8 +7,10 @@ import type { Song } from '../../infra/song.api';
 import type { Zikresource } from '../../infra/zikresource.api';
 import { useTranslation } from '../../hooks/useTranslation';
 import { useAuthStore } from '../../store/authStore';
+import { ZikresourceCard } from '../Cards/ZikresourceCard';
 import '../CreateSong/CreateSong.css';
 import './ViewSong.css';
+import '../Cards/Card.css';
 
 export const ViewSong: React.FC = () => {
   const navigate = useNavigate();
@@ -57,25 +59,6 @@ export const ViewSong: React.FC = () => {
       setError(err instanceof Error ? err.message : t.viewSong.errorDeleteFailed);
       setIsDeleting(false);
       setShowDeleteConfirm(false);
-    }
-  };
-
-  const getResourceIcon = (type: string) => {
-    switch (type) {
-      case 'tablature': return <FileText size={14} />;
-      case 'video': return <Video size={14} />;
-      case 'lyrics': return <Mic size={14} />;
-      default: return <Music size={14} />;
-    }
-  };
-
-  const getResourceLabel = (type: string) => {
-    switch (type) {
-      case 'tablature': return t.dashboard.typeTablature;
-      case 'video': return t.dashboard.typeVideo;
-      case 'lyrics': return t.dashboard.typeLyrics;
-      case 'other': return t.dashboard.typeOther;
-      default: return t.dashboard.typeBackingTrack;
     }
   };
 
@@ -166,38 +149,14 @@ export const ViewSong: React.FC = () => {
           {associatedResources.length === 0 ? (
             <p className="no-resources-message">{t.viewSong.noResourcesText}</p>
           ) : (
-            <div className="associated-resources-list">
+            <div className="reverb-cards-grid" style={{ marginTop: '1rem' }}>
               {associatedResources.map((res) => (
-                <div key={res._id} className="resource-card glass-panel">
-                  <div className="resource-card-left">
-                    <span className="resource-card-title">{res.title}</span>
-                    <span className="resource-card-artist">{t.common.by} {res.artist}</span>
-                    {res.tags && res.tags.length > 0 && (
-                      <div className="resource-card-tags">
-                        {res.tags.map(tag => (
-                          <span key={tag.value} className="resource-tag-badge">
-                            {tag.label}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                  <div className="resource-card-right">
-                    <span className={`item-badge type-${res.type}`}>
-                      {getResourceIcon(res.type)}
-                      <span>{getResourceLabel(res.type)}</span>
-                    </span>
-                    <a
-                      href={res.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="btn-card-link"
-                    >
-                      <ExternalLink size={14} />
-                      <span>{t.viewSong.btnOpenLink}</span>
-                    </a>
-                  </div>
-                </div>
+                <ZikresourceCard
+                  key={res._id}
+                  resource={res}
+                  viewMode="grid"
+                  onClick={() => navigate({ to: `/zikresources/${res._id}` as never })}
+                />
               ))}
             </div>
           )}

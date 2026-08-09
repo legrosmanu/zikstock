@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Music, ArrowLeft, Loader2, Trash2, Edit, BookOpen, Video, Mic, HelpCircle } from 'lucide-react';
+import { ArrowLeft, Loader2, Trash2, Edit } from 'lucide-react';
 import { useNavigate, useParams } from '@tanstack/react-router';
 import { fetchPlaylistById, deletePlaylist } from '../../infra/playlist.api';
 import { fetchSongs } from '../../infra/song.api';
@@ -9,8 +9,11 @@ import type { Song } from '../../infra/song.api';
 import type { Zikresource } from '../../infra/zikresource.api';
 import { useTranslation } from '../../hooks/useTranslation';
 import { useAuthStore } from '../../store/authStore';
+import { SongCard } from '../Cards/SongCard';
+import { ZikresourceCard } from '../Cards/ZikresourceCard';
 import '../CreateSong/CreateSong.css';
 import './ViewPlaylist.css';
+import '../Cards/Card.css';
 
 export const ViewPlaylist: React.FC = () => {
   const navigate = useNavigate();
@@ -157,25 +160,14 @@ export const ViewPlaylist: React.FC = () => {
           {associatedSongs.length === 0 ? (
             <p className="no-songs-message">{t.viewPlaylist.noSongsText}</p>
           ) : (
-            <div className="associated-songs-list">
+            <div className="reverb-cards-grid" style={{ marginTop: '1rem' }}>
               {associatedSongs.map((song) => (
-                <div
+                <SongCard
                   key={song._id}
-                  className="song-card glass-panel"
+                  song={song}
+                  viewMode="grid"
                   onClick={() => navigate({ to: `/songs/${song._id}` as never })}
-                  style={{ cursor: 'pointer' }}
-                >
-                  <div className="song-card-left">
-                    <span className="song-card-title">{song.title}</span>
-                    <span className="song-card-artist">{t.common.by} {song.artist}</span>
-                  </div>
-                  <div className="song-card-right">
-                    <span className="playlist-item-badge">
-                      <Music size={12} />
-                      <span>{song.zikresourceIds?.length || 0} {song.zikresourceIds?.length === 1 ? t.common.resourcesCountSingular : t.common.resourcesCountPlural}</span>
-                    </span>
-                  </div>
-                </div>
+                />
               ))}
             </div>
           )}
@@ -187,35 +179,14 @@ export const ViewPlaylist: React.FC = () => {
           {associatedZikresources.length === 0 ? (
             <p className="no-songs-message">{t.viewPlaylist.noResourcesText}</p>
           ) : (
-            <div className="associated-songs-list">
+            <div className="reverb-cards-grid" style={{ marginTop: '1rem' }}>
               {associatedZikresources.map((res) => (
-                <div
+                <ZikresourceCard
                   key={res._id}
-                  className="song-card glass-panel"
+                  resource={res}
+                  viewMode="grid"
                   onClick={() => navigate({ to: `/zikresources/${res._id}` as never })}
-                  style={{ cursor: 'pointer' }}
-                >
-                  <div className="song-card-left">
-                    <span className="song-card-title">{res.title}</span>
-                    <span className="song-card-artist">{t.common.by} {res.artist}</span>
-                  </div>
-                  <div className="song-card-right">
-                    <span className="playlist-item-badge">
-                      {res.type === 'tablature' && <BookOpen size={12} />}
-                      {res.type === 'video' && <Video size={12} />}
-                      {res.type === 'backing-track' && <Music size={12} />}
-                      {res.type === 'lyrics' && <Mic size={12} />}
-                      {res.type === 'other' && <HelpCircle size={12} />}
-                      <span style={{ marginLeft: '4px' }}>
-                        {res.type === 'tablature' && t.dashboard.typeTablature}
-                        {res.type === 'video' && t.dashboard.typeVideo}
-                        {res.type === 'backing-track' && t.dashboard.typeBackingTrack}
-                        {res.type === 'lyrics' && t.dashboard.typeLyrics}
-                        {res.type === 'other' && t.dashboard.typeOther}
-                      </span>
-                    </span>
-                  </div>
-                </div>
+                />
               ))}
             </div>
           )}
