@@ -1,17 +1,8 @@
-import { Firestore } from 'firebase-admin/firestore';
 import * as admin from 'firebase-admin';
 import { Song } from '../domain/song.domain';
+import { getDb } from '../../application/firestore';
 
 const collection = 'songs';
-
-const getDb = (): Firestore => {
-    if (!admin.apps.length) {
-        admin.initializeApp({
-            projectId: process.env.GCLOUD_PROJECT ?? 'zikstock-local',
-        });
-    }
-    return admin.firestore();
-};
 
 export const saveSong = async (song: Song): Promise<Song> => {
     await getDb().collection(collection).doc(song.id).set(song);

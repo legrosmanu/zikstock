@@ -6,7 +6,8 @@ import {
     getAllSongsHandler,
     getSongByIdHandler,
     updateSongHandler,
-    deleteSongHandler
+    deleteSongHandler,
+    cloneSongHandler
 } from './api/song.controller';
 import { errorMiddleware } from '../application/middleware/error.middleware';
 import { describe, it, expect, beforeEach, jest } from '@jest/globals';
@@ -69,6 +70,7 @@ describe('SongController Integration', () => {
         app.post('/songs', googleAuthMiddleware.authMiddleware, createSongHandler);
         app.get('/songs', googleAuthMiddleware.authMiddleware, getAllSongsHandler);
         app.get('/songs/:id', googleAuthMiddleware.authMiddleware, getSongByIdHandler);
+        app.post('/songs/:id/clone', googleAuthMiddleware.authMiddleware, cloneSongHandler);
         app.put('/songs/:id', googleAuthMiddleware.authMiddleware, updateSongHandler);
         app.delete('/songs/:id', googleAuthMiddleware.authMiddleware, deleteSongHandler);
         app.use(errorMiddleware);
@@ -172,4 +174,65 @@ describe('SongController Integration', () => {
         expect(response.status).toBe(400);
         expect(response.body.message).toContain('Validation failed');
     });
+
+    it('POST /songs/:id/clone should clone a song and its zikresources from another user', async () => {
+        // Mock finding zikresource for other user
+        jest.mocked(firestoreZikresourceRepo.findZikresourceById).mockImplementation(async (id: string) => {
+            if (id === 'res-other') {
+                return {
+                    id: 'res-other',
+                    createdBy: 'user-456',
+                    url: 'https://youtube.com/watch?v=xyz',
+                    artist: 'Other Artist',
+                    title: 'Other Title',
+                    type: 'video'
+                };
+            }
+            return null;
+        });
+        jest.mocked(firestoreZikresourceRepo.saveZikresource).mockImplementation(async (res) => res);
+
+        await mockSongRepo.saveSong({
+            id: 'song-other',
+            title: 'Other Song',
+            artist: 'Other Artist',
+            zikresourceIds: ['res-other'],
+            createdBy: 'user-456',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+        });
+
+        const response = await request(app)
+            .post('/songs/song-other/clone')
+            .set('Authorization', `Bearer ${VALID_TOKEN}`);
+
+        expect(response.status).toBe(201);
+        expect(response.body.song._id).toBeDefined();
+        expect(response.body.song._id).not.toBe('song-other');
+        expect(response.body.song.createdBy).toBe('user-123'); // VALID_TOKEN user
+        expect(response.body.song.clonedFrom).toBe('song-other');
+        expect(response.body.clonedResources).toHaveLength(1);
+        expect(response.body.clonedResources[0].clonedFrom).toBe('res-other');
+        expect(response.body.clonedResources[0].createdBy).toBe('user-123');
+    });
+
+    it('POST /songs/:id/clone should return 403 when trying to clone own song', async () => {
+        await mockSongRepo.saveSong({
+            id: 'song-own',
+            title: 'My Song',
+            artist: 'My Artist',
+            zikresourceIds: ['res-123'],
+            createdBy: 'user-123',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+        });
+
+        const response = await request(app)
+            .post('/songs/song-own/clone')
+            .set('Authorization', `Bearer ${VALID_TOKEN}`);
+
+        expect(response.status).toBe(403);
+        expect(response.body.message).toBe('You already own this song.');
+    });
 });
+

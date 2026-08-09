@@ -1,4 +1,4 @@
-import { authenticatedGet, authenticatedDelete, authenticatedPut } from './httpClient';
+import { authenticatedGet, authenticatedDelete, authenticatedPut, authenticatedPost } from './httpClient';
 
 export type ZikresourceType = 'tablature' | 'video' | 'backing-track' | 'lyrics' | 'other';
 
@@ -17,6 +17,7 @@ export interface Zikresource {
   title: string;
   type: ZikresourceType;
   tags?: ZikresourceTag[];
+  clonedFrom?: string;
 }
 
 export interface FetchParams {
@@ -46,6 +47,11 @@ export const deleteZikresource = (id: string): Promise<void> => {
   return authenticatedDelete<void>(`/zikresources/${id}`);
 };
 
+export const cloneZikresource = (id: string): Promise<Zikresource> => {
+  return authenticatedPost<Zikresource>(`/zikresources/${id}/clone`);
+};
+
 export const checkZikresourceEmbeddability = (url: string): Promise<{ embeddable: boolean }> => {
   return authenticatedGet<{ embeddable: boolean }>(`/zikresources/check-embed?url=${encodeURIComponent(url)}`);
 };
+

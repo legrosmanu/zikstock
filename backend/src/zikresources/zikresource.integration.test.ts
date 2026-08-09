@@ -6,7 +6,8 @@ import {
     getAllZikresourcesHandler,
     getZikresourceByIdHandler,
     updateZikresourceHandler,
-    deleteZikresourceHandler
+    deleteZikresourceHandler,
+    cloneZikresourceHandler
 } from './api/zikresource.controller';
 import { ZikresourceResponse } from './api/zikresource.dto';
 import { errorMiddleware } from '../application/middleware/error.middleware';
@@ -51,6 +52,7 @@ describe('ZikresourceController Integration', () => {
         app.post('/zikresources', googleAuthMiddleware.authMiddleware, createZikresourceHandler);
         app.get('/zikresources', googleAuthMiddleware.authMiddleware, getAllZikresourcesHandler);
         app.get('/zikresources/:id', googleAuthMiddleware.authMiddleware, getZikresourceByIdHandler);
+        app.post('/zikresources/:id/clone', googleAuthMiddleware.authMiddleware, cloneZikresourceHandler);
         app.put('/zikresources/:id', googleAuthMiddleware.authMiddleware, updateZikresourceHandler);
         app.delete('/zikresources/:id', googleAuthMiddleware.authMiddleware, deleteZikresourceHandler);
         app.use(errorMiddleware);
@@ -215,4 +217,31 @@ describe('ZikresourceController Integration', () => {
         expect(response.body.error).toBe('Not Found');
         expect(response.body.message).toBe('Zikresource with id 123 not found');
     });
+
+    it('POST /zikresources/:id/clone should clone a zikresource created by someone else', async () => {
+        await mockRepo.saveZikresource({ id: 'res-other', createdBy: 'other-user', url: 'https://youtube.com/watch?v=123', artist: 'Artist', title: 'Title', type: 'video' });
+
+        const response = await request(app)
+            .post('/zikresources/res-other/clone')
+            .set('Authorization', `Bearer ${VALID_TOKEN}`);
+
+        expect(response.status).toBe(201);
+        expect(response.body._id).toBeDefined();
+        expect(response.body._id).not.toBe('res-other');
+        expect(response.body.createdBy).toBe('user-123'); // VALID_TOKEN user
+        expect(response.body.title).toBe('Title');
+        expect(response.body.clonedFrom).toBe('res-other');
+    });
+
+    it('POST /zikresources/:id/clone should return 403 when trying to clone own zikresource', async () => {
+        await mockRepo.saveZikresource({ id: 'res-own', createdBy: 'user-123', url: 'https://youtube.com/watch?v=123', artist: 'Artist', title: 'Title', type: 'video' });
+
+        const response = await request(app)
+            .post('/zikresources/res-own/clone')
+            .set('Authorization', `Bearer ${VALID_TOKEN}`);
+
+        expect(response.status).toBe(403);
+        expect(response.body.message).toBe('You already own this zikresource.');
+    });
 });
+

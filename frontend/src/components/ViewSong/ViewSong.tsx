@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Loader2, Trash2, Edit } from 'lucide-react';
+import { ArrowLeft, Loader2, Trash2, Edit, Copy, Check } from 'lucide-react';
 import { useNavigate, useParams } from '@tanstack/react-router';
-import { fetchSongById, deleteSong } from '../../infra/song.api';
+import { fetchSongById, deleteSong, cloneSong } from '../../infra/song.api';
 import { fetchZikresources } from '../../infra/zikresource.api';
 import type { Song } from '../../infra/song.api';
 import type { Zikresource } from '../../infra/zikresource.api';
@@ -20,12 +20,28 @@ export const ViewSong: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [isCloning, setIsCloning] = useState(false);
+  const [cloneSuccessId, setCloneSuccessId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [song, setSong] = useState<Song | null>(null);
   const [associatedResources, setAssociatedResources] = useState<Zikresource[]>([]);
 
   const user = useAuthStore((state) => state.user);
   const isOwner = user?.sub === song?.createdBy;
+
+  const handleClone = async () => {
+    setIsCloning(true);
+    setError(null);
+    setCloneSuccessId(null);
+    try {
+      const result = await cloneSong(id);
+      setCloneSuccessId(result.song._id);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t.viewSong.cloneError);
+    } finally {
+      setIsCloning(false);
+    }
+  };
 
   useEffect(() => {
     const loadData = async () => {
@@ -140,6 +156,33 @@ export const ViewSong: React.FC = () => {
                 </button>
               </div>
             )}
+          </div>
+        )}
+
+        {!isOwner && user && (
+          <div className="manage-top-actions">
+            <div className="action-buttons-left">
+              {cloneSuccessId ? (
+                <button
+                  type="button"
+                  className="btn-clone-song success"
+                  onClick={() => navigate({ to: `/songs/${cloneSuccessId}` as never })}
+                >
+                  <Check size={14} />
+                  <span>{t.viewSong.cloneSuccess}</span>
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  className="btn-clone-song"
+                  onClick={handleClone}
+                  disabled={isCloning}
+                >
+                  {isCloning ? <Loader2 size={14} className="spinning" /> : <Copy size={14} />}
+                  <span>{isCloning ? t.viewSong.cloning : t.viewSong.btnClone}</span>
+                </button>
+              )}
+            </div>
           </div>
         )}
 

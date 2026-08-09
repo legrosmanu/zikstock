@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Tag, Loader2, Trash2, ExternalLink, Edit, EyeOff } from 'lucide-react';
+import { ArrowLeft, Tag, Loader2, Trash2, ExternalLink, Edit, EyeOff, Copy, Check } from 'lucide-react';
 import { useNavigate, useParams } from '@tanstack/react-router';
-import { fetchZikresourceById, deleteZikresource, checkZikresourceEmbeddability } from '../../infra/zikresource.api';
+import { fetchZikresourceById, deleteZikresource, checkZikresourceEmbeddability, cloneZikresource } from '../../infra/zikresource.api';
 import type { Zikresource } from '../../infra/zikresource.api';
 import { useTranslation } from '../../hooks/useTranslation';
 import { useAuthStore } from '../../store/authStore';
@@ -74,6 +74,8 @@ export const ViewZikresource: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [isCloning, setIsCloning] = useState(false);
+  const [cloneSuccessId, setCloneSuccessId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [resource, setResource] = useState<Zikresource | null>(null);
   const [hasIframeError, setHasIframeError] = useState(false);
@@ -81,6 +83,20 @@ export const ViewZikresource: React.FC = () => {
 
   const user = useAuthStore((state) => state.user);
   const isOwner = user?.sub === resource?.createdBy;
+
+  const handleClone = async () => {
+    setIsCloning(true);
+    setError(null);
+    setCloneSuccessId(null);
+    try {
+      const cloned = await cloneZikresource(id);
+      setCloneSuccessId(cloned._id);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t.viewZikresource.cloneError);
+    } finally {
+      setIsCloning(false);
+    }
+  };
 
   useEffect(() => {
     setHasIframeError(false);
@@ -286,6 +302,33 @@ export const ViewZikresource: React.FC = () => {
                 </button>
               </div>
             )}
+          </div>
+        )}
+
+        {!isOwner && user && (
+          <div className="manage-top-actions">
+            <div className="action-buttons-left">
+              {cloneSuccessId ? (
+                <button
+                  type="button"
+                  className="btn-clone-resource success"
+                  onClick={() => navigate({ to: `/zikresources/${cloneSuccessId}` as never })}
+                >
+                  <Check size={14} />
+                  <span>{t.viewZikresource.cloneSuccess}</span>
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  className="btn-clone-resource"
+                  onClick={handleClone}
+                  disabled={isCloning}
+                >
+                  {isCloning ? <Loader2 size={14} className="spinning" /> : <Copy size={14} />}
+                  <span>{isCloning ? t.viewZikresource.cloning : t.viewZikresource.btnClone}</span>
+                </button>
+              )}
+            </div>
           </div>
         )}
 

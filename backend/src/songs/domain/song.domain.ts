@@ -6,4 +6,5 @@ export interface Song {
     createdBy: string;
     createdAt: string;
     updatedAt: string;
+    clonedFrom?: string;
 }

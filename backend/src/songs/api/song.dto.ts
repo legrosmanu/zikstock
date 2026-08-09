@@ -26,5 +26,6 @@ export interface SongResponse {
     creatorPicture?: string;
     createdAt: string;
     updatedAt: string;
+    clonedFrom?: string;
 }
 

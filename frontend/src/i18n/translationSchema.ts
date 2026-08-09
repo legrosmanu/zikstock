@@ -206,6 +206,10 @@ export interface TranslationSchema {
     goToLink: string;
     btnEdit: string;
     btnDelete: string;
+    btnClone: string;
+    cloning: string;
+    cloneSuccess: string;
+    cloneError: string;
     confirmDeleteText: string;
     btnConfirmDelete: string;
     typeLabel: string;
@@ -233,6 +237,10 @@ export interface TranslationSchema {
     notFound: string;
     btnEdit: string;
     btnDelete: string;
+    btnClone: string;
+    cloning: string;
+    cloneSuccess: string;
+    cloneError: string;
     resourcesSectionTitle: string;
     noResourcesText: string;
     btnOpenLink: string;

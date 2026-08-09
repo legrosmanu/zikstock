@@ -27,6 +27,7 @@ export interface ZikresourceResponse {
     title: string;
     type: ZikresourceType;
     tags?: { label: string; value: string }[];
+    clonedFrom?: string;
 }
 
 

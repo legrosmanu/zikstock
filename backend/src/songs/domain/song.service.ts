@@ -8,6 +8,7 @@ import {
     deleteSongFromDb
 } from '../repositories/firestore-song.repository';
 import { findZikresourceById } from '../../zikresources/repositories/firestore-zikresource.repository';
+import { cloneZikresource } from '../../zikresources/domain/zikresource.service';
 import { AppError } from '../../application/middleware/error.middleware';
 import { StatusCodes } from 'http-status-codes';
 
@@ -75,3 +76,46 @@ export const deleteSong = async (id: string, userId: string): Promise<void> => {
     }
     await deleteSongFromDb(id);
 };
+
+export const cloneSong = async (id: string, userId: string) => {
+    const existing = await findSongById(id);
+    if (!existing) {
+        throw new AppError(StatusCodes.NOT_FOUND, `Song with id ${id} not found`);
+    }
+    if (existing.createdBy === userId) {
+        throw new AppError(StatusCodes.FORBIDDEN, `You already own this song.`);
+    }
+
+    const clonedZikresourceIds: string[] = [];
+    const clonedResources = [];
+
+    for (const zikresourceId of existing.zikresourceIds) {
+        const res = await findZikresourceById(zikresourceId);
+        if (!res) {
+            throw new AppError(StatusCodes.BAD_REQUEST, `Zikresource with id ${zikresourceId} not found`);
+        }
+        if (res.createdBy === userId) {
+            clonedZikresourceIds.push(res.id);
+        } else {
+            const clonedRes = await cloneZikresource(res.id, userId);
+            clonedZikresourceIds.push(clonedRes.id);
+            clonedResources.push(clonedRes);
+        }
+    }
+
+    const now = new Date().toISOString();
+    const song: Song = {
+        id: uuidv4(),
+        title: existing.title,
+        artist: existing.artist,
+        zikresourceIds: clonedZikresourceIds,
+        createdBy: userId,
+        createdAt: now,
+        updatedAt: now,
+        clonedFrom: existing.id,
+    };
+
+    const savedSong = await saveSong(song);
+    return { song: savedSong, clonedResources };
+};
+

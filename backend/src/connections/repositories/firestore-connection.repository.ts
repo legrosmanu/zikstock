@@ -1,17 +1,8 @@
-import { Firestore } from 'firebase-admin/firestore';
 import * as admin from 'firebase-admin';
 import { Connection } from '../domain/connection.domain';
+import { getDb } from '../../application/firestore';
 
 const collection = 'connections';
-
-const getDb = (): Firestore => {
-    if (!admin.apps.length) {
-        admin.initializeApp({
-            projectId: process.env.GCLOUD_PROJECT ?? 'zikstock-local',
-        });
-    }
-    return admin.firestore();
-};
 
 export const saveConnection = async (connection: Connection): Promise<Connection> => {
     await getDb().collection(collection).doc(connection.id).set(connection);

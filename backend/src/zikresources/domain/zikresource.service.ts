@@ -82,5 +82,28 @@ export const checkEmbeddability = async (urlStr: string): Promise<{ embeddable: 
     }
 };
 
+export const cloneZikresource = async (id: string, userId: string): Promise<Zikresource> => {
+    const existing = await findZikresourceById(id);
+    if (!existing) {
+        throw new AppError(StatusCodes.NOT_FOUND, `Zikresource with id ${id} not found`);
+    }
+    if (existing.createdBy === userId) {
+        throw new AppError(StatusCodes.FORBIDDEN, `You already own this zikresource.`);
+    }
+    const cloned: Zikresource = {
+        id: uuidv4(),
+        createdBy: userId,
+        url: existing.url,
+        artist: existing.artist,
+        title: existing.title,
+        type: existing.type,
+        clonedFrom: existing.id,
+    };
+    if (existing.tags && existing.tags.length > 0) {
+        cloned.tags = [...existing.tags];
+    }
+    return saveZikresource(cloned);
+};
+
 
 

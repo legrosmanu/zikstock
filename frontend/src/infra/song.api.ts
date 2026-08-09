@@ -1,4 +1,5 @@
 import { authenticatedGet, authenticatedPost, authenticatedPut, authenticatedDelete } from './httpClient';
+import type { Zikresource } from './zikresource.api';
 
 export interface Song {
   _id: string;
@@ -10,6 +11,12 @@ export interface Song {
   creatorPicture?: string;
   createdAt: string;
   updatedAt: string;
+  clonedFrom?: string;
+}
+
+export interface CloneSongResponse {
+  song: Song;
+  clonedResources: Zikresource[];
 }
 
 export interface FetchParams {
@@ -42,3 +49,8 @@ export const updateSong = (id: string, song: Omit<Song, '_id' | 'createdBy' | 'c
 export const deleteSong = (id: string): Promise<void> => {
   return authenticatedDelete<void>(`/songs/${id}`);
 };
+
+export const cloneSong = (id: string): Promise<CloneSongResponse> => {
+  return authenticatedPost<CloneSongResponse>(`/songs/${id}/clone`);
+};
+

@@ -4,7 +4,8 @@ import {
     getAllSongs,
     getSongById,
     updateSong,
-    deleteSong
+    deleteSong,
+    cloneSong
 } from '../domain/song.service';
 import { SongSchema, SongResponse, SongIdParamSchema, UserPayloadSchema } from './song.dto';
 import { Song } from '../domain/song.domain';
@@ -21,6 +22,7 @@ const toResponse = (domain: Song): SongResponse => ({
     createdBy: domain.createdBy,
     createdAt: domain.createdAt,
     updatedAt: domain.updatedAt,
+    clonedFrom: domain.clonedFrom,
 });
 
 export const createSongHandler = async (req: Request, res: Response, next: NextFunction) => {
@@ -156,4 +158,35 @@ export const deleteSongHandler = async (req: Request, res: Response, next: NextF
         next(error);
     }
 };
+
+export const cloneSongHandler = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const paramValidation = SongIdParamSchema.safeParse(req.params);
+        if (!paramValidation.success) {
+            throw new AppError(StatusCodes.BAD_REQUEST, `Validation failed: ${paramValidation.error.message}`);
+        }
+        const userValidation = UserPayloadSchema.safeParse(req.user);
+        if (!userValidation.success) {
+            throw new AppError(StatusCodes.UNAUTHORIZED, `User identity validation failed: ${userValidation.error.message}`);
+        }
+        const createdBy = userValidation.data.sub;
+        const result = await cloneSong(paramValidation.data.id, createdBy);
+        res.status(StatusCodes.CREATED).json({
+            song: toResponse(result.song),
+            clonedResources: result.clonedResources.map(r => ({
+                _id: r.id,
+                createdBy: r.createdBy,
+                url: r.url,
+                artist: r.artist,
+                title: r.title,
+                type: r.type,
+                tags: r.tags,
+                clonedFrom: r.clonedFrom,
+            }))
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
 

@@ -15,6 +15,7 @@ export interface Zikresource {
     title: string;
     type: ZikresourceType;
     tags?: Tag[];
+    clonedFrom?: string;
 }
 
 

@@ -8,7 +8,8 @@ import {
     getZikresourceByIdHandler,
     updateZikresourceHandler,
     deleteZikresourceHandler,
-    checkEmbeddabilityHandler
+    checkEmbeddabilityHandler,
+    cloneZikresourceHandler
 } from './zikresources/api/zikresource.controller';
 import {
     createSongHandler,
@@ -16,7 +17,8 @@ import {
     getAllSongsHandler,
     getSongByIdHandler,
     updateSongHandler,
-    deleteSongHandler
+    deleteSongHandler,
+    cloneSongHandler
 } from './songs/api/song.controller';
 import {
     createPlaylistHandler,
@@ -131,6 +133,7 @@ app.post('/zikresources', authMiddleware, createZikresourceHandler);
 app.get('/zikresources', authMiddleware, getAllZikresourcesHandler);
 app.get('/zikresources/check-embed', authMiddleware, checkEmbeddabilityHandler);
 app.get('/zikresources/:id', authMiddleware, getZikresourceByIdHandler);
+app.post('/zikresources/:id/clone', authMiddleware, cloneZikresourceHandler);
 app.put('/zikresources/:id', authMiddleware, updateZikresourceHandler);
 app.delete('/zikresources/:id', authMiddleware, deleteZikresourceHandler);
 
@@ -138,6 +141,7 @@ app.delete('/zikresources/:id', authMiddleware, deleteZikresourceHandler);
 app.post('/songs', authMiddleware, createSongHandler);
 app.get('/songs', authMiddleware, getAllSongsHandler);
 app.get('/songs/:id', authMiddleware, getSongByIdHandler);
+app.post('/songs/:id/clone', authMiddleware, cloneSongHandler);
 app.put('/songs/:id', authMiddleware, updateSongHandler);
 app.delete('/songs/:id', authMiddleware, deleteSongHandler);
 
