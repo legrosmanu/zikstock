@@ -59,21 +59,23 @@
 }
 
 .login-brand-icon {
-  background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+  background: var(--accent-primary);
   width: 40px;
   height: 40px;
-  border-radius: 10px;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
   color: #ffffff;
-  box-shadow: 0 0 20px rgba(139, 92, 246, 0.25);
+  box-shadow: 0 4px 14px rgba(224, 62, 38, 0.35);
 }
 
 .login-brand-text {
   font-weight: 800;
   font-size: 1.4rem;
+  font-family: var(--font-heading);
   letter-spacing: -0.025em;
+  text-transform: uppercase;
   color: #ffffff;
 }
 
@@ -87,7 +89,8 @@
 .login-hero-title {
   font-size: 3rem;
   font-weight: 800;
-  line-height: 1.15;
+  font-family: var(--font-heading);
+  line-height: 1.12;
   letter-spacing: -0.03em;
   margin-bottom: 1.5rem;
   color: #ffffff;
@@ -95,14 +98,14 @@
 
 .login-hero-subtitle {
   font-size: 1.15rem;
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(255, 255, 255, 0.85);
   line-height: 1.6;
 }
 
 .login-left-footer {
   z-index: 10;
   font-size: 0.85rem;
-  color: rgba(255, 255, 255, 0.4);
+  color: rgba(255, 255, 255, 0.5);
 }
 
 .login-right-pane {
@@ -119,7 +122,7 @@
   position: absolute;
   width: 300px;
   height: 300px;
-  background: radial-gradient(circle, rgba(139, 92, 246, 0.05) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(224, 62, 38, 0.08) 0%, transparent 70%);
   pointer-events: none;
 }
 
@@ -128,8 +131,9 @@
   max-width: 400px;
   padding: 3rem 2.5rem;
   background: var(--surface-card);
-  border: 1px solid var(--surface-glass-border);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--surface-card-border);
+  border-radius: 14px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
   text-align: center;
 }
 
@@ -138,6 +142,10 @@
   border: none;
   color: var(--text-secondary);
   font-size: 0.9rem;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -147,7 +155,7 @@
 }
 
 .btn-back-landing:hover {
-  color: var(--text-primary);
+  color: var(--accent-primary);
   transform: translateX(-3px);
 }
 
@@ -158,20 +166,21 @@
 /* Music Icon on top of mobile card */
 .mobile-login-icon {
   display: none;
-  background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+  background: var(--accent-primary);
   width: 50px;
   height: 50px;
-  border-radius: 12px;
+  border-radius: 10px;
   margin: 0 auto 1.5rem;
   align-items: center;
   justify-content: center;
   color: #ffffff;
-  box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+  box-shadow: 0 4px 14px rgba(224, 62, 38, 0.35);
 }
 
 .login-card-title {
   font-size: 1.85rem;
-  font-weight: 700;
+  font-weight: 800;
+  font-family: var(--font-heading);
   letter-spacing: -0.025em;
   margin-bottom: 0.5rem;
 }

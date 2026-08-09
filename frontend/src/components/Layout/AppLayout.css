@@ -34,25 +34,29 @@
 }
 
 .brand-logo-icon {
-  background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
-  width: 36px;
-  height: 36px;
+  background: var(--accent-primary);
+  width: 38px;
+  height: 38px;
   border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
   color: #ffffff;
-  box-shadow: 0 0 15px rgba(139, 92, 246, 0.3);
+  box-shadow: 0 4px 14px rgba(224, 62, 38, 0.35);
+  transition: transform var(--transition-fast);
+}
+
+.sidebar-brand:hover .brand-logo-icon {
+  transform: scale(1.05);
 }
 
 .brand-logo-text {
   font-weight: 800;
-  font-size: 1.3rem;
+  font-size: 1.35rem;
+  font-family: var(--font-heading);
   letter-spacing: -0.03em;
-  background: linear-gradient(135deg, var(--text-primary) 30%, var(--accent-primary) 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
+  text-transform: uppercase;
+  color: var(--text-primary);
 }
 
 .sidebar-nav {
@@ -68,13 +72,14 @@
   align-items: center;
   gap: 0.75rem;
   padding: 0.75rem 1rem;
-  border: none;
+  border: 1px solid transparent;
   background: transparent;
   color: var(--text-secondary);
-  font-family: var(--font-family);
+  font-family: var(--font-heading);
   font-size: 0.95rem;
-  font-weight: 600;
-  border-radius: 10px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  border-radius: 8px;
   cursor: pointer;
   width: 100%;
   text-align: left;
@@ -84,13 +89,15 @@
 .sidebar-nav-item:hover {
   color: var(--text-primary);
   background: var(--bg-tertiary);
+  border-color: var(--border-subtle);
   transform: translateX(3px);
 }
 
 .sidebar-nav-item.active {
-  background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+  background: var(--accent-primary);
   color: #ffffff;
-  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.25);
+  border-color: var(--accent-primary);
+  box-shadow: 0 4px 14px rgba(224, 62, 38, 0.3);
 }
 
 .sidebar-badge-count {
