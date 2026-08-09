@@ -90,8 +90,8 @@
 .search-input-field:focus {
   outline: none;
   border-color: var(--accent-primary);
-  box-shadow: 0 0 0 3px rgba(224, 62, 38, 0.15);
-  background: var(--bg-tertiary);
+  box-shadow: 0 0 0 3px rgba(97, 8, 206, 0.12);
+  background: var(--bg-primary);
 }
 
 .search-clear-btn {
@@ -110,7 +110,7 @@
 }
 
 .search-clear-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.05);
   color: var(--text-primary);
 }
 
@@ -153,12 +153,10 @@
 }
 
 .search-filter-chip {
-  padding: 0.45rem 0.9rem;
+  padding: 0.4rem 0.9rem;
   font-size: 0.85rem;
-  font-weight: 700;
+  font-weight: 600;
   font-family: var(--font-heading);
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
   border-radius: 6px;
   border: 1px solid var(--border-medium);
   background: var(--bg-secondary);
@@ -169,7 +167,7 @@
 
 .search-filter-chip:hover {
   border-color: var(--accent-primary);
-  color: var(--text-primary);
+  color: var(--accent-primary);
 }
 
 .search-filter-chip.active {
@@ -190,16 +188,14 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.85rem 1.25rem;
+  padding: 0.75rem 1.1rem;
   background: none;
   border: none;
   border-bottom: 2px solid transparent;
   color: var(--text-secondary);
   font-size: 0.95rem;
-  font-weight: 700;
+  font-weight: 600;
   font-family: var(--font-heading);
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
   cursor: pointer;
   transition: all var(--transition-fast);
 }
@@ -242,14 +238,14 @@
   cursor: pointer;
   transition: all var(--transition-normal);
   background: var(--surface-card);
-  border: 1px solid var(--surface-card-border);
-  border-radius: 10px;
+  border: 1px solid var(--border-medium);
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .search-row-card:hover {
-  transform: translateY(-2px);
   border-color: var(--accent-primary);
-  box-shadow: 0 6px 20px rgba(224, 62, 38, 0.15);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 /* Network Member Highlighting */

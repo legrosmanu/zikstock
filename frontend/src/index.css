@@ -1,84 +1,84 @@
-/* ── Stage Studio Craft Light Theme (default) ─────────────── */
+/* ── WordPress Storefront Light Theme (default) ──────────────── */
 :root,
 [data-theme="light"] {
   /* Backgrounds */
-  --bg-primary: #f8f7f4;
-  --bg-secondary: #eeece6;
-  --bg-tertiary: #e2dfd7;
+  --bg-primary: #ffffff;
+  --bg-secondary: #f9fafb;
+  --bg-tertiary: #f3f4f6;
 
   /* Text */
-  --text-primary: #111215;
-  --text-secondary: #5c5b66;
+  --text-primary: #111827;
+  --text-secondary: #4b5563;
 
-  /* Accents — Crimson Amber & Stage Gold */
-  --accent-primary: #e03e26;
-  --accent-secondary: #f59e0b;
-  --accent-hover: #c8321c;
+  /* Accents — Storefront Indigo */
+  --accent-primary: #6108ce;
+  --accent-secondary: #4f46e5;
+  --accent-hover: #4c06a3;
 
   /* Surfaces */
-  --surface-glass: rgba(248, 247, 244, 0.88);
-  --surface-glass-border: rgba(220, 60, 35, 0.15);
+  --surface-glass: rgba(255, 255, 255, 0.92);
+  --surface-glass-border: #e5e7eb;
   --surface-card: #ffffff;
-  --surface-card-border: rgba(0, 0, 0, 0.08);
+  --surface-card-border: #e5e7eb;
 
   /* Outline / dividers */
-  --border-subtle: rgba(0, 0, 0, 0.08);
-  --border-medium: rgba(0, 0, 0, 0.16);
+  --border-subtle: #f3f4f6;
+  --border-medium: #e5e7eb;
 
   /* Nav */
-  --nav-bg: rgba(248, 247, 244, 0.92);
-  --nav-border: rgba(0, 0, 0, 0.08);
+  --nav-bg: rgba(255, 255, 255, 0.95);
+  --nav-border: #e5e7eb;
 
   /* Scrollbar */
-  --scrollbar-thumb: #c7c4bb;
-  --scrollbar-thumb-hover: #e03e26;
+  --scrollbar-thumb: #d1d5db;
+  --scrollbar-thumb-hover: #6108ce;
 
   /* Typography */
   --font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  --font-heading: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-heading: 'Inter', system-ui, -apple-system, sans-serif;
 
   /* Layout */
   --max-width: 1200px;
 
   /* Transitions */
-  --transition-fast: 0.18s cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-normal: 0.28s cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-slow: 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-fast: 0.15s ease-in-out;
+  --transition-normal: 0.25s ease-in-out;
+  --transition-slow: 0.35s ease-in-out;
 }
 
-/* ── Stage Studio Craft Dark Theme ──────────────────────────── */
+/* ── WordPress Storefront Dark Theme ─────────────────────────── */
 [data-theme="dark"] {
   /* Backgrounds */
-  --bg-primary: #0e0f12;
-  --bg-secondary: #16181d;
-  --bg-tertiary: #21242c;
+  --bg-primary: #111827;
+  --bg-secondary: #1f2937;
+  --bg-tertiary: #374151;
 
   /* Text */
-  --text-primary: #f4f4f6;
-  --text-secondary: #9a9ba4;
+  --text-primary: #f9fafb;
+  --text-secondary: #9ca3af;
 
-  /* Accents — Crimson Amber & Stage Gold */
-  --accent-primary: #e03e26;
-  --accent-secondary: #f59e0b;
-  --accent-hover: #ff4d34;
+  /* Accents — Storefront Indigo */
+  --accent-primary: #818cf8;
+  --accent-secondary: #a5b4fc;
+  --accent-hover: #6366f1;
 
   /* Surfaces */
-  --surface-glass: rgba(22, 24, 29, 0.88);
-  --surface-glass-border: rgba(224, 62, 38, 0.22);
-  --surface-card: #16181d;
-  --surface-card-border: rgba(255, 255, 255, 0.08);
+  --surface-glass: rgba(31, 41, 55, 0.92);
+  --surface-glass-border: #374151;
+  --surface-card: #1f2937;
+  --surface-card-border: #374151;
 
   /* Outline / dividers */
-  --border-subtle: rgba(255, 255, 255, 0.07);
-  --border-medium: rgba(255, 255, 255, 0.14);
+  --border-subtle: #374151;
+  --border-medium: #4b5563;
 
   /* Nav */
-  --nav-bg: rgba(14, 15, 18, 0.92);
-  --nav-border: rgba(255, 255, 255, 0.08);
+  --nav-bg: rgba(17, 24, 39, 0.95);
+  --nav-border: #374151;
 
   /* Scrollbar */
-  --scrollbar-thumb: #2a2d37;
-  --scrollbar-thumb-hover: #e03e26;
+  --scrollbar-thumb: #374151;
+  --scrollbar-thumb-hover: #818cf8;
 }
 
 * {
@@ -98,10 +98,11 @@ body {
   overflow-x: hidden;
 }
 
-/* Headings with high-contrast musical editorial typography */
+/* Clean Storefront Headings */
 h1, h2, h3, h4, .font-heading {
   font-family: var(--font-heading);
-  letter-spacing: -0.02em;
+  letter-spacing: -0.015em;
+  color: var(--text-primary);
   text-wrap: balance;
 }
 
@@ -111,7 +112,7 @@ a {
   text-decoration: none;
 }
 
-/* Studio Custom Scrollbar */
+/* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 7px;
   height: 7px;
@@ -130,18 +131,20 @@ a {
   background: var(--scrollbar-thumb-hover);
 }
 
-/* Crisp Studio Card Surface */
+/* Storefront Clean Card Surface */
 .glass-panel,
-.studio-card {
+.studio-card,
+.storefront-card {
   background: var(--surface-card);
   border: 1px solid var(--surface-card-border);
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  transition: border-color var(--transition-normal), transform var(--transition-normal), box-shadow var(--transition-normal);
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: border-color var(--transition-normal), box-shadow var(--transition-normal);
 }
 
-.studio-card:hover {
-  border-color: rgba(224, 62, 38, 0.3);
+.storefront-card:hover {
+  border-color: var(--accent-primary);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 /* Theme toggle button ─────────────────────────────────────── */
@@ -165,5 +168,4 @@ a {
   color: var(--accent-primary);
   border-color: var(--accent-primary);
   background: var(--bg-tertiary);
-  transform: rotate(15deg) scale(1.06);
 }

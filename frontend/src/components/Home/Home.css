@@ -128,12 +128,12 @@
 
 /* Greeting Section */
 .welcome-banner {
-  padding: 2.5rem;
-  border-radius: 16px;
+  padding: 2.25rem 2.5rem;
+  border-radius: 12px;
   position: relative;
   overflow: hidden;
-  background: linear-gradient(135deg, rgba(224, 62, 38, 0.08) 0%, var(--bg-secondary) 100%);
-  border: 1px solid rgba(224, 62, 38, 0.15);
+  background: linear-gradient(135deg, rgba(97, 8, 206, 0.05) 0%, var(--bg-secondary) 100%);
+  border: 1px solid var(--border-medium);
 }
 
 .welcome-banner::before {
@@ -143,21 +143,22 @@
   right: -100px;
   width: 300px;
   height: 300px;
-  background: radial-gradient(circle, rgba(224, 62, 38, 0.12) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(97, 8, 206, 0.08) 0%, transparent 70%);
   pointer-events: none;
 }
 
 .welcome-title {
-  font-size: 2.25rem;
-  font-weight: 800;
+  font-size: 2rem;
+  font-weight: 700;
   font-family: var(--font-heading);
-  letter-spacing: -0.025em;
+  letter-spacing: -0.02em;
   margin-bottom: 0.5rem;
+  color: var(--text-primary);
 }
 
 .welcome-subtitle {
   color: var(--text-secondary);
-  font-size: 1.1rem;
+  font-size: 1.05rem;
   max-width: 600px;
 }
 
@@ -174,24 +175,21 @@
   border: none;
   color: #ffffff;
   font-family: var(--font-heading);
-  font-weight: 800;
+  font-weight: 600;
   font-size: 0.95rem;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  padding: 0.85rem 2rem;
+  padding: 0.75rem 1.75rem;
   border-radius: 6px;
   cursor: pointer;
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  box-shadow: 0 4px 16px rgba(224, 62, 38, 0.3);
-  transition: all var(--transition-normal);
+  box-shadow: 0 2px 8px rgba(97, 8, 206, 0.25);
+  transition: all var(--transition-fast);
 }
 
 .btn-primary-large:hover {
   background: var(--accent-hover);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(224, 62, 38, 0.45);
+  box-shadow: 0 4px 14px rgba(97, 8, 206, 0.35);
 }
 
 /* Integration/Connection Status Panel */
@@ -202,7 +200,7 @@
   justify-content: space-between;
   background: var(--surface-card);
   border: 1px solid var(--surface-card-border);
-  border-radius: 12px;
+  border-radius: 8px;
   font-size: 0.85rem;
 }
 
@@ -274,10 +272,10 @@
 }
 
 .resources-title {
-  font-size: 1.5rem;
-  font-weight: 800;
+  font-size: 1.4rem;
+  font-weight: 700;
   font-family: var(--font-heading);
-  letter-spacing: -0.02em;
+  letter-spacing: -0.015em;
   color: var(--text-primary);
 }
 
@@ -293,6 +291,9 @@
   align-items: center;
   gap: 1.5rem;
   flex-wrap: wrap;
+  background: var(--surface-card);
+  border: 1px solid var(--border-medium);
+  border-radius: 8px;
 }
 
 .search-box {
@@ -312,8 +313,8 @@
 
 .search-input {
   width: 100%;
-  padding: 0.65rem 2.5rem 0.65rem 2.5rem;
-  border-radius: 8px;
+  padding: 0.6rem 2.5rem 0.6rem 2.5rem;
+  border-radius: 6px;
   background: var(--bg-secondary);
   border: 1px solid var(--border-medium);
   color: var(--text-primary);
@@ -325,8 +326,8 @@
 .search-input:focus {
   outline: none;
   border-color: var(--accent-primary);
-  background: var(--bg-tertiary);
-  box-shadow: 0 0 0 3px rgba(224, 62, 38, 0.15);
+  background: var(--bg-primary);
+  box-shadow: 0 0 0 3px rgba(97, 8, 206, 0.12);
 }
 
 .search-clear-btn {
@@ -356,23 +357,21 @@
 }
 
 .filter-chip {
-  padding: 0.45rem 1.1rem;
+  padding: 0.4rem 0.95rem;
   border-radius: 6px;
   border: 1px solid var(--border-medium);
   background: var(--bg-secondary);
   color: var(--text-secondary);
   font-family: var(--font-heading);
   font-size: 0.85rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
+  font-weight: 500;
   cursor: pointer;
   transition: all var(--transition-fast);
 }
 
 .filter-chip:hover {
   border-color: var(--accent-primary);
-  color: var(--text-primary);
+  color: var(--accent-primary);
   background: var(--bg-tertiary);
 }
 
@@ -380,7 +379,7 @@
   background: var(--accent-primary);
   color: #ffffff;
   border-color: var(--accent-primary);
-  box-shadow: 0 4px 12px rgba(224, 62, 38, 0.25);
+  box-shadow: 0 2px 8px rgba(97, 8, 206, 0.2);
 }
 
 /* Resources Grid */
@@ -397,17 +396,17 @@
   flex-direction: column;
   gap: 1.25rem;
   background: var(--surface-card);
-  border: 1px solid var(--surface-card-border);
-  border-radius: 12px;
-  transition: all var(--transition-normal);
+  border: 1px solid var(--border-medium);
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: border-color var(--transition-normal), box-shadow var(--transition-normal);
   position: relative;
   overflow: hidden;
 }
 
 .resource-card:hover {
-  transform: translateY(-2px);
-  border-color: rgba(224, 62, 38, 0.3);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+  border-color: var(--accent-primary);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
 }
 
 .card-header {
