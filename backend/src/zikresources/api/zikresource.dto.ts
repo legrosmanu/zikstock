@@ -1,8 +1,7 @@
 import { z } from 'zod';
-import { ZIKRESOURCE_TYPES, type ZikresourceType, type ZikresourceResponse } from '@zikstock/types';
 
-export { ZIKRESOURCE_TYPES };
-export type { ZikresourceType, ZikresourceResponse };
+export const ZIKRESOURCE_TYPES = ['tablature', 'video', 'backing-track', 'lyrics', 'other'] as const;
+export type ZikresourceType = typeof ZIKRESOURCE_TYPES[number];
 
 export const ZikresourceSchema = z.object({
     url: z.url(),
@@ -15,7 +14,20 @@ export const ZikresourceSchema = z.object({
     })).optional(),
 });
 
+
 export type CreateZikresourceRequest = z.infer<typeof ZikresourceSchema>;
 
+export interface ZikresourceResponse {
+    _id: string;
+    createdBy: string;
+    creatorName?: string;
+    creatorPicture?: string;
+    url: string;
+    artist: string;
+    title: string;
+    type: ZikresourceType;
+    tags?: { label: string; value: string }[];
+    clonedFrom?: string;
+}
 
 

@@ -4,14 +4,29 @@ import {
     authenticatedPut,
     authenticatedDelete
 } from './httpClient';
-import type {
-    NetworkUser,
-    ConnectionWithUser,
-    NetworkResponse
-} from '@zikstock/types';
 
-export type { NetworkUser, ConnectionWithUser, NetworkResponse };
+export interface NetworkUser {
+    id: string;
+    email: string;
+    name?: string;
+    picture?: string;
+}
 
+export interface ConnectionWithUser {
+    id: string;
+    requesterId: string;
+    receiverId: string;
+    status: 'pending' | 'accepted';
+    createdAt: string;
+    updatedAt: string;
+    user: NetworkUser;
+}
+
+export interface NetworkResponse {
+    accepted: ConnectionWithUser[];
+    incoming: ConnectionWithUser[];
+    outgoing: ConnectionWithUser[];
+}
 
 export const syncUserProfile = async (): Promise<NetworkUser> => {
     return authenticatedPost<NetworkUser>('/users/me');

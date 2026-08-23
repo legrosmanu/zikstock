@@ -1,9 +1,13 @@
 import { create } from 'zustand';
 import { normalizeUserProfile } from './userProfile.utils';
-import type { UserTokenPayload as UserProfile } from '@zikstock/types';
 
-export type { UserProfile };
-
+export interface UserProfile {
+  sub: string;
+  email: string;
+  name?: string;
+  picture?: string;
+  [key: string]: unknown;
+}
 
 interface AuthState {
   token: string | null;

@@ -10,6 +10,9 @@ jobs:
   backend:
     name: Backend CI
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
     steps:
       - uses: actions/checkout@v4
 
@@ -23,29 +26,29 @@ jobs:
         with:
           node-version: 24
           cache: pnpm
-          cache-dependency-path: pnpm-lock.yaml
+          cache-dependency-path: backend/pnpm-lock.yaml
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build shared types
-        run: pnpm --filter @zikstock/types build
-
       - name: Lint code
-        run: pnpm --filter backend lint
+        run: pnpm lint
 
       - name: Build check
-        run: pnpm --filter backend build
+        run: pnpm build
 
       - name: Start Firestore Emulator
-        run: docker compose up -d
+        run: docker compose -f ../docker-compose.yml up -d
 
       - name: Run tests
-        run: pnpm --filter backend test:all
+        run: pnpm test:all
 
   frontend:
     name: Frontend CI
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
     steps:
       - uses: actions/checkout@v4
 
@@ -59,19 +62,17 @@ jobs:
         with:
           node-version: 24
           cache: pnpm
-          cache-dependency-path: pnpm-lock.yaml
+          cache-dependency-path: frontend/pnpm-lock.yaml
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build shared types
-        run: pnpm --filter @zikstock/types build
-
       - name: Lint code
-        run: pnpm --filter frontend lint
+        run: pnpm lint
 
       - name: Build check
-        run: pnpm --filter frontend build
+        run: pnpm build
 
       - name: Run tests
-        run: pnpm --filter frontend test
+        run: pnpm test
+

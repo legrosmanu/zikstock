@@ -9,16 +9,13 @@ This skill executes the exact continuous integration workflow defined in `.githu
 
 ## Execution Workflow
 
-1. **Shared Types**:
-   - Run `pnpm --filter @zikstock/types build` to compile shared type contracts.
-
-2. **Backend CI**:
+1. **Backend CI**:
    - Change directory to `backend/`
    - Run `pnpm lint` to verify code formatting and ESLint rules.
    - Run `pnpm build` to ensure TypeScript compilation succeeds.
    - Run `pnpm test` to execute domain & mock integration tests (or `pnpm test:all` when Firestore emulator is running).
 
-3. **Frontend CI**:
+2. **Frontend CI**:
    - Change directory to `frontend/`
    - Run `pnpm lint` to verify ESLint rules.
    - Run `pnpm build` to test Vite production build and TypeScript compilation (`tsc -b && vite build`).

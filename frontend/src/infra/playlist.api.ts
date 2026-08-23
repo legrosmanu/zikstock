@@ -1,8 +1,17 @@
 import { authenticatedGet, authenticatedPost, authenticatedPut, authenticatedDelete } from './httpClient';
-import type { PlaylistResponse as Playlist } from '@zikstock/types';
 
-export type { Playlist };
-
+export interface Playlist {
+  _id: string;
+  name: string;
+  description?: string;
+  songIds: string[];
+  zikresourceIds?: string[];
+  createdBy: string;
+  creatorName?: string;
+  creatorPicture?: string;
+  createdAt: string;
+  updatedAt: string;
+}
 
 export interface FetchParams {
   scope?: 'all' | 'mine';

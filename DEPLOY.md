@@ -74,13 +74,11 @@ gcloud artifacts repositories create zikstock-repo \
 ```
 
 ### Step B: Build & Deploy Backend to Cloud Run
-1. Build and submit the backend image from the **repository root**:
+1. Submit the backend build to GCP:
    ```bash
-   gcloud builds submit . \
-       --tag europe-west1-docker.pkg.dev/[YOUR_PROJECT_ID]/zikstock-repo/backend:latest \
-       --substitutions=_DOCKERFILE=backend/Dockerfile
+   gcloud builds submit backend \
+       --tag europe-west1-docker.pkg.dev/[YOUR_PROJECT_ID]/zikstock-repo/backend:latest
    ```
-   *(Or build locally and push: `docker build -t europe-west1-docker.pkg.dev/[YOUR_PROJECT_ID]/zikstock-repo/backend:latest -f backend/Dockerfile . && docker push europe-west1-docker.pkg.dev/[YOUR_PROJECT_ID]/zikstock-repo/backend:latest`)*
 
 2. Deploy the backend container to Cloud Run:
    Replace `[YOUR_GOOGLE_CLIENT_ID]` and `[YOUR_PROJECT_ID]` with your actual credentials:
@@ -96,15 +94,13 @@ gcloud artifacts repositories create zikstock-repo \
 3. **Important**: Note the URL of the deployed backend (e.g., `https://zikstock-backend-xxxxxx-ew.a.run.app`) printed in the output. You need it for Step C.
 
 ### Step C: Build & Deploy Frontend to Cloud Run
-1. Build and submit the frontend image from the **repository root**:
+1. Submit the frontend build, passing the Backend API URL and Google Client ID as build arguments so Vite can package them:
    ```bash
-   gcloud builds submit . \
+   gcloud builds submit frontend \
        --tag europe-west1-docker.pkg.dev/[YOUR_PROJECT_ID]/zikstock-repo/frontend:latest \
        --build-arg VITE_API_URL=[YOUR_BACKEND_URL] \
-       --build-arg VITE_GOOGLE_CLIENT_ID=[YOUR_GOOGLE_CLIENT_ID] \
-       --substitutions=_DOCKERFILE=frontend/Dockerfile
+       --build-arg VITE_GOOGLE_CLIENT_ID=[YOUR_GOOGLE_CLIENT_ID]
    ```
-   *(Or build locally and push: `docker build --build-arg VITE_API_URL=[YOUR_BACKEND_URL] --build-arg VITE_GOOGLE_CLIENT_ID=[YOUR_GOOGLE_CLIENT_ID] -t europe-west1-docker.pkg.dev/[YOUR_PROJECT_ID]/zikstock-repo/frontend:latest -f frontend/Dockerfile . && docker push europe-west1-docker.pkg.dev/[YOUR_PROJECT_ID]/zikstock-repo/frontend:latest`)*
 
 2. Deploy the frontend container to Cloud Run:
    ```bash

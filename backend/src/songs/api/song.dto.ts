@@ -1,7 +1,4 @@
 import { z } from 'zod';
-import type { SongResponse } from '@zikstock/types';
-
-export type { SongResponse };
 
 export const SongSchema = z.object({
     title: z.string().min(1),
@@ -19,4 +16,16 @@ export const UserPayloadSchema = z.object({
 
 export type CreateSongRequest = z.infer<typeof SongSchema>;
 
+export interface SongResponse {
+    _id: string;
+    title: string;
+    artist: string;
+    zikresourceIds: string[];
+    createdBy: string;
+    creatorName?: string;
+    creatorPicture?: string;
+    createdAt: string;
+    updatedAt: string;
+    clonedFrom?: string;
+}
 

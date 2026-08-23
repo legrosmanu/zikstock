@@ -1,16 +1,23 @@
 import { authenticatedGet, authenticatedPost, authenticatedPut, authenticatedDelete } from './httpClient';
-import type {
-  SongResponse as Song,
-  ZikresourceResponse as Zikresource
-} from '@zikstock/types';
+import type { Zikresource } from './zikresource.api';
 
-export type { Song };
+export interface Song {
+  _id: string;
+  title: string;
+  artist: string;
+  zikresourceIds: string[];
+  createdBy: string;
+  creatorName?: string;
+  creatorPicture?: string;
+  createdAt: string;
+  updatedAt: string;
+  clonedFrom?: string;
+}
 
 export interface CloneSongResponse {
   song: Song;
   clonedResources: Zikresource[];
 }
-
 
 export interface FetchParams {
   scope?: 'all' | 'mine';
