@@ -34,6 +34,7 @@
   --surface-card: rgba(255, 255, 255, 0.80);
   --surface-card-hover: rgba(255, 255, 255, 0.95);
   --surface-card-border: rgba(0, 0, 0, 0.07);
+  --dropdown-bg: #f2f2f3;
 
   /* Glass Optics & Specular Highlights */
   --glass-blur: blur(24px) saturate(180%);
@@ -102,6 +103,7 @@
   --surface-card: rgba(255, 255, 255, 0.05);
   --surface-card-hover: rgba(255, 255, 255, 0.09);
   --surface-card-border: rgba(255, 255, 255, 0.10);
+  --dropdown-bg: #1c1c1e;
 
   /* Glass Optics & Specular Highlights */
   --glass-blur: blur(28px) saturate(190%);

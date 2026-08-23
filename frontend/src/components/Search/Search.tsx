@@ -339,7 +339,7 @@ export const Search: React.FC = () => {
               )}
 
               {isFilterDropdownOpen && (
-                <div className="filter-dropdown-menu glass-panel" role="menu">
+                <div className="filter-dropdown-menu" role="menu">
                   <div className="filter-dropdown-header">
                     <span className="filter-dropdown-title">{t.common.filtersTitle}</span>
                     {hasActiveFilter && (
