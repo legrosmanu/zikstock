@@ -1,30 +1,48 @@
 import { v4 as uuidv4 } from 'uuid';
 import { Connection, ConnectionStatus } from './connection.domain';
 import { User } from '../../users/domain/user.domain';
-import {
-    saveConnection,
-    findConnectionById,
-    findConnectionBetweenUsers,
-    deleteConnectionFromDb,
-    findConnectionsForUser
-} from '../repositories/firestore-connection.repository';
-import { findUserById, findUsersByIds } from '../../users/repositories/firestore-user.repository';
+import * as firestoreConnRepo from '../repositories/firestore-connection.repository';
+import * as firestoreUserRepo from '../../users/repositories/firestore-user.repository';
 import { AppError } from '../../application/middleware/error.middleware';
 import { StatusCodes } from 'http-status-codes';
 
-export const requestConnection = async (requesterId: string, receiverId: string): Promise<Connection> => {
+export interface ConnectionDependencies {
+    saveConnection: (connection: Connection) => Promise<Connection>;
+    findConnectionById: (id: string) => Promise<Connection | null>;
+    findConnectionBetweenUsers: (u1: string, u2: string) => Promise<Connection | null>;
+    deleteConnectionFromDb: (id: string) => Promise<void>;
+    findConnectionsForUser: (userId: string) => Promise<Connection[]>;
+    findUserById: (id: string) => Promise<User | null>;
+    findUsersByIds: (ids: string[]) => Promise<User[]>;
+}
+
+export const defaultConnectionDeps: ConnectionDependencies = {
+    saveConnection: firestoreConnRepo.saveConnection,
+    findConnectionById: firestoreConnRepo.findConnectionById,
+    findConnectionBetweenUsers: firestoreConnRepo.findConnectionBetweenUsers,
+    deleteConnectionFromDb: firestoreConnRepo.deleteConnectionFromDb,
+    findConnectionsForUser: firestoreConnRepo.findConnectionsForUser,
+    findUserById: firestoreUserRepo.findUserById,
+    findUsersByIds: firestoreUserRepo.findUsersByIds,
+};
+
+export const requestConnection = async (
+    requesterId: string,
+    receiverId: string,
+    deps: ConnectionDependencies = defaultConnectionDeps
+): Promise<Connection> => {
     if (requesterId === receiverId) {
         throw new AppError(StatusCodes.BAD_REQUEST, 'You cannot connect with yourself');
     }
 
     // Verify receiver exists
-    const receiver = await findUserById(receiverId);
+    const receiver = await deps.findUserById(receiverId);
     if (!receiver) {
         throw new AppError(StatusCodes.NOT_FOUND, `User with id ${receiverId} not found`);
     }
 
     // Check existing connection
-    const existing = await findConnectionBetweenUsers(requesterId, receiverId);
+    const existing = await deps.findConnectionBetweenUsers(requesterId, receiverId);
 
     const now = new Date().toISOString();
 
@@ -38,7 +56,7 @@ export const requestConnection = async (requesterId: string, receiverId: string)
             updatedAt: now,
         };
 
-        return saveConnection(newConnection);
+        return deps.saveConnection(newConnection);
     }
 
     if (existing.status === ConnectionStatus.ACCEPTED) {
@@ -56,12 +74,15 @@ export const requestConnection = async (requesterId: string, receiverId: string)
         status: ConnectionStatus.ACCEPTED,
         updatedAt: now,
     };
-    return saveConnection(updated);
-
+    return deps.saveConnection(updated);
 };
 
-export const acceptConnectionRequest = async (connectionId: string, userId: string): Promise<Connection> => {
-    const connection = await findConnectionById(connectionId);
+export const acceptConnectionRequest = async (
+    connectionId: string,
+    userId: string,
+    deps: ConnectionDependencies = defaultConnectionDeps
+): Promise<Connection> => {
+    const connection = await deps.findConnectionById(connectionId);
     if (!connection) {
         throw new AppError(StatusCodes.NOT_FOUND, `Connection request with id ${connectionId} not found`);
     }
@@ -80,11 +101,15 @@ export const acceptConnectionRequest = async (connectionId: string, userId: stri
         updatedAt: new Date().toISOString(),
     };
 
-    return saveConnection(updated);
+    return deps.saveConnection(updated);
 };
 
-export const removeConnection = async (connectionId: string, userId: string): Promise<void> => {
-    const connection = await findConnectionById(connectionId);
+export const removeConnection = async (
+    connectionId: string,
+    userId: string,
+    deps: ConnectionDependencies = defaultConnectionDeps
+): Promise<void> => {
+    const connection = await deps.findConnectionById(connectionId);
     if (!connection) {
         return;
     }
@@ -93,7 +118,7 @@ export const removeConnection = async (connectionId: string, userId: string): Pr
         throw new AppError(StatusCodes.FORBIDDEN, 'You are not authorized to modify this connection');
     }
 
-    await deleteConnectionFromDb(connectionId);
+    await deps.deleteConnectionFromDb(connectionId);
 };
 
 export interface ConnectionWithUser extends Connection {
@@ -106,8 +131,11 @@ export interface NetworkResponse {
     outgoing: ConnectionWithUser[];
 }
 
-export const listNetwork = async (userId: string): Promise<NetworkResponse> => {
-    const connections = await findConnectionsForUser(userId);
+export const listNetwork = async (
+    userId: string,
+    deps: ConnectionDependencies = defaultConnectionDeps
+): Promise<NetworkResponse> => {
+    const connections = await deps.findConnectionsForUser(userId);
 
     const acceptedConnections = connections.filter(c => c.status === ConnectionStatus.ACCEPTED);
     const activeOtherUserIds = acceptedConnections.map(c => c.requesterId === userId ? c.receiverId : c.requesterId);
@@ -121,7 +149,7 @@ export const listNetwork = async (userId: string): Promise<NetworkResponse> => {
         ...outgoingConnections.map(c => c.receiverId)
     ];
 
-    const users = await findUsersByIds(allFetchIds);
+    const users = await deps.findUsersByIds(allFetchIds);
     const userMap = new Map<string, User>(users.map(u => [u.id, u]));
 
     const accepted: ConnectionWithUser[] = [];
@@ -155,3 +183,4 @@ export const listNetwork = async (userId: string): Promise<NetworkResponse> => {
         outgoing
     };
 };
+

@@ -1,38 +1,63 @@
 import { v4 as uuidv4 } from 'uuid';
 import { Zikresource } from './zikresource.domain';
-import {
-    saveZikresource,
-    findZikresourceById,
-    findAllZikresources,
-    updateZikresourceInDb,
-    deleteZikresourceFromDb
-} from '../repositories/firestore-zikresource.repository';
-import { checkHttpFrameEmbeddability } from '../repositories/http-embeddability.repository';
+import * as firestoreZikresourceRepo from '../repositories/firestore-zikresource.repository';
+import { checkHttpFrameEmbeddability as defaultCheckHttpFrameEmbeddability } from '../repositories/http-embeddability.repository';
 import { AppError } from '../../application/middleware/error.middleware';
 import { StatusCodes } from 'http-status-codes';
 
-export const createZikresource = async (partial: Omit<Zikresource, 'id'>): Promise<Zikresource> => {
+export interface ZikresourceDependencies {
+    saveZikresource: (res: Zikresource) => Promise<Zikresource>;
+    findZikresourceById: (id: string) => Promise<Zikresource | null>;
+    findAllZikresources: (userId?: string) => Promise<Zikresource[]>;
+    updateZikresourceInDb: (res: Zikresource) => Promise<Zikresource>;
+    deleteZikresourceFromDb: (id: string) => Promise<void>;
+    checkHttpFrameEmbeddability: (urlStr: string) => Promise<boolean>;
+}
+
+export const defaultZikresourceDeps: ZikresourceDependencies = {
+    saveZikresource: firestoreZikresourceRepo.saveZikresource,
+    findZikresourceById: firestoreZikresourceRepo.findZikresourceById,
+    findAllZikresources: firestoreZikresourceRepo.findAllZikresources,
+    updateZikresourceInDb: firestoreZikresourceRepo.updateZikresourceInDb,
+    deleteZikresourceFromDb: firestoreZikresourceRepo.deleteZikresourceFromDb,
+    checkHttpFrameEmbeddability: defaultCheckHttpFrameEmbeddability,
+};
+
+export const createZikresource = async (
+    partial: Omit<Zikresource, 'id'>,
+    deps: ZikresourceDependencies = defaultZikresourceDeps
+): Promise<Zikresource> => {
     const zikresource: Zikresource = {
         id: uuidv4(),
         ...partial,
     };
-    return saveZikresource(zikresource);
+    return deps.saveZikresource(zikresource);
 };
 
-export const getZikresourceById = async (id: string): Promise<Zikresource> => {
-    const zikresource = await findZikresourceById(id);
+export const getZikresourceById = async (
+    id: string,
+    deps: ZikresourceDependencies = defaultZikresourceDeps
+): Promise<Zikresource> => {
+    const zikresource = await deps.findZikresourceById(id);
     if (!zikresource) {
         throw new AppError(StatusCodes.NOT_FOUND, `Zikresource with id ${id} not found`);
     }
     return zikresource;
 };
 
-export const getAllZikresources = async (userId?: string): Promise<Zikresource[]> => {
-    return findAllZikresources(userId);
+export const getAllZikresources = async (
+    userId?: string,
+    deps: ZikresourceDependencies = defaultZikresourceDeps
+): Promise<Zikresource[]> => {
+    return deps.findAllZikresources(userId);
 };
 
-export const updateZikresource = async (id: string, partial: Omit<Zikresource, 'id'>): Promise<Zikresource> => {
-    const existing = await findZikresourceById(id);
+export const updateZikresource = async (
+    id: string,
+    partial: Omit<Zikresource, 'id'>,
+    deps: ZikresourceDependencies = defaultZikresourceDeps
+): Promise<Zikresource> => {
+    const existing = await deps.findZikresourceById(id);
     if (!existing) {
         throw new AppError(StatusCodes.NOT_FOUND, `Zikresource with id ${id} not found`);
     }
@@ -44,18 +69,22 @@ export const updateZikresource = async (id: string, partial: Omit<Zikresource, '
         ...partial,
         id,
     };
-    return updateZikresourceInDb(updated);
+    return deps.updateZikresourceInDb(updated);
 };
 
-export const deleteZikresource = async (id: string, userId: string): Promise<void> => {
-    const existing = await findZikresourceById(id);
+export const deleteZikresource = async (
+    id: string,
+    userId: string,
+    deps: ZikresourceDependencies = defaultZikresourceDeps
+): Promise<void> => {
+    const existing = await deps.findZikresourceById(id);
     if (!existing) {
         return;
     }
     if (existing.createdBy !== userId) {
         throw new AppError(StatusCodes.FORBIDDEN, `You do not have permission to delete this zikresource.`);
     }
-    await deleteZikresourceFromDb(id);
+    await deps.deleteZikresourceFromDb(id);
 };
 
 const isKnownEmbeddablePlatform = (hostname: string, pathname: string): boolean => {
@@ -68,22 +97,29 @@ const isKnownEmbeddablePlatform = (hostname: string, pathname: string): boolean 
     return false;
 };
 
-export const checkEmbeddability = async (urlStr: string): Promise<{ embeddable: boolean }> => {
+export const checkEmbeddability = async (
+    urlStr: string,
+    deps: ZikresourceDependencies = defaultZikresourceDeps
+): Promise<{ embeddable: boolean }> => {
     try {
         const url = new URL(urlStr);
         if (isKnownEmbeddablePlatform(url.hostname, url.pathname)) {
             return { embeddable: true };
         }
 
-        const canFrame = await checkHttpFrameEmbeddability(urlStr);
+        const canFrame = await deps.checkHttpFrameEmbeddability(urlStr);
         return { embeddable: canFrame };
     } catch {
         return { embeddable: false };
     }
 };
 
-export const cloneZikresource = async (id: string, userId: string): Promise<Zikresource> => {
-    const existing = await findZikresourceById(id);
+export const cloneZikresource = async (
+    id: string,
+    userId: string,
+    deps: ZikresourceDependencies = defaultZikresourceDeps
+): Promise<Zikresource> => {
+    const existing = await deps.findZikresourceById(id);
     if (!existing) {
         throw new AppError(StatusCodes.NOT_FOUND, `Zikresource with id ${id} not found`);
     }
@@ -102,8 +138,9 @@ export const cloneZikresource = async (id: string, userId: string): Promise<Zikr
     if (existing.tags && existing.tags.length > 0) {
         cloned.tags = [...existing.tags];
     }
-    return saveZikresource(cloned);
+    return deps.saveZikresource(cloned);
 };
+
 
 
 

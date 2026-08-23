@@ -4,27 +4,26 @@ import {
     getAllZikresources,
     updateZikresource,
     deleteZikresource,
-    checkEmbeddability
+    checkEmbeddability,
+    ZikresourceDependencies
 } from './zikresource.service';
 import { Zikresource } from './zikresource.domain';
 import { describe, it, expect, beforeEach, jest } from '@jest/globals';
-
 import * as mockRepo from '../repositories/mock-zikresource.repository';
-import * as repo from '../repositories/firestore-zikresource.repository';
-
-jest.mock('../repositories/firestore-zikresource.repository');
 
 describe('ZikresourceService', () => {
+    let deps: ZikresourceDependencies;
 
     beforeEach(() => {
         mockRepo.clearData();
-        jest.clearAllMocks();
-
-        jest.mocked(repo.saveZikresource).mockImplementation(mockRepo.saveZikresource);
-        jest.mocked(repo.findZikresourceById).mockImplementation(mockRepo.findZikresourceById);
-        jest.mocked(repo.findAllZikresources).mockImplementation(mockRepo.findAllZikresources);
-        jest.mocked(repo.updateZikresourceInDb).mockImplementation(mockRepo.updateZikresourceInDb);
-        jest.mocked(repo.deleteZikresourceFromDb).mockImplementation(mockRepo.deleteZikresourceFromDb);
+        deps = {
+            saveZikresource: mockRepo.saveZikresource,
+            findZikresourceById: mockRepo.findZikresourceById,
+            findAllZikresources: mockRepo.findAllZikresources,
+            updateZikresourceInDb: mockRepo.updateZikresourceInDb,
+            deleteZikresourceFromDb: mockRepo.deleteZikresourceFromDb,
+            checkHttpFrameEmbeddability: jest.fn(async () => true),
+        };
     });
 
     it('should create a zikresource', async () => {
@@ -37,13 +36,14 @@ describe('ZikresourceService', () => {
             tags: []
         };
 
-        const result = await createZikresource(partial);
+        const saveSpy = jest.spyOn(deps, 'saveZikresource');
+        const result = await createZikresource(partial, deps);
 
         expect(result.id).toBeDefined();
         expect(result.url).toBe(partial.url);
         expect(result.artist).toBe(partial.artist);
         expect(result.title).toBe(partial.title);
-        expect(repo.saveZikresource).toHaveBeenCalledWith(expect.objectContaining(partial));
+        expect(saveSpy).toHaveBeenCalledWith(expect.objectContaining(partial));
     });
 
     it('should get a zikresource by id', async () => {
@@ -56,36 +56,36 @@ describe('ZikresourceService', () => {
             type: 'video',
             tags: []
         };
-        await repo.saveZikresource(zikresource);
+        await deps.saveZikresource(zikresource);
 
-        const result = await getZikresourceById('123');
+        const result = await getZikresourceById('123', deps);
 
         expect(result.id).toBe('123');
         expect(result.url).toBe(zikresource.url);
     });
 
     it('should throw error if zikresource not found on getById', async () => {
-        await expect(getZikresourceById('non-existent')).rejects.toThrow('Zikresource with id non-existent not found');
+        await expect(getZikresourceById('non-existent', deps)).rejects.toThrow('Zikresource with id non-existent not found');
     });
 
     it('should not throw error if zikresource not found on delete', async () => {
-        await expect(deleteZikresource('non-existent', 'user-123')).resolves.not.toThrow();
+        await expect(deleteZikresource('non-existent', 'user-123', deps)).resolves.not.toThrow();
     });
 
     it('should get all zikresources', async () => {
-        await repo.saveZikresource({ id: '1', createdBy: 'ELEGROS', url: 'u1', artist: 'a1', title: 't1', type: 'video', tags: [] });
-        await repo.saveZikresource({ id: '2', createdBy: 'ELEGROS', url: 'u2', artist: 'a2', title: 't2', type: 'video', tags: [] });
+        await deps.saveZikresource({ id: '1', createdBy: 'ELEGROS', url: 'u1', artist: 'a1', title: 't1', type: 'video', tags: [] });
+        await deps.saveZikresource({ id: '2', createdBy: 'ELEGROS', url: 'u2', artist: 'a2', title: 't2', type: 'video', tags: [] });
 
-        const result = await getAllZikresources();
+        const result = await getAllZikresources(undefined, deps);
 
         expect(result).toHaveLength(2);
     });
 
     it('should get all zikresources filtered by user', async () => {
-        await repo.saveZikresource({ id: '1', createdBy: 'ELEGROS', url: 'u1', artist: 'a1', title: 't1', type: 'video', tags: [] });
-        await repo.saveZikresource({ id: '2', createdBy: 'OTHER_USER', url: 'u2', artist: 'a2', title: 't2', type: 'video', tags: [] });
+        await deps.saveZikresource({ id: '1', createdBy: 'ELEGROS', url: 'u1', artist: 'a1', title: 't1', type: 'video', tags: [] });
+        await deps.saveZikresource({ id: '2', createdBy: 'OTHER_USER', url: 'u2', artist: 'a2', title: 't2', type: 'video', tags: [] });
 
-        const result = await getAllZikresources('ELEGROS');
+        const result = await getAllZikresources('ELEGROS', deps);
 
         expect(result).toHaveLength(1);
         expect(result[0].id).toBe('1');
@@ -102,7 +102,7 @@ describe('ZikresourceService', () => {
             type: 'video',
             tags: [{ label: 'TO_PLAY', value: 'old' }]
         };
-        await repo.saveZikresource(original);
+        await deps.saveZikresource(original);
 
         const updates: Omit<Zikresource, 'id'> = {
             createdBy: 'user-123',
@@ -113,7 +113,8 @@ describe('ZikresourceService', () => {
             tags: [{ label: 'TO_PLAY', value: 'new' }]
         };
 
-        const result = await updateZikresource(id, updates);
+        const updateSpy = jest.spyOn(deps, 'updateZikresourceInDb');
+        const result = await updateZikresource(id, updates, deps);
 
         expect(result.id).toBe(id);
         expect(result.url).toBe(updates.url);
@@ -121,7 +122,7 @@ describe('ZikresourceService', () => {
         expect(result.title).toBe(updates.title);
         expect(result.type).toBe(updates.type);
         expect(result.tags).toEqual(updates.tags);
-        expect(repo.updateZikresourceInDb).toHaveBeenCalledWith(expect.objectContaining(updates));
+        expect(updateSpy).toHaveBeenCalledWith(expect.objectContaining(updates));
     });
 
     it('should throw error if zikresource not found on update', async () => {
@@ -133,7 +134,7 @@ describe('ZikresourceService', () => {
             type: 'tablature',
             tags: [{ label: 'TO_PLAY', value: 'new' }]
         };
-        await expect(updateZikresource('non-existent', updates)).rejects.toThrow('Zikresource with id non-existent not found');
+        await expect(updateZikresource('non-existent', updates, deps)).rejects.toThrow('Zikresource with id non-existent not found');
     });
 
     it('should throw FORBIDDEN when updating a zikresource that belongs to another user', async () => {
@@ -146,7 +147,7 @@ describe('ZikresourceService', () => {
             type: 'video',
             tags: []
         };
-        await repo.saveZikresource(original);
+        await deps.saveZikresource(original);
 
         const updates: Omit<Zikresource, 'id'> = {
             createdBy: 'user-123',
@@ -157,7 +158,7 @@ describe('ZikresourceService', () => {
             tags: []
         };
 
-        await expect(updateZikresource('zik-owned-by-other', updates)).rejects.toThrow(
+        await expect(updateZikresource('zik-owned-by-other', updates, deps)).rejects.toThrow(
             'You do not have permission to modify this zikresource.'
         );
     });
@@ -172,9 +173,9 @@ describe('ZikresourceService', () => {
             type: 'video',
             tags: []
         };
-        await repo.saveZikresource(original);
+        await deps.saveZikresource(original);
 
-        await expect(deleteZikresource('zik-owned-by-other', 'user-123')).rejects.toThrow(
+        await expect(deleteZikresource('zik-owned-by-other', 'user-123', deps)).rejects.toThrow(
             'You do not have permission to delete this zikresource.'
         );
     });
@@ -189,25 +190,26 @@ describe('ZikresourceService', () => {
             type: 'video',
             tags: []
         };
-        await repo.saveZikresource(original);
+        await deps.saveZikresource(original);
 
-        await expect(deleteZikresource('zik-mine', 'user-123')).resolves.not.toThrow();
+        await expect(deleteZikresource('zik-mine', 'user-123', deps)).resolves.not.toThrow();
     });
 
     describe('checkEmbeddability', () => {
         it('should return embeddable: true for YouTube URLs', async () => {
-            const result = await checkEmbeddability('https://www.youtube.com/watch?v=dQw4w9WgXcQ');
+            const result = await checkEmbeddability('https://www.youtube.com/watch?v=dQw4w9WgXcQ', deps);
             expect(result).toEqual({ embeddable: true });
         });
 
         it('should return embeddable: true for Spotify URLs', async () => {
-            const result = await checkEmbeddability('https://open.spotify.com/track/12345');
+            const result = await checkEmbeddability('https://open.spotify.com/track/12345', deps);
             expect(result).toEqual({ embeddable: true });
         });
 
         it('should return embeddable: false for invalid URLs', async () => {
-            const result = await checkEmbeddability('not-a-valid-url');
+            const result = await checkEmbeddability('not-a-valid-url', deps);
             expect(result).toEqual({ embeddable: false });
         });
     });
 });
+
