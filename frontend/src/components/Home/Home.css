@@ -1003,3 +1003,38 @@
     right: 0;
   }
 }
+
+@media (max-width: 600px) {
+  .resources-grid,
+  .resources-loading-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.625rem;
+  }
+
+  .resource-card-skeleton {
+    padding: 0.65rem;
+    gap: 0.5rem;
+    min-height: 120px;
+    border-radius: 10px;
+  }
+
+  .skeleton-icon-title {
+    gap: 0.5rem;
+  }
+
+  .skeleton-circle {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+  }
+
+  .skeleton-tags {
+    gap: 0.35rem;
+  }
+
+  .skeleton-pill {
+    height: 16px;
+    width: 42px;
+  }
+}
+

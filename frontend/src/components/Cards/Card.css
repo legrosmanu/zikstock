@@ -388,8 +388,8 @@
 /* ── Mobile & Small Screen Media Queries ─────────────────────────── */
 @media (max-width: 600px) {
   .reverb-cards-grid {
-    grid-template-columns: 1fr;
-    gap: 1rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.625rem;
   }
 
   .reverb-toolbar-row {
@@ -409,6 +409,111 @@
     max-width: 170px;
   }
 
+  /* Compact card styling for grid mode on smartphones */
+  .reverb-card:not(.list-mode) {
+    border-radius: 10px;
+  }
+
+  .reverb-card:not(.list-mode) .reverb-card-header {
+    height: 46px;
+    padding: 0.4rem 0.55rem;
+  }
+
+  .reverb-card:not(.list-mode) .reverb-header-icon-badge {
+    width: 26px;
+    height: 26px;
+    border-radius: 6px;
+  }
+
+  .reverb-card:not(.list-mode) .reverb-header-icon-badge svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .reverb-card:not(.list-mode) .reverb-header-badge-text {
+    font-size: 0.625rem;
+    padding: 2px 6px;
+    max-width: 75px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .reverb-card:not(.list-mode) .reverb-card-body {
+    padding: 0.55rem;
+    gap: 0.2rem;
+  }
+
+  .reverb-card:not(.list-mode) .reverb-card-title {
+    font-size: 0.825rem;
+    line-height: 1.25;
+    -webkit-line-clamp: 2;
+  }
+
+  .reverb-card:not(.list-mode) .reverb-card-subtitle {
+    font-size: 0.7rem;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .reverb-card:not(.list-mode) .reverb-card-tags {
+    gap: 0.25rem;
+    margin-top: 0.25rem;
+    padding-top: 0.4rem;
+  }
+
+  .reverb-card:not(.list-mode) .reverb-tag-pill {
+    font-size: 0.625rem;
+    padding: 1px 4px;
+    border-radius: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+  }
+
+  .reverb-card:not(.list-mode) .reverb-card-footer {
+    padding: 0.4rem 0.55rem;
+    font-size: 0.675rem;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+  }
+
+  .reverb-card:not(.list-mode) .reverb-creator-info {
+    gap: 0.35rem;
+    min-width: 0;
+  }
+
+  .reverb-card:not(.list-mode) .reverb-creator-avatar,
+  .reverb-card:not(.list-mode) .reverb-creator-avatar-fallback {
+    width: 16px;
+    height: 16px;
+    min-width: 16px;
+  }
+
+  .reverb-card:not(.list-mode) .reverb-creator-avatar-fallback svg {
+    width: 10px;
+    height: 10px;
+  }
+
+  .reverb-card:not(.list-mode) .reverb-creator-name {
+    font-size: 0.65rem;
+    max-width: 65px;
+  }
+
+  .reverb-card:not(.list-mode) .reverb-network-badge {
+    font-size: 0.6rem;
+    padding: 1px 4px;
+    gap: 2px;
+  }
+
+  .reverb-card:not(.list-mode) .reverb-network-badge svg {
+    width: 9px;
+    height: 9px;
+  }
+
   .reverb-card.list-mode {
     flex-wrap: wrap;
     padding: 0.75rem 0.85rem;
@@ -420,5 +525,19 @@
     border-top: 1px solid var(--border-subtle);
     padding-top: 0.5rem;
     margin-top: 0.25rem;
+  }
+}
+
+@media (max-width: 380px) {
+  .reverb-cards-grid {
+    gap: 0.45rem;
+  }
+
+  .reverb-card:not(.list-mode) .reverb-card-body {
+    padding: 0.45rem;
+  }
+
+  .reverb-card:not(.list-mode) .reverb-card-footer {
+    padding: 0.35rem 0.45rem;
   }
 }

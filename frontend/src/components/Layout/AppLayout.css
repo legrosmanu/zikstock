@@ -577,6 +577,12 @@
 }
 
 @media (max-width: 576px) {
+  .dashboard-main,
+  .create-main,
+  .create-page-main {
+    padding: 1.25rem 0.75rem !important;
+  }
+
   .btn-back span,
   .btn-back-dashboard span {
     display: none !important;
