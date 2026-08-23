@@ -1,10 +1,13 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import {
   Plus,
   Search,
   X,
   LayoutGrid,
-  List as ListIcon
+  List as ListIcon,
+  Filter,
+  Check,
+  ChevronDown
 } from 'lucide-react';
 import { useNavigate, useSearch } from '@tanstack/react-router';
 import { useAuthStore } from '../../store/authStore';
@@ -60,6 +63,32 @@ export const Home: React.FC = () => {
   // Search & filter state
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedType, setSelectedType] = useState<string>('all');
+  const [isFilterDropdownOpen, setIsFilterDropdownOpen] = useState<boolean>(false);
+  const filterDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close filter dropdown on outside click or Escape key
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (filterDropdownRef.current && !filterDropdownRef.current.contains(event.target as Node)) {
+        setIsFilterDropdownOpen(false);
+      }
+    };
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsFilterDropdownOpen(false);
+      }
+    };
+
+    if (isFilterDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('keydown', handleKeyDown);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isFilterDropdownOpen]);
 
   const fetchAllData = useCallback(async () => {
     if (!token) {
@@ -247,26 +276,89 @@ export const Home: React.FC = () => {
                 )}
               </div>
 
-              {activeTab === 'zikresources' && (
-                <div className="filter-chips">
-                  {[
-                    { id: 'all', label: t.dashboard.filterAll },
-                    { id: 'tabs', label: t.dashboard.filterTabs },
-                    { id: 'videos', label: t.dashboard.filterVideos },
-                    { id: 'backing-tracks', label: t.dashboard.filterTracks },
-                    { id: 'lyrics', label: t.dashboard.filterLyrics },
-                    { id: 'other', label: t.dashboard.filterOther }
-                  ].map((chip) => (
+              {activeTab === 'zikresources' && (() => {
+                const filterOptions = [
+                  { id: 'all', label: t.dashboard.filterAll },
+                  { id: 'tabs', label: t.dashboard.filterTabs },
+                  { id: 'videos', label: t.dashboard.filterVideos },
+                  { id: 'backing-tracks', label: t.dashboard.filterTracks },
+                  { id: 'lyrics', label: t.dashboard.filterLyrics },
+                  { id: 'other', label: t.dashboard.filterOther }
+                ];
+                const activeOption = filterOptions.find((opt) => opt.id === selectedType);
+
+                return (
+                  <div className="filter-dropdown-container" ref={filterDropdownRef}>
                     <button
-                      key={chip.id}
-                      className={`filter-chip ${selectedType === chip.id ? 'active' : ''}`}
-                      onClick={() => setSelectedType(chip.id)}
+                      type="button"
+                      className={`filter-dropdown-btn ${selectedType !== 'all' ? 'has-active-filter' : ''}`}
+                      onClick={() => setIsFilterDropdownOpen((prev) => !prev)}
+                      aria-expanded={isFilterDropdownOpen}
+                      aria-haspopup="true"
                     >
-                      {chip.label}
+                      <Filter size={15} className="filter-btn-icon" />
+                      <span className="filter-btn-label">
+                        {selectedType !== 'all' && activeOption
+                          ? activeOption.label
+                          : t.common.filtersTitle}
+                      </span>
+                      <ChevronDown size={14} className={`filter-btn-chevron ${isFilterDropdownOpen ? 'open' : ''}`} />
                     </button>
-                  ))}
-                </div>
-              )}
+
+                    {selectedType !== 'all' && (
+                      <button
+                        type="button"
+                        className="filter-reset-quick-btn"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedType('all');
+                        }}
+                        title={t.common.clearFilters}
+                        aria-label={t.common.clearFilters}
+                      >
+                        <X size={13} />
+                      </button>
+                    )}
+
+                    {isFilterDropdownOpen && (
+                      <div className="filter-dropdown-menu glass-panel" role="menu">
+                        <div className="filter-dropdown-header">
+                          <span className="filter-dropdown-title">{t.common.filtersTitle}</span>
+                          {selectedType !== 'all' && (
+                            <button
+                              type="button"
+                              className="filter-dropdown-clear"
+                              onClick={() => {
+                                setSelectedType('all');
+                                setIsFilterDropdownOpen(false);
+                              }}
+                            >
+                              {t.common.clearFilters}
+                            </button>
+                          )}
+                        </div>
+                        <div className="filter-dropdown-list">
+                          {filterOptions.map((opt) => (
+                            <button
+                              key={opt.id}
+                              type="button"
+                              className={`filter-dropdown-item ${selectedType === opt.id ? 'active' : ''}`}
+                              onClick={() => {
+                                setSelectedType(opt.id);
+                                setIsFilterDropdownOpen(false);
+                              }}
+                              role="menuitem"
+                            >
+                              <span className="filter-item-label">{opt.label}</span>
+                              {selectedType === opt.id && <Check size={14} className="filter-item-check" />}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
             </div>
 
             {/* Reverb Toolbar Bar (View Switcher & Sorting) */}
