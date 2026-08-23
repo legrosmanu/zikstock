@@ -2,33 +2,32 @@ import {
     createPlaylist,
     getPlaylistById,
     updatePlaylist,
-    deletePlaylist
+    deletePlaylist,
+    PlaylistDependencies
 } from './playlist.service';
 import { Playlist } from './playlist.domain';
 import { describe, it, expect, beforeEach, jest } from '@jest/globals';
-
 import * as mockPlaylistRepo from '../repositories/mock-playlist.repository';
-import * as playlistRepo from '../repositories/firestore-playlist.repository';
-import * as songRepo from '../../songs/repositories/firestore-song.repository';
-import * as zikresourceRepo from '../../zikresources/repositories/firestore-zikresource.repository';
-
-jest.mock('../repositories/firestore-playlist.repository');
-jest.mock('../../songs/repositories/firestore-song.repository');
-jest.mock('../../zikresources/repositories/firestore-zikresource.repository');
+import * as mockSongRepo from '../../songs/repositories/mock-song.repository';
+import * as mockZikresourceRepo from '../../zikresources/repositories/mock-zikresource.repository';
 
 describe('PlaylistService', () => {
+    let deps: PlaylistDependencies;
+
     beforeEach(() => {
         mockPlaylistRepo.clearData();
-        jest.clearAllMocks();
+        mockSongRepo.clearData();
+        mockZikresourceRepo.clearData();
 
-        jest.mocked(playlistRepo.savePlaylist).mockImplementation(mockPlaylistRepo.savePlaylist);
-        jest.mocked(playlistRepo.findPlaylistById).mockImplementation(mockPlaylistRepo.findPlaylistById);
-        jest.mocked(playlistRepo.findAllPlaylists).mockImplementation(mockPlaylistRepo.findAllPlaylists);
-        jest.mocked(playlistRepo.updatePlaylistInDb).mockImplementation(mockPlaylistRepo.updatePlaylistInDb);
-        jest.mocked(playlistRepo.deletePlaylistFromDb).mockImplementation(mockPlaylistRepo.deletePlaylistFromDb);
-        
-        // Default mock for zikresource checks
-        jest.mocked(zikresourceRepo.findZikresourceById).mockResolvedValue(null);
+        deps = {
+            savePlaylist: mockPlaylistRepo.savePlaylist,
+            findPlaylistById: mockPlaylistRepo.findPlaylistById,
+            findAllPlaylists: mockPlaylistRepo.findAllPlaylists,
+            updatePlaylistInDb: mockPlaylistRepo.updatePlaylistInDb,
+            deletePlaylistFromDb: mockPlaylistRepo.deletePlaylistFromDb,
+            findSongById: mockSongRepo.findSongById,
+            findZikresourceById: mockZikresourceRepo.findZikresourceById,
+        };
     });
 
     it('should create a playlist if songs and zikresources belong to the user', async () => {
@@ -36,7 +35,7 @@ describe('PlaylistService', () => {
         const songId = 'song-999';
         const zikId = 'zik-1';
 
-        jest.mocked(songRepo.findSongById).mockResolvedValue({
+        await mockSongRepo.saveSong({
             id: songId,
             createdBy: userId,
             title: 'Come As You Are',
@@ -46,13 +45,14 @@ describe('PlaylistService', () => {
             updatedAt: '2026-06-14T00:00:00Z',
         });
 
-        jest.mocked(zikresourceRepo.findZikresourceById).mockResolvedValue({
+        await mockZikresourceRepo.saveZikresource({
             id: zikId,
             createdBy: userId,
             url: 'https://example.com',
             artist: 'Nirvana',
             title: 'Come As You Are',
             type: 'tablature',
+            tags: []
         });
 
         const partial: Omit<Playlist, 'id' | 'createdAt' | 'updatedAt'> = {
@@ -63,28 +63,27 @@ describe('PlaylistService', () => {
             createdBy: userId,
         };
 
-        const result = await createPlaylist(partial);
+        const saveSpy = jest.spyOn(deps, 'savePlaylist');
+        const result = await createPlaylist(partial, deps);
         expect(result.id).toBeDefined();
         expect(result.name).toBe(partial.name);
         expect(result.songIds).toEqual([songId]);
         expect(result.zikresourceIds).toEqual([zikId]);
-        expect(playlistRepo.savePlaylist).toHaveBeenCalledWith(expect.objectContaining({ name: 'My Grunge List' }));
+        expect(saveSpy).toHaveBeenCalledWith(expect.objectContaining({ name: 'My Grunge List' }));
     });
 
     it('should throw BAD_REQUEST if a song does not exist', async () => {
-        jest.mocked(songRepo.findSongById).mockResolvedValue(null);
-
         const partial: Omit<Playlist, 'id' | 'createdAt' | 'updatedAt'> = {
             name: 'Invalid List',
             songIds: ['non-existent'],
             createdBy: 'user-123',
         };
 
-        await expect(createPlaylist(partial)).rejects.toThrow('Song with id non-existent not found');
+        await expect(createPlaylist(partial, deps)).rejects.toThrow('Song with id non-existent not found');
     });
 
     it('should throw FORBIDDEN if a song does not belong to the user', async () => {
-        jest.mocked(songRepo.findSongById).mockResolvedValue({
+        await mockSongRepo.saveSong({
             id: 'song-999',
             createdBy: 'different-user',
             title: 'Come As You Are',
@@ -100,7 +99,7 @@ describe('PlaylistService', () => {
             createdBy: 'user-123',
         };
 
-        await expect(createPlaylist(partial)).rejects.toThrow('Song with id song-999 does not belong to you');
+        await expect(createPlaylist(partial, deps)).rejects.toThrow('Song with id song-999 does not belong to you');
     });
 
     it('should get a playlist by id', async () => {
@@ -113,9 +112,9 @@ describe('PlaylistService', () => {
             createdAt: '2026-06-14T00:00:00Z',
             updatedAt: '2026-06-14T00:00:00Z',
         };
-        await playlistRepo.savePlaylist(playlist);
+        await deps.savePlaylist(playlist);
 
-        const result = await getPlaylistById('playlist-1');
+        const result = await getPlaylistById('playlist-1', deps);
         expect(result.id).toBe('playlist-1');
         expect(result.name).toBe('Test List');
     });
@@ -130,9 +129,9 @@ describe('PlaylistService', () => {
             createdAt: '2026-06-14T00:00:00Z',
             updatedAt: '2026-06-14T00:00:00Z',
         };
-        await playlistRepo.savePlaylist(playlist);
+        await deps.savePlaylist(playlist);
 
-        const result = await getPlaylistById('playlist-1');
+        const result = await getPlaylistById('playlist-1', deps);
         expect(result.id).toBe('playlist-1');
         expect(result.createdBy).toBe('other-user');
     });
@@ -146,7 +145,7 @@ describe('PlaylistService', () => {
             createdAt: '2026-06-14T00:00:00Z',
             updatedAt: '2026-06-14T00:00:00Z',
         };
-        await playlistRepo.savePlaylist(existing);
+        await deps.savePlaylist(existing);
 
         const updates: Omit<Playlist, 'id' | 'createdAt' | 'updatedAt'> = {
             name: 'Hacked',
@@ -154,7 +153,7 @@ describe('PlaylistService', () => {
             createdBy: 'user-123',
         };
 
-        await expect(updatePlaylist('playlist-owned-by-other', updates)).rejects.toThrow(
+        await expect(updatePlaylist('playlist-owned-by-other', updates, deps)).rejects.toThrow(
             'You do not have permission to modify this playlist.'
         );
     });
@@ -168,10 +167,11 @@ describe('PlaylistService', () => {
             createdAt: '2026-06-14T00:00:00Z',
             updatedAt: '2026-06-14T00:00:00Z',
         };
-        await playlistRepo.savePlaylist(existing);
+        await deps.savePlaylist(existing);
 
-        await expect(deletePlaylist('playlist-owned-by-other', 'user-123')).rejects.toThrow(
+        await expect(deletePlaylist('playlist-owned-by-other', 'user-123', deps)).rejects.toThrow(
             'You do not have permission to delete this playlist.'
         );
     });
 });
+

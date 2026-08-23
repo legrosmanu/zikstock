@@ -5,20 +5,11 @@ import {
 } from './user.service';
 import { User } from './user.domain';
 import { describe, it, expect, beforeEach, jest } from '@jest/globals';
-
 import * as mockUserRepo from '../repositories/mock-user.repository';
-import * as userRepo from '../repositories/firestore-user.repository';
-
-jest.mock('../repositories/firestore-user.repository');
 
 describe('UserService', () => {
     beforeEach(() => {
         mockUserRepo.clearData();
-        jest.clearAllMocks();
-
-        jest.mocked(userRepo.saveUser).mockImplementation(mockUserRepo.saveUser);
-        jest.mocked(userRepo.findUserById).mockImplementation(mockUserRepo.findUserById);
-        jest.mocked(userRepo.searchUsers).mockImplementation(mockUserRepo.searchUsers);
     });
 
     it('should create a new user profile on sync if not exists', async () => {
@@ -29,13 +20,15 @@ describe('UserService', () => {
             picture: 'https://pic.url'
         };
 
-        const result = await syncUser(profile);
+        const saveUserSpy = jest.spyOn(mockUserRepo, 'saveUser');
+        const result = await syncUser(profile, mockUserRepo);
         expect(result.id).toBe(profile.id);
         expect(result.email).toBe(profile.email);
         expect(result.name).toBe(profile.name);
         expect(result.createdAt).toBeDefined();
         expect(result.updatedAt).toBeDefined();
-        expect(userRepo.saveUser).toHaveBeenCalled();
+        expect(saveUserSpy).toHaveBeenCalled();
+        saveUserSpy.mockRestore();
     });
 
     it('should update user profile on sync if exists with changes', async () => {
@@ -56,7 +49,7 @@ describe('UserService', () => {
             picture: 'https://new.url'
         };
 
-        const result = await syncUser(profile);
+        const result = await syncUser(profile, mockUserRepo);
         expect(result.id).toBe(profile.id);
         expect(result.name).toBe(profile.name);
         expect(result.picture).toBe(profile.picture);
@@ -80,7 +73,7 @@ describe('UserService', () => {
             updatedAt: '2026-06-01T00:00:00Z'
         });
 
-        const results = await searchMusicians('bob', 'user-1');
+        const results = await searchMusicians('bob', 'user-1', mockUserRepo);
         expect(results).toHaveLength(1);
         expect(results[0].id).toBe('user-2');
     });
@@ -95,12 +88,13 @@ describe('UserService', () => {
         };
         await mockUserRepo.saveUser(user);
 
-        const result = await getUserProfile('user-123');
+        const result = await getUserProfile('user-123', mockUserRepo);
         expect(result.id).toBe(user.id);
         expect(result.name).toBe(user.name);
     });
 
     it('should throw NOT_FOUND error if profile does not exist', async () => {
-        await expect(getUserProfile('non-existent')).rejects.toThrow('User with id non-existent not found');
+        await expect(getUserProfile('non-existent', mockUserRepo)).rejects.toThrow('User with id non-existent not found');
     });
 });
+

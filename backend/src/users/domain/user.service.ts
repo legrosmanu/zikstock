@@ -1,14 +1,25 @@
 import { User } from './user.domain';
-import {
-    saveUser,
-    findUserById,
-    searchUsers
-} from '../repositories/firestore-user.repository';
+import * as firestoreUserRepo from '../repositories/firestore-user.repository';
 import { AppError } from '../../application/middleware/error.middleware';
 import { StatusCodes } from 'http-status-codes';
 
-export const syncUser = async (profile: Omit<User, 'createdAt' | 'updatedAt'>): Promise<User> => {
-    const existing = await findUserById(profile.id);
+export interface UserDependencies {
+    saveUser: (user: User) => Promise<User>;
+    findUserById: (id: string) => Promise<User | null>;
+    searchUsers: (queryText: string, currentUserId: string) => Promise<User[]>;
+}
+
+export const defaultUserDeps: UserDependencies = {
+    saveUser: firestoreUserRepo.saveUser,
+    findUserById: firestoreUserRepo.findUserById,
+    searchUsers: firestoreUserRepo.searchUsers,
+};
+
+export const syncUser = async (
+    profile: Omit<User, 'createdAt' | 'updatedAt'>,
+    deps: UserDependencies = defaultUserDeps
+): Promise<User> => {
+    const existing = await deps.findUserById(profile.id);
     const now = new Date().toISOString();
 
     if (existing) {
@@ -26,7 +37,7 @@ export const syncUser = async (profile: Omit<User, 'createdAt' | 'updatedAt'>): 
                 picture: profile.picture,
                 updatedAt: now,
             };
-            return saveUser(updated);
+            return deps.saveUser(updated);
         }
         return existing;
     }
@@ -36,20 +47,28 @@ export const syncUser = async (profile: Omit<User, 'createdAt' | 'updatedAt'>): 
         createdAt: now,
         updatedAt: now,
     };
-    return saveUser(newUser);
+    return deps.saveUser(newUser);
 };
 
-export const searchMusicians = async (queryText: string, currentUserId: string): Promise<User[]> => {
+export const searchMusicians = async (
+    queryText: string,
+    currentUserId: string,
+    deps: UserDependencies = defaultUserDeps
+): Promise<User[]> => {
     if (!queryText.trim()) {
         return [];
     }
-    return searchUsers(queryText, currentUserId);
+    return deps.searchUsers(queryText, currentUserId);
 };
 
-export const getUserProfile = async (id: string): Promise<User> => {
-    const user = await findUserById(id);
+export const getUserProfile = async (
+    id: string,
+    deps: UserDependencies = defaultUserDeps
+): Promise<User> => {
+    const user = await deps.findUserById(id);
     if (!user) {
         throw new AppError(StatusCodes.NOT_FOUND, `User with id ${id} not found`);
     }
     return user;
 };
+
