@@ -1,13 +1,3 @@
-export enum ConnectionStatus {
-    PENDING = 'pending',
-    ACCEPTED = 'accepted'
-}
+export { ConnectionStatus } from '@zikstock/types';
+export type { Connection, ConnectionWithUser, NetworkResponse } from '@zikstock/types';
 
-export interface Connection {
-    id: string;
-    requesterId: string;
-    receiverId: string;
-    status: ConnectionStatus;
-    createdAt: string;
-    updatedAt: string;
-}

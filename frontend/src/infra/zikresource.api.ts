@@ -1,24 +1,12 @@
 import { authenticatedGet, authenticatedDelete, authenticatedPut, authenticatedPost } from './httpClient';
+import type {
+  ZikresourceResponse as Zikresource,
+  ZikresourceType,
+  ZikresourceTag
+} from '@zikstock/types';
 
-export type ZikresourceType = 'tablature' | 'video' | 'backing-track' | 'lyrics' | 'other';
+export type { Zikresource, ZikresourceType, ZikresourceTag };
 
-export interface ZikresourceTag {
-  label: string;
-  value: string;
-}
-
-export interface Zikresource {
-  _id: string;
-  createdBy: string;
-  creatorName?: string;
-  creatorPicture?: string;
-  url: string;
-  artist: string;
-  title: string;
-  type: ZikresourceType;
-  tags?: ZikresourceTag[];
-  clonedFrom?: string;
-}
 
 export interface FetchParams {
   scope?: 'all' | 'mine';

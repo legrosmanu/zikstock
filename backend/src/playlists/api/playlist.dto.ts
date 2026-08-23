@@ -1,4 +1,7 @@
 import { z } from 'zod';
+import type { PlaylistResponse } from '@zikstock/types';
+
+export type { PlaylistResponse };
 
 export const PlaylistSchema = z.object({
     name: z.string().min(1),
@@ -17,16 +20,4 @@ export const UserPayloadSchema = z.object({
 
 export type CreatePlaylistRequest = z.infer<typeof PlaylistSchema>;
 
-export interface PlaylistResponse {
-    _id: string;
-    name: string;
-    description?: string;
-    createdBy: string;
-    creatorName?: string;
-    creatorPicture?: string;
-    songIds: string[];
-    zikresourceIds: string[];
-    createdAt: string;
-    updatedAt: string;
-}
 

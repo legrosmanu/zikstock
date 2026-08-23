@@ -6,13 +6,9 @@ import { StatusCodes } from 'http-status-codes';
 const getJwtSecret = (): string => process.env.JWT_SECRET || 'zikstock-jwt-secret-dev-key';
 const getRefreshSecret = (): string => process.env.JWT_REFRESH_SECRET || 'zikstock-refresh-secret-dev-key';
 
-export interface UserTokenPayload {
-  sub: string;
-  email: string;
-  name?: string;
-  picture?: string;
-  [key: string]: unknown;
-}
+import type { UserTokenPayload } from '@zikstock/types';
+export type { UserTokenPayload };
+
 
 const client = jwksClient({
   jwksUri: 'https://www.googleapis.com/oauth2/v3/certs',
