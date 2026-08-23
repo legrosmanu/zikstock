@@ -109,6 +109,9 @@
 
 /* Filters & Toolbar Container */
 .search-main-layout .filters-container {
+  position: relative;
+  z-index: 10;
+  overflow: visible;
   padding: 0.85rem 1.25rem;
   display: flex;
   justify-content: space-between;
@@ -265,9 +268,7 @@
   top: calc(100% + 8px);
   right: 0;
   min-width: 230px;
-  background: var(--surface-card);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
+  background: var(--dropdown-bg, #ffffff);
   border: 1px solid var(--surface-card-border);
   box-shadow: var(--glass-specular), var(--glass-shadow-hover);
   border-radius: 16px;
