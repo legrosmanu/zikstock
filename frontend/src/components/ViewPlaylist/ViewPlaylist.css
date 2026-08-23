@@ -22,19 +22,19 @@
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  background: rgba(239, 68, 68, 0.1);
-  border: 1px solid rgba(239, 68, 68, 0.2);
-  color: #ef4444;
-  padding: 0.6rem 1.2rem;
-  border-radius: 8px;
+  background: rgba(255, 55, 95, 0.1);
+  border: 1px solid rgba(255, 55, 95, 0.25);
+  color: #ff375f;
+  padding: 0.6rem 1.25rem;
+  border-radius: 12px;
   font-size: 0.9rem;
   font-weight: 500;
   cursor: pointer;
-  transition: all var(--transition-normal);
+  transition: all var(--transition-fast);
 }
 
 .btn-delete-resource:hover {
-  background: #ef4444;
+  background: #ff375f;
   color: #fff;
   transform: translateY(-1px);
 }
@@ -43,10 +43,13 @@
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  background: rgba(31, 31, 35, 0.6);
-  padding: 0.4rem 0.8rem;
-  border-radius: 8px;
-  border: 1px solid rgba(239, 68, 68, 0.3);
+  background: var(--surface-card);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  padding: 0.4rem 0.85rem;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 55, 95, 0.35);
+  box-shadow: var(--glass-specular);
 }
 
 .delete-confirm-text {
@@ -56,11 +59,11 @@
 }
 
 .delete-confirm-group .btn-confirm-delete {
-  background: #ef4444;
+  background: #ff375f;
   color: #fff;
   border: none;
-  padding: 0.35rem 0.75rem;
-  border-radius: 6px;
+  padding: 0.35rem 0.85rem;
+  border-radius: 8px;
   font-size: 0.8rem;
   font-weight: 600;
   cursor: pointer;
@@ -68,15 +71,15 @@
 }
 
 .delete-confirm-group .btn-confirm-delete:hover {
-  background: #dc2626;
+  background: #e0244d;
 }
 
 .delete-confirm-group .btn-cancel-delete {
   background: transparent;
   color: var(--text-secondary);
   border: 1px solid var(--border-subtle);
-  padding: 0.35rem 0.75rem;
-  border-radius: 6px;
+  padding: 0.35rem 0.85rem;
+  border-radius: 8px;
   font-size: 0.8rem;
   font-weight: 500;
   cursor: pointer;
@@ -84,7 +87,7 @@
 }
 
 .delete-confirm-group .btn-cancel-delete:hover {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--surface-glass-hover);
   color: var(--text-primary);
 }
 
@@ -92,30 +95,35 @@
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  background: rgba(139, 92, 246, 0.2);
-  border: 1px solid rgba(139, 92, 246, 0.3);
+  background: var(--surface-card);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(10, 132, 255, 0.3);
+  box-shadow: var(--glass-specular);
   color: var(--accent-primary);
-  padding: 0.6rem 1.2rem;
-  border-radius: 8px;
+  padding: 0.6rem 1.25rem;
+  border-radius: 12px;
   font-size: 0.9rem;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
-  transition: all var(--transition-normal);
+  transition: all var(--transition-fast);
 }
 
 .btn-edit-playlist:hover {
   background: var(--accent-primary);
   color: #fff;
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+  box-shadow: var(--glass-specular), 0 4px 14px var(--accent-glow);
 }
 
 .playlist-detail-panel {
-  padding: 2rem;
-  border-radius: 12px;
-  background: rgba(30, 30, 35, 0.4);
-  border: 1px solid var(--border-subtle);
-  backdrop-filter: blur(12px);
+  padding: 2.25rem;
+  border-radius: 20px;
+  background: var(--surface-card);
+  border: 1px solid var(--surface-card-border);
+  box-shadow: var(--glass-specular), var(--glass-shadow);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
 }
 
 .no-songs-message {
@@ -134,16 +142,18 @@
   justify-content: space-between;
   align-items: center;
   padding: 1.25rem;
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 14px;
+  background: var(--surface-glass);
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--glass-specular);
   transition: all var(--transition-normal);
 }
 
 .song-card:hover {
-  background: rgba(255, 255, 255, 0.04);
-  border-color: rgba(139, 92, 246, 0.2);
-  transform: translateY(-1px);
+  background: var(--surface-glass-hover);
+  border-color: rgba(10, 132, 255, 0.3);
+  transform: translateY(-2px);
+  box-shadow: var(--glass-specular), 0 4px 16px rgba(0, 0, 0, 0.08);
 }
 
 .song-card-left {
@@ -153,8 +163,9 @@
 }
 
 .song-card-title {
-  font-size: 1rem;
-  font-weight: 600;
+  font-size: 1.05rem;
+  font-weight: 700;
+  font-family: var(--font-heading);
   color: var(--text-primary);
 }
 

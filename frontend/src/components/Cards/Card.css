@@ -16,86 +16,85 @@
   width: 100%;
 }
 
-/* Base Card */
+/* ── Base Card (Apple Liquid Glass) ─────────────────────────── */
 .reverb-card {
   background: var(--surface-card);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
   border: 1px solid var(--surface-card-border);
-  border-radius: 12px;
+  border-radius: 18px;
   overflow: hidden;
   cursor: pointer;
   display: flex;
   flex-direction: column;
   position: relative;
-  transition: transform var(--transition-normal), box-shadow var(--transition-normal), border-color var(--transition-normal);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  transition: transform var(--transition-normal), box-shadow var(--transition-normal), border-color var(--transition-normal), background var(--transition-normal);
+  box-shadow: var(--glass-specular), var(--glass-shadow);
 }
 
 .reverb-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
-  border-color: var(--accent-primary);
+  box-shadow: var(--glass-specular), var(--glass-shadow-hover), 0 0 24px rgba(10, 132, 255, 0.12);
+  border-color: rgba(10, 132, 255, 0.35);
+  background: var(--surface-card-hover);
 }
 
 .reverb-card.network-highlight {
-  border-color: rgba(16, 185, 129, 0.4);
+  border-color: rgba(48, 209, 88, 0.35);
 }
 
 .reverb-card.network-highlight:hover {
-  border-color: #10b981;
-  box-shadow: 0 12px 28px rgba(16, 185, 129, 0.15);
+  border-color: #30d158;
+  box-shadow: var(--glass-specular), var(--glass-shadow-hover), 0 0 24px rgba(48, 209, 88, 0.2);
 }
 
-/* ── Top Header Banner (Grid mode) ────────────────────────────────── */
+/* ── Top Header Banner (Grid mode - Liquid Translucent Refraction) ── */
 .reverb-card-header {
-  height: 72px;
-  padding: 0.75rem 1rem;
+  height: 68px;
+  padding: 0.75rem 1.15rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
   position: relative;
   overflow: hidden;
-  background-size: 200% 200%;
-  transition: background-position 0.5s ease;
+  border-bottom: 1px solid var(--border-subtle);
+  transition: all var(--transition-normal);
 }
 
-.reverb-card:hover .reverb-card-header {
-  background-position: right center;
-}
-
-/* Header Gradient Themes */
+/* Luminous Apple System Header Gradients with Ambient Tint */
 .reverb-card-header.type-tablature {
-  background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
-  color: #ffffff;
+  background: linear-gradient(135deg, rgba(10, 132, 255, 0.16) 0%, rgba(10, 132, 255, 0.04) 100%);
+  color: var(--color-tablature);
 }
 
 .reverb-card-header.type-video {
-  background: linear-gradient(135deg, #881337 0%, #f43f5e 100%);
-  color: #ffffff;
+  background: linear-gradient(135deg, rgba(255, 55, 95, 0.16) 0%, rgba(255, 55, 95, 0.04) 100%);
+  color: var(--color-video);
 }
 
 .reverb-card-header.type-backing-track {
-  background: linear-gradient(135deg, #4c1d95 0%, #8b5cf6 100%);
-  color: #ffffff;
+  background: linear-gradient(135deg, rgba(48, 209, 88, 0.16) 0%, rgba(48, 209, 88, 0.04) 100%);
+  color: var(--color-backing-track);
 }
 
 .reverb-card-header.type-lyrics {
-  background: linear-gradient(135deg, #78350f 0%, #f59e0b 100%);
-  color: #ffffff;
+  background: linear-gradient(135deg, rgba(255, 159, 10, 0.16) 0%, rgba(255, 159, 10, 0.04) 100%);
+  color: var(--color-lyrics);
 }
 
 .reverb-card-header.type-other {
-  background: linear-gradient(135deg, #374151 0%, #6b7280 100%);
-  color: #ffffff;
+  background: linear-gradient(135deg, rgba(142, 142, 147, 0.16) 0%, rgba(142, 142, 147, 0.04) 100%);
+  color: var(--text-secondary);
 }
 
 .reverb-card-header.type-song {
-  background: linear-gradient(135deg, #581c87 0%, #a855f7 100%);
-  color: #ffffff;
+  background: linear-gradient(135deg, rgba(191, 90, 242, 0.16) 0%, rgba(191, 90, 242, 0.04) 100%);
+  color: var(--color-song);
 }
 
 .reverb-card-header.type-playlist {
-  background: linear-gradient(135deg, #0f766e 0%, #14b8a6 100%);
-  color: #ffffff;
+  background: linear-gradient(135deg, rgba(100, 210, 255, 0.16) 0%, rgba(100, 210, 255, 0.04) 100%);
+  color: var(--color-playlist);
 }
 
 /* Icon Badge inside Banner */
@@ -103,14 +102,15 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 38px;
-  height: 38px;
+  width: 36px;
+  height: 36px;
   border-radius: 10px;
-  background: rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  color: #ffffff;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  background: var(--surface-glass);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--surface-glass-border);
+  box-shadow: var(--glass-specular), 0 2px 8px rgba(0, 0, 0, 0.08);
+  color: inherit;
   transition: transform var(--transition-fast);
 }
 
@@ -119,30 +119,34 @@
 }
 
 .reverb-header-badge-text {
-  font-size: 0.75rem;
-  font-weight: 600;
+  font-size: 0.725rem;
+  font-weight: 700;
   padding: 3px 10px;
   border-radius: 9999px;
-  background: rgba(255, 255, 255, 0.25);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  color: #ffffff;
-  letter-spacing: 0.02em;
+  background: var(--surface-glass);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--surface-glass-border);
+  box-shadow: var(--glass-specular);
+  color: inherit;
+  letter-spacing: 0.03em;
   text-transform: uppercase;
 }
 
 /* ── Card Body (Grid Mode) ────────────────────────────────────────── */
 .reverb-card-body {
-  padding: 1rem;
+  padding: 1.15rem;
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
+  gap: 0.45rem;
   flex: 1;
 }
 
 .reverb-card-title {
   font-size: 1.05rem;
   font-weight: 700;
+  font-family: var(--font-heading);
+  letter-spacing: -0.015em;
   color: var(--text-primary);
   margin: 0;
   line-height: 1.3;
@@ -165,27 +169,27 @@
   display: flex;
   flex-wrap: wrap;
   gap: 0.35rem;
-  margin-top: 0.35rem;
+  margin-top: 0.4rem;
 }
 
 .reverb-tag-pill {
-  font-size: 0.75rem;
-  padding: 2px 8px;
+  font-size: 0.725rem;
+  padding: 2px 9px;
   border-radius: 6px;
   background: var(--bg-tertiary);
   color: var(--text-secondary);
-  border: 1px solid var(--border-medium);
+  border: 1px solid var(--border-subtle);
   font-weight: 500;
 }
 
 /* ── Card Footer ─────────────────────────────────────────────────── */
 .reverb-card-footer {
   border-top: 1px solid var(--border-subtle);
-  padding: 0.65rem 1rem;
+  padding: 0.75rem 1.15rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: var(--bg-secondary);
+  background: rgba(0, 0, 0, 0.02);
   font-size: 0.8rem;
   color: var(--text-secondary);
 }
@@ -201,17 +205,19 @@
   height: 22px;
   border-radius: 50%;
   object-fit: cover;
+  border: 1px solid var(--border-medium);
 }
 
 .reverb-creator-avatar-fallback {
   width: 22px;
   height: 22px;
   border-radius: 50%;
-  background: var(--border-medium);
+  background: var(--bg-tertiary);
   color: var(--text-secondary);
   display: flex;
   align-items: center;
   justify-content: center;
+  border: 1px solid var(--border-subtle);
 }
 
 .reverb-creator-name {
@@ -228,9 +234,9 @@
   gap: 4px;
   font-size: 0.72rem;
   font-weight: 600;
-  color: #10b981;
-  background: rgba(16, 185, 129, 0.1);
-  border: 1px solid rgba(16, 185, 129, 0.25);
+  color: #30d158;
+  background: rgba(48, 209, 88, 0.12);
+  border: 1px solid rgba(48, 209, 88, 0.25);
   padding: 2px 8px;
   border-radius: 9999px;
 }
@@ -239,7 +245,7 @@
 .reverb-card.list-mode {
   flex-direction: row;
   align-items: center;
-  padding: 0.85rem 1.25rem;
+  padding: 0.95rem 1.35rem;
   gap: 1.25rem;
 }
 
@@ -247,49 +253,57 @@
   height: auto;
   padding: 0;
   background: transparent !important;
+  border-bottom: none;
   flex-shrink: 0;
 }
 
 .reverb-card.list-mode .reverb-header-icon-badge {
-  width: 42px;
-  height: 42px;
+  width: 40px;
+  height: 40px;
   border-radius: 10px;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--glass-specular), 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .reverb-card.list-mode .type-tablature .reverb-header-icon-badge {
-  background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
-  color: #ffffff;
+  background: rgba(10, 132, 255, 0.15);
+  border-color: rgba(10, 132, 255, 0.3);
+  color: var(--color-tablature);
 }
 
 .reverb-card.list-mode .type-video .reverb-header-icon-badge {
-  background: linear-gradient(135deg, #881337 0%, #f43f5e 100%);
-  color: #ffffff;
+  background: rgba(255, 55, 95, 0.15);
+  border-color: rgba(255, 55, 95, 0.3);
+  color: var(--color-video);
 }
 
 .reverb-card.list-mode .type-backing-track .reverb-header-icon-badge {
-  background: linear-gradient(135deg, #4c1d95 0%, #8b5cf6 100%);
-  color: #ffffff;
+  background: rgba(48, 209, 88, 0.15);
+  border-color: rgba(48, 209, 88, 0.3);
+  color: var(--color-backing-track);
 }
 
 .reverb-card.list-mode .type-lyrics .reverb-header-icon-badge {
-  background: linear-gradient(135deg, #78350f 0%, #f59e0b 100%);
-  color: #ffffff;
+  background: rgba(255, 159, 10, 0.15);
+  border-color: rgba(255, 159, 10, 0.3);
+  color: var(--color-lyrics);
 }
 
 .reverb-card.list-mode .type-other .reverb-header-icon-badge {
-  background: linear-gradient(135deg, #374151 0%, #6b7280 100%);
-  color: #ffffff;
+  background: rgba(142, 142, 147, 0.15);
+  border-color: rgba(142, 142, 147, 0.3);
+  color: var(--text-secondary);
 }
 
 .reverb-card.list-mode .type-song .reverb-header-icon-badge {
-  background: linear-gradient(135deg, #581c87 0%, #a855f7 100%);
-  color: #ffffff;
+  background: rgba(191, 90, 242, 0.15);
+  border-color: rgba(191, 90, 242, 0.3);
+  color: var(--color-song);
 }
 
 .reverb-card.list-mode .type-playlist .reverb-header-icon-badge {
-  background: linear-gradient(135deg, #0f766e 0%, #14b8a6 100%);
-  color: #ffffff;
+  background: rgba(100, 210, 255, 0.15);
+  border-color: rgba(100, 210, 255, 0.3);
+  color: var(--color-playlist);
 }
 
 .reverb-card.list-mode .reverb-card-body {
@@ -342,18 +356,21 @@
 .reverb-view-toggle {
   display: flex;
   align-items: center;
-  background: var(--bg-secondary);
+  background: var(--surface-card);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
   border: 1px solid var(--border-medium);
-  border-radius: 8px;
-  padding: 2px;
+  box-shadow: var(--glass-specular);
+  border-radius: 10px;
+  padding: 3px;
 }
 
 .reverb-view-btn {
   background: transparent;
   border: none;
   color: var(--text-secondary);
-  padding: 6px 10px;
-  border-radius: 6px;
+  padding: 6px 12px;
+  border-radius: 8px;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -364,25 +381,31 @@
 }
 
 .reverb-view-btn.active {
-  background: var(--surface-card);
+  background: var(--surface-glass);
   color: var(--accent-primary);
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  box-shadow: var(--glass-specular), 0 2px 8px rgba(0, 0, 0, 0.08);
   font-weight: 600;
 }
 
 .reverb-sort-select {
   background: var(--surface-card);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
   border: 1px solid var(--border-medium);
-  border-radius: 8px;
+  box-shadow: var(--glass-specular);
+  border-radius: 10px;
   color: var(--text-primary);
-  padding: 6px 12px;
+  padding: 6px 14px;
   font-size: 0.85rem;
+  font-family: var(--font-family);
   cursor: pointer;
   outline: none;
+  transition: all var(--transition-fast);
 }
 
 .reverb-sort-select:focus {
   border-color: var(--accent-primary);
+  box-shadow: var(--glass-specular), 0 0 0 3px var(--accent-glow);
 }
 
 /* ── Mobile & Small Screen Media Queries ─────────────────────────── */
