@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import {
   Search as SearchIcon,
   X,
@@ -9,7 +9,8 @@ import {
   LayoutGrid,
   List as ListIcon,
   Filter,
-  RotateCcw
+  Check,
+  ChevronDown
 } from 'lucide-react';
 import { useNavigate, useSearch } from '@tanstack/react-router';
 import { useAuthStore } from '../../store/authStore';
@@ -63,6 +64,63 @@ export const Search: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [onlyNetwork, setOnlyNetwork] = useState<boolean>(false);
   const [selectedResourceType, setSelectedResourceType] = useState<string>('all');
+  const [isFilterDropdownOpen, setIsFilterDropdownOpen] = useState<boolean>(false);
+  const filterDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close filter dropdown on outside click or Escape key
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (filterDropdownRef.current && !filterDropdownRef.current.contains(event.target as Node)) {
+        setIsFilterDropdownOpen(false);
+      }
+    };
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsFilterDropdownOpen(false);
+      }
+    };
+
+    if (isFilterDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('keydown', handleKeyDown);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isFilterDropdownOpen]);
+
+  const filterOptions = [
+    { id: 'all', label: t.dashboard.filterAll },
+    { id: 'tabs', label: t.dashboard.filterTabs },
+    { id: 'videos', label: t.dashboard.filterVideos },
+    { id: 'backing-tracks', label: t.dashboard.filterTracks },
+    { id: 'lyrics', label: t.dashboard.filterLyrics },
+    { id: 'other', label: t.dashboard.filterOther }
+  ];
+
+  const activeResourceOption = filterOptions.find((opt) => opt.id === selectedResourceType);
+  const isResourceFiltered = activeTab === 'zikresources' && selectedResourceType !== 'all';
+  const hasActiveFilter = isResourceFiltered || onlyNetwork;
+
+  const getFilterButtonLabel = () => {
+    if (isResourceFiltered && onlyNetwork) {
+      return `${activeResourceOption?.label} • 👥`;
+    }
+    if (isResourceFiltered && activeResourceOption) {
+      return activeResourceOption.label;
+    }
+    if (onlyNetwork) {
+      return `👥 ${t.sidebar.network}`;
+    }
+    return t.common.filtersTitle;
+  };
+
+  const handleClearFilters = () => {
+    setOnlyNetwork(false);
+    setSelectedResourceType('all');
+  };
 
   const loadAllData = useCallback(async () => {
     if (!token) {
@@ -107,14 +165,6 @@ export const Search: React.FC = () => {
   // Helpers to check relationship
   const isSelf = (creatorId: string) => currentUser?.sub === creatorId;
   const isNetworkMember = (creatorId: string) => networkUserIds.has(creatorId);
-
-  // Reset all filters helper
-  const isFiltered = searchQuery !== '' || onlyNetwork || selectedResourceType !== 'all';
-  const handleClearFilters = () => {
-    setSearchQuery('');
-    setOnlyNetwork(false);
-    setSelectedResourceType('all');
-  };
 
   // Filter & Sort Zikresources
   const filteredResources = zikresources
@@ -215,222 +265,252 @@ export const Search: React.FC = () => {
           <button className="btn-secondary" onClick={loadAllData}>{t.common.retry}</button>
         </div>
       ) : (
-        /* Reverb 2-Column Marketplace Layout */
-        <div className="search-marketplace-layout">
-          
-          {/* Left Faceted Filter Sidebar */}
-          <aside className="search-sidebar-facets glass-panel">
-            <div className="sidebar-facet-header">
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <Filter size={18} style={{ color: 'var(--accent-primary)' }} />
-                <h3 className="sidebar-facet-title">{t.common.filtersTitle}</h3>
-              </div>
+        <div className="search-main-layout">
+          {/* Category Tabs Header */}
+          <div className="search-tabs-container">
+            <button
+              className={`search-tab-button ${activeTab === 'zikresources' ? 'active' : ''}`}
+              onClick={() => handleTabChange('zikresources')}
+            >
+              <FileText size={16} />
+              <span>{t.sidebar.zikresources} ({filteredResources.length})</span>
+            </button>
+            <button
+              className={`search-tab-button ${activeTab === 'songs' ? 'active' : ''}`}
+              onClick={() => handleTabChange('songs')}
+            >
+              <Music size={16} />
+              <span>{t.sidebar.songs} ({filteredSongs.length})</span>
+            </button>
+            <button
+              className={`search-tab-button ${activeTab === 'playlists' ? 'active' : ''}`}
+              onClick={() => handleTabChange('playlists')}
+            >
+              <Folder size={16} />
+              <span>{t.sidebar.playlists} ({filteredPlaylists.length})</span>
+            </button>
+          </div>
 
-              {isFiltered && (
-                <button className="btn-clear-facets" onClick={handleClearFilters}>
-                  <RotateCcw size={12} />
-                  <span>{t.common.clearFilters}</span>
+          {/* Filters & Search Toolbar (compact & unified) */}
+          <div className="filters-container glass-panel" style={{ marginTop: '1.25rem' }}>
+            <div className="search-box">
+              <SearchIcon size={16} className="search-icon" />
+              <input
+                type="text"
+                placeholder={t.search.searchPlaceholder}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="search-input"
+              />
+              {searchQuery && (
+                <button onClick={() => setSearchQuery('')} className="search-clear-btn" aria-label="Clear search">
+                  <X size={14} />
                 </button>
               )}
             </div>
 
-            {/* Facet Group 1: Resource Types (for zikresources) */}
+            {/* Filter Dropdown */}
+            <div className="filter-dropdown-container" ref={filterDropdownRef}>
+              <button
+                type="button"
+                className={`filter-dropdown-btn ${hasActiveFilter ? 'has-active-filter' : ''}`}
+                onClick={() => setIsFilterDropdownOpen((prev) => !prev)}
+                aria-expanded={isFilterDropdownOpen}
+                aria-haspopup="true"
+              >
+                <Filter size={15} className="filter-btn-icon" />
+                <span className="filter-btn-label">{getFilterButtonLabel()}</span>
+                <ChevronDown size={14} className={`filter-btn-chevron ${isFilterDropdownOpen ? 'open' : ''}`} />
+              </button>
+
+              {hasActiveFilter && (
+                <button
+                  type="button"
+                  className="filter-reset-quick-btn"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleClearFilters();
+                  }}
+                  title={t.common.clearFilters}
+                  aria-label={t.common.clearFilters}
+                >
+                  <X size={13} />
+                </button>
+              )}
+
+              {isFilterDropdownOpen && (
+                <div className="filter-dropdown-menu glass-panel" role="menu">
+                  <div className="filter-dropdown-header">
+                    <span className="filter-dropdown-title">{t.common.filtersTitle}</span>
+                    {hasActiveFilter && (
+                      <button
+                        type="button"
+                        className="filter-dropdown-clear"
+                        onClick={() => {
+                          handleClearFilters();
+                          setIsFilterDropdownOpen(false);
+                        }}
+                      >
+                        {t.common.clearFilters}
+                      </button>
+                    )}
+                  </div>
+
+                  {activeTab === 'zikresources' && (
+                    <>
+                      <div className="filter-dropdown-section-title">
+                        {t.createZikresource.fieldType}
+                      </div>
+                      <div className="filter-dropdown-list">
+                        {filterOptions.map((opt) => (
+                          <button
+                            key={opt.id}
+                            type="button"
+                            className={`filter-dropdown-item ${selectedResourceType === opt.id ? 'active' : ''}`}
+                            onClick={() => {
+                              setSelectedResourceType(opt.id);
+                              setIsFilterDropdownOpen(false);
+                            }}
+                            role="menuitem"
+                          >
+                            <span className="filter-item-label">{opt.label}</span>
+                            {selectedResourceType === opt.id && <Check size={14} className="filter-item-check" />}
+                          </button>
+                        ))}
+                      </div>
+                      <hr className="filter-dropdown-divider" />
+                    </>
+                  )}
+
+                  <div className="filter-dropdown-section-title">
+                    {t.sidebar.network}
+                  </div>
+                  <div className="filter-dropdown-list">
+                    <label className="filter-dropdown-checkbox-item">
+                      <input
+                        type="checkbox"
+                        checked={onlyNetwork}
+                        onChange={(e) => setOnlyNetwork(e.target.checked)}
+                        className="network-filter-checkbox"
+                      />
+                      <span className="checkbox-text-label">{t.search.showOnlyNetwork}</span>
+                    </label>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Reverb Toolbar Bar (View Switcher & Sorting) */}
+          <div className="reverb-toolbar-row" style={{ marginTop: '1.25rem' }}>
+            <div className="reverb-toolbar-left">
+              <span className="reverb-result-count">
+                {activeTab === 'zikresources' && `${filteredResources.length} ${filteredResources.length === 1 ? t.common.resourcesCountSingular : t.common.resourcesCountPlural}`}
+                {activeTab === 'songs' && `${filteredSongs.length} ${filteredSongs.length === 1 ? t.common.songsCountSingular : t.common.songsCountPlural}`}
+                {activeTab === 'playlists' && `${filteredPlaylists.length} ${filteredPlaylists.length === 1 ? 'Playlist' : 'Playlists'}`}
+              </span>
+            </div>
+
+            <div className="reverb-toolbar-right">
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as 'newest' | 'title' | 'artist')}
+                className="reverb-sort-select"
+              >
+                <option value="newest">{t.common.sortNewest}</option>
+                <option value="title">{t.common.sortTitleAsc}</option>
+                {activeTab !== 'playlists' && <option value="artist">{t.common.sortArtistAsc}</option>}
+              </select>
+
+              <div className="reverb-view-toggle">
+                <button
+                  className={`reverb-view-btn ${viewMode === 'grid' ? 'active' : ''}`}
+                  onClick={() => setViewMode('grid')}
+                  title={t.common.viewModeGrid}
+                >
+                  <LayoutGrid size={16} />
+                  <span>{t.common.viewModeGrid}</span>
+                </button>
+                <button
+                  className={`reverb-view-btn ${viewMode === 'list' ? 'active' : ''}`}
+                  onClick={() => setViewMode('list')}
+                  title={t.common.viewModeList}
+                >
+                  <ListIcon size={16} />
+                  <span>{t.common.viewModeList}</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Results Grid / List Area */}
+          <div className="search-results-area" style={{ marginTop: '1.25rem' }}>
+            {/* 1. Zikresources */}
             {activeTab === 'zikresources' && (
-              <div className="sidebar-facet-group">
-                <h4 className="facet-group-label">{t.createZikresource.fieldType}</h4>
-                <div className="facet-options-list">
-                  {[
-                    { id: 'all', label: t.dashboard.filterAll },
-                    { id: 'tabs', label: t.dashboard.filterTabs },
-                    { id: 'videos', label: t.dashboard.filterVideos },
-                    { id: 'backing-tracks', label: t.dashboard.filterTracks },
-                    { id: 'lyrics', label: t.dashboard.filterLyrics },
-                    { id: 'other', label: t.dashboard.filterOther }
-                  ].map((item) => (
-                    <button
-                      key={item.id}
-                      className={`facet-pill-btn ${selectedResourceType === item.id ? 'active' : ''}`}
-                      onClick={() => setSelectedResourceType(item.id)}
-                    >
-                      {item.label}
-                    </button>
+              filteredResources.length === 0 ? (
+                <div className="search-no-results glass-panel">
+                  <p>{t.search.noItemsFound}</p>
+                </div>
+              ) : (
+                <div className={viewMode === 'grid' ? 'reverb-cards-grid' : 'reverb-cards-list'}>
+                  {filteredResources.map((resource) => (
+                    <ZikresourceCard
+                      key={resource._id}
+                      resource={resource}
+                      viewMode={viewMode}
+                      isNetworkMember={isNetworkMember(resource.createdBy)}
+                      isSelf={isSelf(resource.createdBy)}
+                      onClick={() => navigate({ to: '/zikresources/$id', params: { id: resource._id } })}
+                    />
                   ))}
                 </div>
-              </div>
+              )
             )}
 
-            {/* Facet Group 2: Network Source */}
-            <div className="sidebar-facet-group">
-              <h4 className="facet-group-label">{t.sidebar.network}</h4>
-              <label className="network-filter-checkbox-label">
-                <input
-                  type="checkbox"
-                  checked={onlyNetwork}
-                  onChange={(e) => setOnlyNetwork(e.target.checked)}
-                  className="network-filter-checkbox"
-                />
-                <span className="checkbox-text-label">{t.search.showOnlyNetwork}</span>
-              </label>
-            </div>
-          </aside>
-
-          {/* Right Marketplace Main Area */}
-          <main className="search-marketplace-main">
-
-            {/* Category Tabs Header */}
-            <div className="search-tabs-container">
-              <button
-                className={`search-tab-button ${activeTab === 'zikresources' ? 'active' : ''}`}
-                onClick={() => handleTabChange('zikresources')}
-              >
-                <FileText size={16} />
-                <span>{t.sidebar.zikresources} ({filteredResources.length})</span>
-              </button>
-              <button
-                className={`search-tab-button ${activeTab === 'songs' ? 'active' : ''}`}
-                onClick={() => handleTabChange('songs')}
-              >
-                <Music size={16} />
-                <span>{t.sidebar.songs} ({filteredSongs.length})</span>
-              </button>
-              <button
-                className={`search-tab-button ${activeTab === 'playlists' ? 'active' : ''}`}
-                onClick={() => handleTabChange('playlists')}
-              >
-                <Folder size={16} />
-                <span>{t.sidebar.playlists} ({filteredPlaylists.length})</span>
-              </button>
-            </div>
-
-            {/* Toolbar: Search input, Sort select, View switch */}
-            <div className="search-controls-bar glass-panel" style={{ marginTop: '1.25rem' }}>
-              <div className="search-input-wrapper">
-                <SearchIcon size={16} className="search-icon" />
-                <input
-                  type="text"
-                  placeholder={t.search.searchPlaceholder}
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="search-input-field"
-                />
-                {searchQuery && (
-                  <button onClick={() => setSearchQuery('')} className="search-clear-btn" aria-label="Clear search">
-                    <X size={14} />
-                  </button>
-                )}
-              </div>
-
-              <div className="reverb-toolbar-row" style={{ margin: 0 }}>
-                <span className="reverb-result-count">
-                  {activeTab === 'zikresources' && `${filteredResources.length} ${filteredResources.length === 1 ? t.common.resourcesCountSingular : t.common.resourcesCountPlural}`}
-                  {activeTab === 'songs' && `${filteredSongs.length} ${filteredSongs.length === 1 ? t.common.songsCountSingular : t.common.songsCountPlural}`}
-                  {activeTab === 'playlists' && `${filteredPlaylists.length} ${filteredPlaylists.length === 1 ? 'Playlist' : 'Playlists'}`}
-                </span>
-
-                <div className="reverb-toolbar-right">
-                  <select
-                    value={sortBy}
-                    onChange={(e) => setSortBy(e.target.value as 'newest' | 'title' | 'artist')}
-                    className="reverb-sort-select"
-                  >
-                    <option value="newest">{t.common.sortNewest}</option>
-                    <option value="title">{t.common.sortTitleAsc}</option>
-                    {activeTab !== 'playlists' && <option value="artist">{t.common.sortArtistAsc}</option>}
-                  </select>
-
-                  <div className="reverb-view-toggle">
-                    <button
-                      className={`reverb-view-btn ${viewMode === 'grid' ? 'active' : ''}`}
-                      onClick={() => setViewMode('grid')}
-                      title={t.common.viewModeGrid}
-                    >
-                      <LayoutGrid size={16} />
-                      <span>{t.common.viewModeGrid}</span>
-                    </button>
-                    <button
-                      className={`reverb-view-btn ${viewMode === 'list' ? 'active' : ''}`}
-                      onClick={() => setViewMode('list')}
-                      title={t.common.viewModeList}
-                    >
-                      <ListIcon size={16} />
-                      <span>{t.common.viewModeList}</span>
-                    </button>
-                  </div>
+            {/* 2. Songs */}
+            {activeTab === 'songs' && (
+              filteredSongs.length === 0 ? (
+                <div className="search-no-results glass-panel">
+                  <p>{t.search.noItemsFound}</p>
                 </div>
-              </div>
-            </div>
+              ) : (
+                <div className={viewMode === 'grid' ? 'reverb-cards-grid' : 'reverb-cards-list'}>
+                  {filteredSongs.map((song) => (
+                    <SongCard
+                      key={song._id}
+                      song={song}
+                      viewMode={viewMode}
+                      isNetworkMember={isNetworkMember(song.createdBy)}
+                      isSelf={isSelf(song.createdBy)}
+                      onClick={() => navigate({ to: '/songs/$id', params: { id: song._id } })}
+                    />
+                  ))}
+                </div>
+              )
+            )}
 
-            {/* Results Grid / List Area */}
-            <div className="search-results-area" style={{ marginTop: '1.25rem' }}>
-              
-              {/* 1. Zikresources */}
-              {activeTab === 'zikresources' && (
-                filteredResources.length === 0 ? (
-                  <div className="search-no-results glass-panel">
-                    <p>{t.search.noItemsFound}</p>
-                  </div>
-                ) : (
-                  <div className={viewMode === 'grid' ? 'reverb-cards-grid' : 'reverb-cards-list'}>
-                    {filteredResources.map((resource) => (
-                      <ZikresourceCard
-                        key={resource._id}
-                        resource={resource}
-                        viewMode={viewMode}
-                        isNetworkMember={isNetworkMember(resource.createdBy)}
-                        isSelf={isSelf(resource.createdBy)}
-                        onClick={() => navigate({ to: '/zikresources/$id', params: { id: resource._id } })}
-                      />
-                    ))}
-                  </div>
-                )
-              )}
-
-              {/* 2. Songs */}
-              {activeTab === 'songs' && (
-                filteredSongs.length === 0 ? (
-                  <div className="search-no-results glass-panel">
-                    <p>{t.search.noItemsFound}</p>
-                  </div>
-                ) : (
-                  <div className={viewMode === 'grid' ? 'reverb-cards-grid' : 'reverb-cards-list'}>
-                    {filteredSongs.map((song) => (
-                      <SongCard
-                        key={song._id}
-                        song={song}
-                        viewMode={viewMode}
-                        isNetworkMember={isNetworkMember(song.createdBy)}
-                        isSelf={isSelf(song.createdBy)}
-                        onClick={() => navigate({ to: '/songs/$id', params: { id: song._id } })}
-                      />
-                    ))}
-                  </div>
-                )
-              )}
-
-              {/* 3. Playlists */}
-              {activeTab === 'playlists' && (
-                filteredPlaylists.length === 0 ? (
-                  <div className="search-no-results glass-panel">
-                    <p>{t.search.noItemsFound}</p>
-                  </div>
-                ) : (
-                  <div className={viewMode === 'grid' ? 'reverb-cards-grid' : 'reverb-cards-list'}>
-                    {filteredPlaylists.map((playlist) => (
-                      <PlaylistCard
-                        key={playlist._id}
-                        playlist={playlist}
-                        viewMode={viewMode}
-                        isNetworkMember={isNetworkMember(playlist.createdBy)}
-                        isSelf={isSelf(playlist.createdBy)}
-                        onClick={() => navigate({ to: '/playlists/$id', params: { id: playlist._id } })}
-                      />
-                    ))}
-                  </div>
-                )
-              )}
-
-            </div>
-          </main>
+            {/* 3. Playlists */}
+            {activeTab === 'playlists' && (
+              filteredPlaylists.length === 0 ? (
+                <div className="search-no-results glass-panel">
+                  <p>{t.search.noItemsFound}</p>
+                </div>
+              ) : (
+                <div className={viewMode === 'grid' ? 'reverb-cards-grid' : 'reverb-cards-list'}>
+                  {filteredPlaylists.map((playlist) => (
+                    <PlaylistCard
+                      key={playlist._id}
+                      playlist={playlist}
+                      viewMode={viewMode}
+                      isNetworkMember={isNetworkMember(playlist.createdBy)}
+                      isSelf={isSelf(playlist.createdBy)}
+                      onClick={() => navigate({ to: '/playlists/$id', params: { id: playlist._id } })}
+                    />
+                  ))}
+                </div>
+              )
+            )}
+          </div>
         </div>
       )}
     </div>
