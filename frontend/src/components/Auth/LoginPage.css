@@ -59,22 +59,22 @@
 }
 
 .login-brand-icon {
-  background: var(--accent-primary);
+  background: var(--accent-gradient);
   width: 38px;
   height: 38px;
-  border-radius: 6px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
   color: #ffffff;
-  box-shadow: 0 2px 8px rgba(97, 8, 206, 0.25);
+  box-shadow: var(--glass-specular), 0 4px 14px var(--accent-glow);
 }
 
 .login-brand-text {
   font-weight: 700;
   font-size: 1.35rem;
   font-family: var(--font-heading);
-  letter-spacing: -0.02em;
+  letter-spacing: -0.025em;
   color: #ffffff;
 }
 
@@ -90,7 +90,7 @@
   font-weight: 800;
   font-family: var(--font-heading);
   line-height: 1.15;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.025em;
   margin-bottom: 1.5rem;
   color: #ffffff;
 }
@@ -119,21 +119,25 @@
 .login-right-pane::before {
   content: '';
   position: absolute;
-  width: 300px;
-  height: 300px;
-  background: radial-gradient(circle, rgba(97, 8, 206, 0.05) 0%, transparent 70%);
+  width: 350px;
+  height: 350px;
+  background: radial-gradient(circle, rgba(10, 132, 255, 0.12) 0%, rgba(94, 92, 230, 0.05) 50%, transparent 70%);
   pointer-events: none;
 }
 
 .login-card {
   width: 100%;
-  max-width: 400px;
+  max-width: 420px;
   padding: 3rem 2.5rem;
   background: var(--surface-card);
-  border: 1px solid var(--border-medium);
-  border-radius: 10px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--surface-card-border);
+  box-shadow: var(--glass-specular), var(--glass-shadow-hover);
+  border-radius: 24px;
   text-align: center;
+  position: relative;
+  z-index: 10;
 }
 
 .btn-back-landing {
@@ -162,23 +166,24 @@
 /* Music Icon on top of mobile card */
 .mobile-login-icon {
   display: none;
-  background: var(--accent-primary);
+  background: var(--accent-gradient);
   width: 44px;
   height: 44px;
-  border-radius: 8px;
+  border-radius: 12px;
   margin: 0 auto 1.5rem;
   align-items: center;
   justify-content: center;
   color: #ffffff;
-  box-shadow: 0 2px 8px rgba(97, 8, 206, 0.25);
+  box-shadow: var(--glass-specular), 0 4px 14px var(--accent-glow);
 }
 
 .login-card-title {
-  font-size: 1.75rem;
-  font-weight: 700;
+  font-size: 1.85rem;
+  font-weight: 800;
   font-family: var(--font-heading);
-  letter-spacing: -0.02em;
+  letter-spacing: -0.025em;
   margin-bottom: 0.5rem;
+  color: var(--text-primary);
 }
 
 .login-card-subtitle {
@@ -201,15 +206,13 @@
   width: 100%;
 }
 
-
-
 .login-warning-box {
-  background: rgba(239, 68, 68, 0.05);
-  border: 1px solid rgba(239, 68, 68, 0.15);
-  border-radius: 12px;
-  padding: 0.85rem;
+  background: rgba(255, 55, 95, 0.08);
+  border: 1px solid rgba(255, 55, 95, 0.2);
+  border-radius: 14px;
+  padding: 0.85rem 1rem;
   font-size: 0.8rem;
-  color: #f87171;
+  color: #ff375f;
   text-align: left;
   line-height: 1.4;
 }

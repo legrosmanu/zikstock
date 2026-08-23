@@ -1,84 +1,126 @@
-/* ── WordPress Storefront Light Theme (default) ──────────────── */
+/* ── Apple Liquid Glass Light Theme ──────────────────────────── */
 :root,
 [data-theme="light"] {
-  /* Backgrounds */
-  --bg-primary: #ffffff;
-  --bg-secondary: #f9fafb;
-  --bg-tertiary: #f3f4f6;
+  /* Backgrounds & Canvas */
+  --bg-primary: #f5f5f7;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: rgba(0, 0, 0, 0.04);
+  --bg-canvas: #fbfbfd;
 
-  /* Text */
-  --text-primary: #111827;
-  --text-secondary: #4b5563;
+  /* Text & Labels (Apple SF Pro Contrast) */
+  --text-primary: #1d1d1f;
+  --text-secondary: #6e6e73;
+  --text-tertiary: #86868b;
 
-  /* Accents — Storefront Indigo */
-  --accent-primary: #6108ce;
-  --accent-secondary: #4f46e5;
-  --accent-hover: #4c06a3;
+  /* Accents — Apple System Blue & Vibrant Spectrum */
+  --accent-primary: #0071e3;
+  --accent-secondary: #5e5ce6;
+  --accent-hover: #0077ed;
+  --accent-gradient: linear-gradient(135deg, #0071e3 0%, #5e5ce6 100%);
+  --accent-glow: rgba(0, 113, 227, 0.25);
 
-  /* Surfaces */
-  --surface-glass: rgba(255, 255, 255, 0.92);
-  --surface-glass-border: #e5e7eb;
-  --surface-card: #ffffff;
-  --surface-card-border: #e5e7eb;
+  /* Apple System Resource Accents */
+  --color-tablature: #0071e3;
+  --color-video: #ff2d55;
+  --color-backing-track: #30d158;
+  --color-lyrics: #ff9f0a;
+  --color-song: #bf5af2;
+  --color-playlist: #32ade6;
+
+  /* Liquid Glass Materials */
+  --surface-glass: rgba(255, 255, 255, 0.72);
+  --surface-glass-hover: rgba(255, 255, 255, 0.88);
+  --surface-glass-border: rgba(0, 0, 0, 0.08);
+  --surface-card: rgba(255, 255, 255, 0.80);
+  --surface-card-hover: rgba(255, 255, 255, 0.95);
+  --surface-card-border: rgba(0, 0, 0, 0.07);
+
+  /* Glass Optics & Specular Highlights */
+  --glass-blur: blur(24px) saturate(180%);
+  --glass-specular: inset 0 1px 1px 0 rgba(255, 255, 255, 0.9);
+  --glass-shadow: 0 8px 30px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04);
+  --glass-shadow-hover: 0 16px 40px rgba(0, 0, 0, 0.10), 0 2px 6px rgba(0, 0, 0, 0.04);
 
   /* Outline / dividers */
-  --border-subtle: #f3f4f6;
-  --border-medium: #e5e7eb;
+  --border-subtle: rgba(0, 0, 0, 0.06);
+  --border-medium: rgba(0, 0, 0, 0.10);
+  --border-glass: rgba(0, 0, 0, 0.08);
 
   /* Nav */
-  --nav-bg: rgba(255, 255, 255, 0.95);
-  --nav-border: #e5e7eb;
+  --nav-bg: rgba(245, 245, 247, 0.75);
+  --nav-border: rgba(0, 0, 0, 0.08);
 
   /* Scrollbar */
-  --scrollbar-thumb: #d1d5db;
-  --scrollbar-thumb-hover: #6108ce;
+  --scrollbar-thumb: rgba(0, 0, 0, 0.18);
+  --scrollbar-thumb-hover: #0071e3;
 
-  /* Typography */
-  --font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  --font-heading: 'Inter', system-ui, -apple-system, sans-serif;
+  /* Typography — Apple SF Pro Font Stack */
+  --font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-heading: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
 
   /* Layout */
-  --max-width: 1200px;
+  --max-width: 1240px;
 
   /* Transitions */
-  --transition-fast: 0.15s ease-in-out;
-  --transition-normal: 0.25s ease-in-out;
-  --transition-slow: 0.35s ease-in-out;
+  --transition-fast: 0.16s cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-normal: 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-slow: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* ── WordPress Storefront Dark Theme ─────────────────────────── */
+/* ── Apple Liquid Glass Dark Theme ──────────────────────────── */
 [data-theme="dark"] {
-  /* Backgrounds */
-  --bg-primary: #111827;
-  --bg-secondary: #1f2937;
-  --bg-tertiary: #374151;
+  /* Backgrounds & Canvas — Obsidian Space */
+  --bg-primary: #0a0b10;
+  --bg-secondary: #12141c;
+  --bg-tertiary: rgba(255, 255, 255, 0.06);
+  --bg-canvas: #07080b;
 
-  /* Text */
-  --text-primary: #f9fafb;
-  --text-secondary: #9ca3af;
+  /* Text & Labels (Apple SF Pro Contrast) */
+  --text-primary: #f5f5f7;
+  --text-secondary: #a1a1a6;
+  --text-tertiary: #6e6e73;
 
-  /* Accents — Storefront Indigo */
-  --accent-primary: #818cf8;
-  --accent-secondary: #a5b4fc;
-  --accent-hover: #6366f1;
+  /* Accents — Apple Electric Blue & Vibrant Spectrum */
+  --accent-primary: #0a84ff;
+  --accent-secondary: #5e5ce6;
+  --accent-hover: #409cff;
+  --accent-gradient: linear-gradient(135deg, #0a84ff 0%, #5e5ce6 100%);
+  --accent-glow: rgba(10, 132, 255, 0.35);
 
-  /* Surfaces */
-  --surface-glass: rgba(31, 41, 55, 0.92);
-  --surface-glass-border: #374151;
-  --surface-card: #1f2937;
-  --surface-card-border: #374151;
+  /* Apple System Resource Accents */
+  --color-tablature: #0a84ff;
+  --color-video: #ff375f;
+  --color-backing-track: #30d158;
+  --color-lyrics: #ff9f0a;
+  --color-song: #bf5af2;
+  --color-playlist: #64d2ff;
+
+  /* Liquid Glass Materials */
+  --surface-glass: rgba(255, 255, 255, 0.06);
+  --surface-glass-hover: rgba(255, 255, 255, 0.10);
+  --surface-glass-border: rgba(255, 255, 255, 0.12);
+  --surface-card: rgba(255, 255, 255, 0.05);
+  --surface-card-hover: rgba(255, 255, 255, 0.09);
+  --surface-card-border: rgba(255, 255, 255, 0.10);
+
+  /* Glass Optics & Specular Highlights */
+  --glass-blur: blur(28px) saturate(190%);
+  --glass-specular: inset 0 1px 1px 0 rgba(255, 255, 255, 0.18);
+  --glass-shadow: 0 12px 36px 0 rgba(0, 0, 0, 0.45), 0 2px 8px rgba(0, 0, 0, 0.25);
+  --glass-shadow-hover: 0 20px 48px 0 rgba(0, 0, 0, 0.55), 0 4px 12px rgba(0, 0, 0, 0.3);
 
   /* Outline / dividers */
-  --border-subtle: #374151;
-  --border-medium: #4b5563;
+  --border-subtle: rgba(255, 255, 255, 0.07);
+  --border-medium: rgba(255, 255, 255, 0.12);
+  --border-glass: rgba(255, 255, 255, 0.10);
 
   /* Nav */
-  --nav-bg: rgba(17, 24, 39, 0.95);
-  --nav-border: #374151;
+  --nav-bg: rgba(10, 11, 16, 0.75);
+  --nav-border: rgba(255, 255, 255, 0.10);
 
   /* Scrollbar */
-  --scrollbar-thumb: #374151;
-  --scrollbar-thumb-hover: #818cf8;
+  --scrollbar-thumb: rgba(255, 255, 255, 0.2);
+  --scrollbar-thumb-hover: #0a84ff;
 }
 
 * {
@@ -96,14 +138,43 @@ body {
   -moz-osx-font-smoothing: grayscale;
   min-height: 100vh;
   overflow-x: hidden;
+  position: relative;
 }
 
-/* Clean Storefront Headings */
+/* Ambient liquid light orbs that shine through frosted glass */
+body::before {
+  content: '';
+  position: fixed;
+  top: -20vw;
+  right: -10vw;
+  width: 50vw;
+  height: 50vw;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(10, 132, 255, 0.08) 0%, rgba(94, 92, 230, 0.03) 50%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  bottom: -20vw;
+  left: -10vw;
+  width: 50vw;
+  height: 50vw;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(191, 90, 242, 0.06) 0%, rgba(0, 210, 255, 0.02) 50%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Refined Apple SF Pro Headings */
 h1, h2, h3, h4, .font-heading {
   font-family: var(--font-heading);
-  letter-spacing: -0.015em;
+  letter-spacing: -0.022em;
   color: var(--text-primary);
   text-wrap: balance;
+  font-weight: 700;
 }
 
 /* Base Link Styles */
@@ -112,45 +183,50 @@ a {
   text-decoration: none;
 }
 
-/* Custom Scrollbar */
+/* Custom Minimalist Apple Scrollbar */
 ::-webkit-scrollbar {
-  width: 7px;
-  height: 7px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--bg-primary);
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
   background: var(--scrollbar-thumb);
-  border-radius: 4px;
+  border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--scrollbar-thumb-hover);
 }
 
-/* Storefront Clean Card Surface */
+/* Reusable Liquid Glass Material Classes */
 .glass-panel,
 .studio-card,
 .storefront-card {
   background: var(--surface-card);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
   border: 1px solid var(--surface-card-border);
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  transition: border-color var(--transition-normal), box-shadow var(--transition-normal);
+  box-shadow: var(--glass-specular), var(--glass-shadow);
+  border-radius: 16px;
+  transition: transform var(--transition-normal), border-color var(--transition-normal), box-shadow var(--transition-normal), background var(--transition-normal);
 }
 
 .storefront-card:hover {
-  border-color: var(--accent-primary);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border-color: rgba(10, 132, 255, 0.4);
+  box-shadow: var(--glass-specular), var(--glass-shadow-hover), 0 0 20px rgba(10, 132, 255, 0.15);
 }
 
 /* Theme toggle button ─────────────────────────────────────── */
 .btn-theme-toggle {
   background: var(--surface-card);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
   border: 1px solid var(--border-medium);
+  box-shadow: var(--glass-specular);
   border-radius: 9999px;
   color: var(--text-secondary);
   cursor: pointer;
@@ -167,5 +243,7 @@ a {
 .btn-theme-toggle:hover {
   color: var(--accent-primary);
   border-color: var(--accent-primary);
-  background: var(--bg-tertiary);
+  background: var(--surface-glass-hover);
+  box-shadow: var(--glass-specular), 0 0 12px var(--accent-glow);
+  transform: scale(1.05);
 }
