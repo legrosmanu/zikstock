@@ -41,7 +41,7 @@ jobs:
         run: docker compose -f ../docker-compose.yml up -d
 
       - name: Run tests
-        run: pnpm test
+        run: pnpm test:all
 
   frontend:
     name: Frontend CI
@@ -72,3 +72,7 @@ jobs:
 
       - name: Build check
         run: pnpm build
+
+      - name: Run tests
+        run: pnpm test
+

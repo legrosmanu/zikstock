@@ -49,8 +49,11 @@ All commands should be run using `pnpm` inside the `backend/` folder:
 | :--- | :--- |
 | `pnpm dev` | Starts the server in development mode with hot-reloading (`nodemon` watches changes). |
 | `pnpm build` | Compiles TypeScript files into the `dist/` directory using `tsconfig.build.json`. |
-| `pnpm start` | Launches the compiled production application from `dist/index.js`. |
-| `pnpm test` | Runs the integration and unit tests using Jest (`.env.test` variables are automatically loaded). |
+| `pnpm test` | Runs all unit and mock-based integration tests without requiring Firestore emulator. |
+| `pnpm test:unit` | Runs pure domain and utility unit tests (ultra-fast, < 300ms). |
+| `pnpm test:integration` | Runs mock-based Express controller integration tests. |
+| `pnpm test:firestore` | Runs tests against the Firestore emulator (requires emulator running on port 8080). |
+| `pnpm test:all` | Runs all tests including Firestore emulator integration tests. |
 | `pnpm lint` | Runs ESLint checks across the codebase. |
 | `pnpm lint:fix` | Automatically corrects fixable ESLint errors. |
 
