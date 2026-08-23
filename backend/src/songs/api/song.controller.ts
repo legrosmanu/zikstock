@@ -11,8 +11,8 @@ import { SongSchema, SongResponse, SongIdParamSchema, UserPayloadSchema } from '
 import { Song } from '../domain/song.domain';
 import { StatusCodes } from 'http-status-codes';
 import { AppError } from '../../application/middleware/error.middleware';
-import { findUsersByIds } from '../../users/repositories/firestore-user.repository';
 import { getFilterUserId } from '../../application/query.utils';
+import { withCreators } from '../../application/enrichment.utils';
 
 const toResponse = (domain: Song): SongResponse => ({
     _id: domain.id,
@@ -50,22 +50,8 @@ export const getMySongsHandler = async (req: Request, res: Response, next: NextF
             throw new AppError(StatusCodes.UNAUTHORIZED, `User identity validation failed: ${userValidation.error.message}`);
         }
         const createdBy = userValidation.data.sub;
-        const result = await getAllSongs(createdBy);
-        
-        const creatorIds = Array.from(new Set(result.map(s => s.createdBy)));
-        const creators = await findUsersByIds(creatorIds);
-        const creatorMap = new Map(creators.map(u => [u.id, u]));
-
-        const responseList = result.map(item => {
-            const creator = creatorMap.get(item.createdBy);
-            return {
-                ...toResponse(item),
-                creatorName: creator?.name,
-                creatorPicture: creator?.picture
-            };
-        });
-
-        res.json(responseList);
+        const songs = await getAllSongs(createdBy);
+        res.json(await withCreators(songs.map(toResponse)));
     } catch (error) {
         next(error);
     }
@@ -85,22 +71,8 @@ export const getAllSongsHandler = async (req: Request, res: Response, next: Next
             currentUserId: createdBy,
         });
 
-        const result = await getAllSongs(filterUserId);
-        
-        const creatorIds = Array.from(new Set(result.map(s => s.createdBy)));
-        const creators = await findUsersByIds(creatorIds);
-        const creatorMap = new Map(creators.map(u => [u.id, u]));
-
-        const responseList = result.map(item => {
-            const creator = creatorMap.get(item.createdBy);
-            return {
-                ...toResponse(item),
-                creatorName: creator?.name,
-                creatorPicture: creator?.picture
-            };
-        });
-
-        res.json(responseList);
+        const songs = await getAllSongs(filterUserId);
+        res.json(await withCreators(songs.map(toResponse)));
     } catch (error) {
         next(error);
     }

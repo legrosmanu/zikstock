@@ -10,8 +10,8 @@ import { PlaylistSchema, PlaylistResponse, PlaylistIdParamSchema, UserPayloadSch
 import { Playlist } from '../domain/playlist.domain';
 import { StatusCodes } from 'http-status-codes';
 import { AppError } from '../../application/middleware/error.middleware';
-import { findUsersByIds } from '../../users/repositories/firestore-user.repository';
 import { getFilterUserId } from '../../application/query.utils';
+import { withCreators } from '../../application/enrichment.utils';
 
 const toResponse = (domain: Playlist): PlaylistResponse => ({
     _id: domain.id,
@@ -49,22 +49,8 @@ export const getMyPlaylistsHandler = async (req: Request, res: Response, next: N
             throw new AppError(StatusCodes.UNAUTHORIZED, `User identity validation failed: ${userValidation.error.message}`);
         }
         const createdBy = userValidation.data.sub;
-        const result = await getAllPlaylists(createdBy);
-        
-        const creatorIds = Array.from(new Set(result.map(p => p.createdBy)));
-        const creators = await findUsersByIds(creatorIds);
-        const creatorMap = new Map(creators.map(u => [u.id, u]));
-
-        const responseList = result.map(item => {
-            const creator = creatorMap.get(item.createdBy);
-            return {
-                ...toResponse(item),
-                creatorName: creator?.name,
-                creatorPicture: creator?.picture
-            };
-        });
-
-        res.json(responseList);
+        const playlists = await getAllPlaylists(createdBy);
+        res.json(await withCreators(playlists.map(toResponse)));
     } catch (error) {
         next(error);
     }
@@ -84,22 +70,8 @@ export const getAllPlaylistsHandler = async (req: Request, res: Response, next: 
             currentUserId: createdBy,
         });
 
-        const result = await getAllPlaylists(filterUserId);
-        
-        const creatorIds = Array.from(new Set(result.map(p => p.createdBy)));
-        const creators = await findUsersByIds(creatorIds);
-        const creatorMap = new Map(creators.map(u => [u.id, u]));
-
-        const responseList = result.map(item => {
-            const creator = creatorMap.get(item.createdBy);
-            return {
-                ...toResponse(item),
-                creatorName: creator?.name,
-                creatorPicture: creator?.picture
-            };
-        });
-
-        res.json(responseList);
+        const playlists = await getAllPlaylists(filterUserId);
+        res.json(await withCreators(playlists.map(toResponse)));
     } catch (error) {
         next(error);
     }

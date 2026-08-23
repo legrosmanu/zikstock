@@ -12,9 +12,8 @@ import { ZikresourceSchema, ZikresourceResponse } from './zikresource.dto';
 import { Zikresource } from '../domain/zikresource.domain';
 import { StatusCodes } from 'http-status-codes';
 import { AppError } from '../../application/middleware/error.middleware';
-import { findUsersByIds } from '../../users/repositories/firestore-user.repository';
 import { getFilterUserId } from '../../application/query.utils';
-
+import { withCreators } from '../../application/enrichment.utils';
 
 const toResponse = (domain: Zikresource): ZikresourceResponse => ({
     _id: domain.id,
@@ -26,7 +25,6 @@ const toResponse = (domain: Zikresource): ZikresourceResponse => ({
     tags: domain.tags,
     clonedFrom: domain.clonedFrom,
 });
-
 
 export const createZikresourceHandler = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -51,22 +49,8 @@ export const getMyZikresourcesHandler = async (req: Request, res: Response, next
         if (!userId) {
             throw new AppError(StatusCodes.UNAUTHORIZED, 'User identity is missing from token');
         }
-        const result = await getAllZikresources(userId);
-        
-        const creatorIds = Array.from(new Set(result.map(r => r.createdBy)));
-        const creators = await findUsersByIds(creatorIds);
-        const creatorMap = new Map(creators.map(u => [u.id, u]));
-
-        const responseList = result.map(item => {
-            const creator = creatorMap.get(item.createdBy);
-            return {
-                ...toResponse(item),
-                creatorName: creator?.name,
-                creatorPicture: creator?.picture
-            };
-        });
-
-        res.json(responseList);
+        const resources = await getAllZikresources(userId);
+        res.json(await withCreators(resources.map(toResponse)));
     } catch (error) {
         next(error);
     }
@@ -80,22 +64,8 @@ export const getAllZikresourcesHandler = async (req: Request, res: Response, nex
             currentUserId: req.user?.sub,
         });
 
-        const result = await getAllZikresources(filterUserId);
-        
-        const creatorIds = Array.from(new Set(result.map(r => r.createdBy)));
-        const creators = await findUsersByIds(creatorIds);
-        const creatorMap = new Map(creators.map(u => [u.id, u]));
-
-        const responseList = result.map(item => {
-            const creator = creatorMap.get(item.createdBy);
-            return {
-                ...toResponse(item),
-                creatorName: creator?.name,
-                creatorPicture: creator?.picture
-            };
-        });
-
-        res.json(responseList);
+        const resources = await getAllZikresources(filterUserId);
+        res.json(await withCreators(resources.map(toResponse)));
     } catch (error) {
         next(error);
     }
