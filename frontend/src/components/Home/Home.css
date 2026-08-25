@@ -196,6 +196,15 @@
   box-shadow: var(--glass-specular), 0 8px 24px var(--accent-glow);
 }
 
+/* Responsive label toggle: desktop shows full, mobile shows short */
+.btn-label-short {
+  display: none;
+}
+
+.btn-label-full {
+  display: inline;
+}
+
 /* Integration/Connection Status Panel (Liquid Glass) */
 .integration-status-bar {
   padding: 1rem 1.5rem;

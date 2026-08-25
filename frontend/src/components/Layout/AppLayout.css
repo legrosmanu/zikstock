@@ -570,14 +570,26 @@
   }
   
   .resources-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.75rem !important;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem !important;
   }
   
   .btn-add-zik {
-    width: 100% !important;
-    justify-content: center;
+    width: auto !important;
+    padding: 0.5rem 1rem;
+    font-size: 0.825rem;
+    border-radius: 10px;
+    flex-shrink: 0;
+  }
+
+  .btn-label-full {
+    display: none;
+  }
+
+  .btn-label-short {
+    display: inline;
   }
   
   .filters-container {

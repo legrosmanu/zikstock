@@ -88,8 +88,11 @@ export interface TranslationSchema {
     subtitleSongs: string;
     subtitlePlaylists: string;
     addZikresource: string;
+    addZikresourceShort: string;
     createSong: string;
+    createSongShort: string;
     createPlaylist: string;
+    createPlaylistShort: string;
     searchResourcesPlaceholder: string;
     searchPlaylistsPlaceholder: string;
     searchSongsPlaceholder: string;
