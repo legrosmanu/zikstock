@@ -235,19 +235,22 @@ export const Home: React.FC = () => {
               {activeTab === 'zikresources' && (
                 <button className="btn-primary-large btn-add-zik" onClick={() => navigate({ to: '/zikresources/new' })}>
                   <Plus size={16} />
-                  <span>{t.dashboard.addZikresource}</span>
+                  <span className="btn-label-full">{t.dashboard.addZikresource}</span>
+                  <span className="btn-label-short">{t.dashboard.addZikresourceShort}</span>
                 </button>
               )}
               {activeTab === 'songs' && (
                 <button className="btn-primary-large btn-add-zik" onClick={() => navigate({ to: '/songs/new' })}>
                   <Plus size={16} />
-                  <span>{t.dashboard.createSong}</span>
+                  <span className="btn-label-full">{t.dashboard.createSong}</span>
+                  <span className="btn-label-short">{t.dashboard.createSongShort}</span>
                 </button>
               )}
               {activeTab === 'playlists' && (
                 <button className="btn-primary-large btn-add-zik" onClick={() => navigate({ to: '/playlists/new' })}>
                   <Plus size={16} />
-                  <span>{t.dashboard.createPlaylist}</span>
+                  <span className="btn-label-full">{t.dashboard.createPlaylist}</span>
+                  <span className="btn-label-short">{t.dashboard.createPlaylistShort}</span>
                 </button>
               )}
             </div>
