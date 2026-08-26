@@ -25,6 +25,7 @@ import { ZikresourceList } from './ZikresourceList';
 import { SongList } from './SongList';
 import { PlaylistList } from './PlaylistList';
 import { IntegrationStatusBar } from './IntegrationStatusBar';
+import { SortDropdown } from '../Cards/SortDropdown';
 import './Home.css';
 import '../Cards/Card.css';
 
@@ -376,15 +377,16 @@ export const Home: React.FC = () => {
 
               <div className="reverb-toolbar-right">
                 {/* Sort dropdown */}
-                <select
+                <SortDropdown<'newest' | 'title' | 'artist'>
                   value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value as 'newest' | 'title' | 'artist')}
-                  className="reverb-sort-select"
-                >
-                  <option value="newest">{t.common.sortNewest}</option>
-                  <option value="title">{t.common.sortTitleAsc}</option>
-                  {activeTab !== 'playlists' && <option value="artist">{t.common.sortArtistAsc}</option>}
-                </select>
+                  onChange={setSortBy}
+                  options={[
+                    { id: 'newest', label: t.common.sortNewest },
+                    { id: 'title', label: t.common.sortTitleAsc },
+                    ...(activeTab !== 'playlists' ? [{ id: 'artist' as const, label: t.common.sortArtistAsc }] : [])
+                  ]}
+                  ariaLabel={t.common.sortBy}
+                />
 
                 {/* View Mode Toggle */}
                 <div className="reverb-view-toggle">

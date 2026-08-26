@@ -25,6 +25,7 @@ import { useTranslation } from '../../hooks/useTranslation';
 import { ZikresourceCard } from '../Cards/ZikresourceCard';
 import { SongCard } from '../Cards/SongCard';
 import { PlaylistCard } from '../Cards/PlaylistCard';
+import { SortDropdown } from '../Cards/SortDropdown';
 import './Search.css';
 import '../Cards/Card.css';
 
@@ -412,15 +413,16 @@ export const Search: React.FC = () => {
             </div>
 
             <div className="reverb-toolbar-right">
-              <select
+              <SortDropdown<'newest' | 'title' | 'artist'>
                 value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as 'newest' | 'title' | 'artist')}
-                className="reverb-sort-select"
-              >
-                <option value="newest">{t.common.sortNewest}</option>
-                <option value="title">{t.common.sortTitleAsc}</option>
-                {activeTab !== 'playlists' && <option value="artist">{t.common.sortArtistAsc}</option>}
-              </select>
+                onChange={setSortBy}
+                options={[
+                  { id: 'newest', label: t.common.sortNewest },
+                  { id: 'title', label: t.common.sortTitleAsc },
+                  ...(activeTab !== 'playlists' ? [{ id: 'artist' as const, label: t.common.sortArtistAsc }] : [])
+                ]}
+                ariaLabel={t.common.sortBy}
+              />
 
               <div className="reverb-view-toggle">
                 <button

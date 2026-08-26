@@ -358,26 +358,28 @@
 .reverb-view-toggle {
   display: flex;
   align-items: center;
-  background: var(--surface-card);
+  background: var(--surface-glass);
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
   border: 1px solid var(--border-medium);
   box-shadow: var(--glass-specular);
-  border-radius: 10px;
+  border-radius: 12px;
   padding: 3px;
+  box-sizing: border-box;
 }
 
 .reverb-view-btn {
   background: transparent;
   border: none;
   color: var(--text-secondary);
-  padding: 6px 12px;
-  border-radius: 8px;
+  padding: 0.38rem 0.8rem;
+  border-radius: 9px;
   cursor: pointer;
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 0.82rem;
+  font-size: 0.85rem;
+  font-family: var(--font-heading);
   font-weight: 500;
   transition: all var(--transition-fast);
 }
@@ -389,25 +391,147 @@
   font-weight: 600;
 }
 
-.reverb-sort-select {
-  background: var(--surface-card);
+.reverb-sort-container {
+  position: relative;
+  display: inline-flex;
+}
+
+.reverb-sort-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 1rem;
+  background: var(--surface-glass);
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
   border: 1px solid var(--border-medium);
   box-shadow: var(--glass-specular);
-  border-radius: 10px;
+  border-radius: 12px;
   color: var(--text-primary);
-  padding: 6px 14px;
   font-size: 0.85rem;
-  font-family: var(--font-family);
+  font-family: var(--font-heading);
+  font-weight: 500;
+  line-height: 1.25;
   cursor: pointer;
   outline: none;
   transition: all var(--transition-fast);
+  white-space: nowrap;
+  box-sizing: border-box;
+  min-width: 0;
+  max-width: 100%;
 }
 
-.reverb-sort-select:focus {
+.reverb-sort-btn:hover {
+  background: var(--surface-glass-hover);
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
+}
+
+.reverb-sort-btn.active,
+.reverb-sort-btn:focus-visible {
   border-color: var(--accent-primary);
   box-shadow: var(--glass-specular), 0 0 0 3px var(--accent-glow);
+}
+
+.reverb-sort-icon {
+  color: var(--text-secondary);
+  transition: color var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.reverb-sort-btn:hover .reverb-sort-icon,
+.reverb-sort-btn.active .reverb-sort-icon {
+  color: var(--accent-primary);
+}
+
+.reverb-sort-label {
+  font-size: 0.85rem;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+  flex: 1 1 auto;
+  text-align: left;
+}
+
+.reverb-sort-chevron {
+  color: var(--text-secondary);
+  transition: transform var(--transition-fast), color var(--transition-fast);
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.reverb-sort-chevron.open {
+  transform: rotate(180deg);
+}
+
+.reverb-sort-btn:hover .reverb-sort-chevron,
+.reverb-sort-btn.active .reverb-sort-chevron {
+  color: var(--accent-primary);
+}
+
+/* Sort Dropdown Menu */
+.reverb-sort-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  min-width: 180px;
+  background: var(--dropdown-bg, #ffffff);
+  border: 1px solid var(--surface-card-border);
+  box-shadow: var(--glass-specular), var(--glass-shadow-hover);
+  border-radius: 12px;
+  padding: 0.35rem;
+  z-index: 50;
+  animation: sortSlideDown 0.18s ease-out forwards;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+@keyframes sortSlideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.reverb-sort-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0.45rem 0.65rem;
+  border-radius: 8px;
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  font-size: 0.82rem;
+  font-family: var(--font-family);
+  font-weight: 400;
+  cursor: pointer;
+  text-align: left;
+  transition: all var(--transition-fast);
+}
+
+.reverb-sort-item:hover {
+  background: var(--surface-glass-hover);
+  color: var(--accent-primary);
+}
+
+.reverb-sort-item.active {
+  background: var(--surface-glass-hover);
+  color: var(--accent-primary);
+  font-weight: 600;
+}
+
+.reverb-sort-item-check {
+  color: var(--accent-primary);
+  flex-shrink: 0;
 }
 
 /* ── Mobile & Small Screen Media Queries ─────────────────────────── */
@@ -426,12 +550,42 @@
 
   .reverb-toolbar-right {
     width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+
+  .reverb-sort-container {
+    flex: 1;
+    min-width: 0;
+    max-width: 220px;
+  }
+
+  .reverb-sort-btn {
+    width: 100%;
+    padding: 0.5rem 0.85rem;
+    gap: 0.35rem;
     justify-content: space-between;
   }
 
-  .reverb-sort-select {
-    flex: 1;
-    max-width: 170px;
+  .reverb-sort-menu {
+    left: 0;
+    right: auto;
+    max-width: calc(100vw - 2rem);
+  }
+
+  .reverb-view-toggle {
+    flex-shrink: 0;
+  }
+
+  .reverb-view-btn {
+    padding: 0.35rem 0.65rem;
+    gap: 0;
+  }
+
+  .reverb-view-btn span {
+    display: none;
   }
 
   /* Compact card styling for grid mode on smartphones */
