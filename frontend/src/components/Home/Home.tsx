@@ -24,7 +24,6 @@ import { WelcomeBanner } from './WelcomeBanner';
 import { ZikresourceList } from './ZikresourceList';
 import { SongList } from './SongList';
 import { PlaylistList } from './PlaylistList';
-import { IntegrationStatusBar } from './IntegrationStatusBar';
 import { SortDropdown } from '../Cards/SortDropdown';
 import './Home.css';
 import '../Cards/Card.css';
@@ -33,8 +32,6 @@ export const Home: React.FC = () => {
   const navigate = useNavigate();
   const token = useAuthStore((state) => state.token);
   const { t } = useTranslation();
-
-  const [connectionStatus, setConnectionStatus] = useState<'checking' | 'active' | 'error'>('checking');
 
   const search = useSearch({ from: '/home' });
 
@@ -93,13 +90,11 @@ export const Home: React.FC = () => {
 
   const fetchAllData = useCallback(async () => {
     if (!token) {
-      setConnectionStatus('error');
       setIsLoadingData(false);
       return;
     }
 
     try {
-      setConnectionStatus('checking');
       setIsLoadingData(true);
       setErrorMsg(null);
 
@@ -112,10 +107,8 @@ export const Home: React.FC = () => {
       setZikresources(resourcesData);
       setSongs(songsData);
       setPlaylists(playlistsData);
-      setConnectionStatus('active');
     } catch (err) {
       console.error('Error fetching data from backend API:', err);
-      setConnectionStatus('error');
       setErrorMsg(t.dashboard.errorFetchData);
     } finally {
       setIsLoadingData(false);
@@ -426,9 +419,6 @@ export const Home: React.FC = () => {
             )}
           </div>
         )}
-
-        {/* Integration Status */}
-        <IntegrationStatusBar connectionStatus={connectionStatus} />
       </section>
     </main>
   );
