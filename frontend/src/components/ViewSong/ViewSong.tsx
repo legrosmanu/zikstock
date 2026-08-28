@@ -5,6 +5,7 @@ import { fetchSongById, deleteSong, cloneSong } from '../../infra/song.api';
 import { fetchZikresources } from '../../infra/zikresource.api';
 import type { Song } from '../../infra/song.api';
 import type { Zikresource } from '../../infra/zikresource.api';
+import { HttpError } from '../../infra/httpClient';
 import { useTranslation } from '../../hooks/useTranslation';
 import { useAuthStore } from '../../store/authStore';
 import { ZikresourceCard } from '../Cards/ZikresourceCard';
@@ -37,11 +38,10 @@ export const ViewSong: React.FC = () => {
       const result = await cloneSong(id);
       setCloneSuccessId(result.song._id);
     } catch (err) {
-      const msg = err instanceof Error ? err.message : '';
-      if (msg.includes('409') || msg.toLowerCase().includes('already')) {
+      if (err instanceof HttpError && err.status === 409) {
         setError(t.viewSong.alreadyCloned);
       } else {
-        setError(msg || t.viewSong.cloneError);
+        setError(err instanceof Error ? err.message : t.viewSong.cloneError);
       }
     } finally {
       setIsCloning(false);

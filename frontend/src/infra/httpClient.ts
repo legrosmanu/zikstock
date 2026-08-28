@@ -52,6 +52,45 @@ const fetchWithAuth = async (endpoint: string, options: RequestOptions = {}): Pr
   return response;
 };
 
+export class HttpError extends Error {
+  status: number;
+  data?: unknown;
+
+  constructor(status: number, message: string, data?: unknown) {
+    super(message);
+    this.name = 'HttpError';
+    this.status = status;
+    this.data = data;
+  }
+}
+
+const handleResponseError = async (response: Response): Promise<never> => {
+  if (response.status === 401) {
+    useAuthStore.getState().logout();
+  }
+
+  let errorMessage = `HTTP Error: ${response.status} ${response.statusText || ''}`.trim();
+  let errorData: unknown = undefined;
+
+  try {
+    const text = await response.text();
+    if (text) {
+      try {
+        errorData = JSON.parse(text);
+        if (errorData && typeof errorData === 'object' && 'message' in errorData && typeof errorData.message === 'string') {
+          errorMessage = errorData.message;
+        }
+      } catch {
+        errorMessage = text;
+      }
+    }
+  } catch {
+    // ignore
+  }
+
+  throw new HttpError(response.status, errorMessage, errorData);
+};
+
 export const authenticatedPost = async <T = unknown>(
   endpoint: string,
   body: unknown = {}
@@ -62,10 +101,7 @@ export const authenticatedPost = async <T = unknown>(
   });
 
   if (!response.ok) {
-    if (response.status === 401) {
-      useAuthStore.getState().logout();
-    }
-    throw new Error(`HTTP Error: ${response.status} ${response.statusText || ''}`);
+    await handleResponseError(response);
   }
 
   const text = await response.text();
@@ -85,10 +121,7 @@ export const authenticatedGet = async <T = unknown>(
   });
 
   if (!response.ok) {
-    if (response.status === 401) {
-      useAuthStore.getState().logout();
-    }
-    throw new Error(`HTTP Error: ${response.status} ${response.statusText || ''}`);
+    await handleResponseError(response);
   }
 
   const text = await response.text();
@@ -108,10 +141,7 @@ export const authenticatedDelete = async <T = unknown>(
   });
 
   if (!response.ok) {
-    if (response.status === 401) {
-      useAuthStore.getState().logout();
-    }
-    throw new Error(`HTTP Error: ${response.status} ${response.statusText || ''}`);
+    await handleResponseError(response);
   }
 
   if (response.status === 204) {
@@ -138,10 +168,7 @@ export const authenticatedPut = async <T = unknown>(
   });
 
   if (!response.ok) {
-    if (response.status === 401) {
-      useAuthStore.getState().logout();
-    }
-    throw new Error(`HTTP Error: ${response.status} ${response.statusText || ''}`);
+    await handleResponseError(response);
   }
 
   const text = await response.text();
@@ -152,3 +179,4 @@ export const authenticatedPut = async <T = unknown>(
     return text as unknown as T;
   }
 };
+

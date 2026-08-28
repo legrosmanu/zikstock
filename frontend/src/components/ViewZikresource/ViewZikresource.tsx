@@ -3,6 +3,7 @@ import { ArrowLeft, Tag, Loader2, Trash2, ExternalLink, Edit, EyeOff, Copy, Chec
 import { useNavigate, useParams } from '@tanstack/react-router';
 import { fetchZikresourceById, deleteZikresource, checkZikresourceEmbeddability, cloneZikresource } from '../../infra/zikresource.api';
 import type { Zikresource } from '../../infra/zikresource.api';
+import { HttpError } from '../../infra/httpClient';
 import { useTranslation } from '../../hooks/useTranslation';
 import { useAuthStore } from '../../store/authStore';
 import '../CreateZikresource/CreateZikresource.css';
@@ -92,11 +93,10 @@ export const ViewZikresource: React.FC = () => {
       const cloned = await cloneZikresource(id);
       setCloneSuccessId(cloned._id);
     } catch (err) {
-      const msg = err instanceof Error ? err.message : '';
-      if (msg.includes('409') || msg.toLowerCase().includes('already')) {
+      if (err instanceof HttpError && err.status === 409) {
         setError(t.viewZikresource.alreadyCloned);
       } else {
-        setError(msg || t.viewZikresource.cloneError);
+        setError(err instanceof Error ? err.message : t.viewZikresource.cloneError);
       }
     } finally {
       setIsCloning(false);
