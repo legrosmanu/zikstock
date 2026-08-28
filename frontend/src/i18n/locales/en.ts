@@ -215,6 +215,7 @@ export const en: TranslationSchema = {
     cloning: 'Adding...',
     cloneSuccess: 'Resource added to your Songbook!',
     cloneError: 'Failed to clone the resource.',
+    alreadyCloned: 'This resource is already in your Songbook.',
     confirmDeleteText: 'Are you sure?',
     btnConfirmDelete: 'Yes, Delete',
     typeLabel: 'Resource Type',
@@ -246,6 +247,7 @@ export const en: TranslationSchema = {
     cloning: 'Adding...',
     cloneSuccess: 'Song and associated resources added to your Songbook!',
     cloneError: 'Failed to clone the song.',
+    alreadyCloned: 'This song is already in your Songbook.',
     resourcesSectionTitle: 'Associated Zikresources',
     noResourcesText: 'No associated resources found for this song.',
     btnOpenLink: 'Open Link'

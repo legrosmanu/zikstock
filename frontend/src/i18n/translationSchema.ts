@@ -213,6 +213,7 @@ export interface TranslationSchema {
     cloning: string;
     cloneSuccess: string;
     cloneError: string;
+    alreadyCloned: string;
     confirmDeleteText: string;
     btnConfirmDelete: string;
     typeLabel: string;
@@ -244,6 +245,7 @@ export interface TranslationSchema {
     cloning: string;
     cloneSuccess: string;
     cloneError: string;
+    alreadyCloned: string;
     resourcesSectionTitle: string;
     noResourcesText: string;
     btnOpenLink: string;

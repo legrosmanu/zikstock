@@ -17,6 +17,7 @@ import * as mockAuthMiddleware from '../application/middleware/mock-auth.middlew
 import * as firestoreSongRepo from './repositories/firestore-song.repository';
 import * as mockSongRepo from './repositories/mock-song.repository';
 import * as firestoreZikresourceRepo from '../zikresources/repositories/firestore-zikresource.repository';
+import * as mockZikresourceRepo from '../zikresources/repositories/mock-zikresource.repository';
 import * as firestoreUserRepo from '../users/repositories/firestore-user.repository';
 import * as mockUserRepo from '../users/repositories/mock-user.repository';
 
@@ -31,6 +32,7 @@ describe('SongController Integration', () => {
 
     beforeEach(() => {
         mockSongRepo.clearData();
+        mockZikresourceRepo.clearData();
         mockUserRepo.clearData();
         jest.clearAllMocks();
 
@@ -42,12 +44,17 @@ describe('SongController Integration', () => {
         // Mock Firestore Song Repository
         jest.mocked(firestoreSongRepo.saveSong).mockImplementation(mockSongRepo.saveSong);
         jest.mocked(firestoreSongRepo.findSongById).mockImplementation(mockSongRepo.findSongById);
+        jest.mocked(firestoreSongRepo.findSongByClonedFromAndUser).mockImplementation(mockSongRepo.findSongByClonedFromAndUser);
         jest.mocked(firestoreSongRepo.findAllSongs).mockImplementation(mockSongRepo.findAllSongs);
         jest.mocked(firestoreSongRepo.updateSongInDb).mockImplementation(mockSongRepo.updateSongInDb);
         jest.mocked(firestoreSongRepo.deleteSongFromDb).mockImplementation(mockSongRepo.deleteSongFromDb);
 
-        // Default mock for Zikresource validation (existing resource created by same user)
+        // Mock Firestore Zikresource Repository
+        jest.mocked(firestoreZikresourceRepo.saveZikresource).mockImplementation(mockZikresourceRepo.saveZikresource);
+        jest.mocked(firestoreZikresourceRepo.findZikresourceByClonedFromAndUser).mockImplementation(mockZikresourceRepo.findZikresourceByClonedFromAndUser);
         jest.mocked(firestoreZikresourceRepo.findZikresourceById).mockImplementation(async (id: string) => {
+            const found = await mockZikresourceRepo.findZikresourceById(id);
+            if (found) return found;
             if (id === 'res-123') {
                 return {
                     id: 'res-123',
@@ -233,6 +240,40 @@ describe('SongController Integration', () => {
 
         expect(response.status).toBe(403);
         expect(response.body.message).toBe('You already own this song.');
+    });
+
+    it('POST /songs/:id/clone should return 409 when trying to clone an already cloned song', async () => {
+        await mockZikresourceRepo.saveZikresource({
+            id: 'res-other',
+            createdBy: 'other-user',
+            url: 'https://youtube.com/watch?v=123',
+            artist: 'Artist',
+            title: 'Title',
+            type: 'video'
+        });
+
+        await mockSongRepo.saveSong({
+            id: 'song-other',
+            title: 'Other Song',
+            artist: 'Other Artist',
+            zikresourceIds: ['res-other'],
+            createdBy: 'other-user',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+        });
+
+        // First clone succeeds
+        const firstResponse = await request(app)
+            .post('/songs/song-other/clone')
+            .set('Authorization', `Bearer ${VALID_TOKEN}`);
+        expect(firstResponse.status).toBe(201);
+
+        // Second clone returns 409 Conflict
+        const secondResponse = await request(app)
+            .post('/songs/song-other/clone')
+            .set('Authorization', `Bearer ${VALID_TOKEN}`);
+        expect(secondResponse.status).toBe(409);
+        expect(secondResponse.body.message).toBe('You have already added this song to your Songbook.');
     });
 });
 

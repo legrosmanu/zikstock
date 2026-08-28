@@ -8,16 +8,12 @@ import {
 import { Playlist } from './playlist.domain';
 import { describe, it, expect, beforeEach, jest } from '@jest/globals';
 import * as mockPlaylistRepo from '../repositories/mock-playlist.repository';
-import * as mockSongRepo from '../../songs/repositories/mock-song.repository';
-import * as mockZikresourceRepo from '../../zikresources/repositories/mock-zikresource.repository';
 
 describe('PlaylistService', () => {
     let deps: PlaylistDependencies;
 
     beforeEach(() => {
         mockPlaylistRepo.clearData();
-        mockSongRepo.clearData();
-        mockZikresourceRepo.clearData();
 
         deps = {
             savePlaylist: mockPlaylistRepo.savePlaylist,
@@ -25,8 +21,8 @@ describe('PlaylistService', () => {
             findAllPlaylists: mockPlaylistRepo.findAllPlaylists,
             updatePlaylistInDb: mockPlaylistRepo.updatePlaylistInDb,
             deletePlaylistFromDb: mockPlaylistRepo.deletePlaylistFromDb,
-            findSongById: mockSongRepo.findSongById,
-            findZikresourceById: mockZikresourceRepo.findZikresourceById,
+            findSongById: jest.fn(async () => null),
+            findZikresourceById: jest.fn(async () => null),
         };
     });
 
@@ -35,7 +31,7 @@ describe('PlaylistService', () => {
         const songId = 'song-999';
         const zikId = 'zik-1';
 
-        await mockSongRepo.saveSong({
+        jest.mocked(deps.findSongById).mockResolvedValue({
             id: songId,
             createdBy: userId,
             title: 'Come As You Are',
@@ -45,7 +41,7 @@ describe('PlaylistService', () => {
             updatedAt: '2026-06-14T00:00:00Z',
         });
 
-        await mockZikresourceRepo.saveZikresource({
+        jest.mocked(deps.findZikresourceById).mockResolvedValue({
             id: zikId,
             createdBy: userId,
             url: 'https://example.com',
@@ -73,6 +69,8 @@ describe('PlaylistService', () => {
     });
 
     it('should throw BAD_REQUEST if a song does not exist', async () => {
+        jest.mocked(deps.findSongById).mockResolvedValue(null);
+
         const partial: Omit<Playlist, 'id' | 'createdAt' | 'updatedAt'> = {
             name: 'Invalid List',
             songIds: ['non-existent'],
@@ -83,7 +81,7 @@ describe('PlaylistService', () => {
     });
 
     it('should throw FORBIDDEN if a song does not belong to the user', async () => {
-        await mockSongRepo.saveSong({
+        jest.mocked(deps.findSongById).mockResolvedValue({
             id: 'song-999',
             createdBy: 'different-user',
             title: 'Come As You Are',

@@ -3,8 +3,8 @@ import { Playlist } from './playlist.domain';
 import { Song } from '../../songs/domain/song.domain';
 import { Zikresource } from '../../zikresources/domain/zikresource.domain';
 import * as firestorePlaylistRepo from '../repositories/firestore-playlist.repository';
-import * as firestoreSongRepo from '../../songs/repositories/firestore-song.repository';
-import * as firestoreZikresourceRepo from '../../zikresources/repositories/firestore-zikresource.repository';
+import { findSongById } from '../../songs/domain/song.service';
+import { findZikresourceById } from '../../zikresources/domain/zikresource.service';
 import { AppError } from '../../application/middleware/error.middleware';
 import { StatusCodes } from 'http-status-codes';
 
@@ -24,8 +24,8 @@ export const defaultPlaylistDeps: PlaylistDependencies = {
     findAllPlaylists: firestorePlaylistRepo.findAllPlaylists,
     updatePlaylistInDb: firestorePlaylistRepo.updatePlaylistInDb,
     deletePlaylistFromDb: firestorePlaylistRepo.deletePlaylistFromDb,
-    findSongById: firestoreSongRepo.findSongById,
-    findZikresourceById: firestoreZikresourceRepo.findZikresourceById,
+    findSongById,
+    findZikresourceById,
 };
 
 const validateSongs = async (

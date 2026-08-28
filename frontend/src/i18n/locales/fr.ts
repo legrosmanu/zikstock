@@ -215,6 +215,7 @@ export const fr: TranslationSchema = {
     cloning: 'Ajout en cours...',
     cloneSuccess: 'Ressource ajoutée à votre Songbook !',
     cloneError: 'Échec de l\'ajout de la ressource.',
+    alreadyCloned: 'Cette ressource est déjà dans votre Songbook.',
     confirmDeleteText: 'Êtes-vous sûr ?',
     btnConfirmDelete: 'Oui, Supprimer',
     typeLabel: 'Type de ressource',
@@ -246,6 +247,7 @@ export const fr: TranslationSchema = {
     cloning: 'Ajout en cours...',
     cloneSuccess: 'Morceau et ses ressources ajoutés à votre Songbook !',
     cloneError: 'Échec de l\'ajout du morceau.',
+    alreadyCloned: 'Ce morceau est déjà dans votre Songbook.',
     resourcesSectionTitle: 'Zikresources Associées',
     noResourcesText: 'Aucune ressource associée trouvée pour ce morceau.',
     btnOpenLink: 'Ouvrir le lien'

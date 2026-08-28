@@ -19,6 +19,11 @@ export const findAllZikresources = async (userId?: string): Promise<Zikresource[
     return all;
 };
 
+export const findZikresourceByClonedFromAndUser = async (clonedFrom: string, userId: string): Promise<Zikresource | null> => {
+    const all = Array.from(resources.values());
+    return all.find(r => r.clonedFrom === clonedFrom && r.createdBy === userId) || null;
+};
+
 export const updateZikresourceInDb = async (zikresource: Zikresource): Promise<Zikresource> => {
     resources.set(zikresource.id, zikresource);
     return zikresource;
@@ -31,3 +36,4 @@ export const deleteZikresourceFromDb = async (id: string): Promise<void> => {
 export const clearData = (): void => {
     resources.clear();
 };
+

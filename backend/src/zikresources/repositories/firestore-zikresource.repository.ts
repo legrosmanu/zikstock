@@ -24,6 +24,17 @@ export const findAllZikresources = async (userId?: string): Promise<Zikresource[
     return snapshot.docs.map(doc => doc.data() as Zikresource);
 };
 
+export const findZikresourceByClonedFromAndUser = async (clonedFrom: string, userId: string): Promise<Zikresource | null> => {
+    const snapshot = await getDb()
+        .collection(collection)
+        .where('clonedFrom', '==', clonedFrom)
+        .where('createdBy', '==', userId)
+        .limit(1)
+        .get();
+    if (snapshot.empty) return null;
+    return snapshot.docs[0].data() as Zikresource;
+};
+
 export const updateZikresourceInDb = async (zikresource: Zikresource): Promise<Zikresource> => {
     await getDb().collection(collection).doc(zikresource.id).update({ ...zikresource });
     return zikresource;
@@ -32,3 +43,4 @@ export const updateZikresourceInDb = async (zikresource: Zikresource): Promise<Z
 export const deleteZikresourceFromDb = async (id: string): Promise<void> => {
     await getDb().collection(collection).doc(id).delete();
 };
+

@@ -92,7 +92,12 @@ export const ViewZikresource: React.FC = () => {
       const cloned = await cloneZikresource(id);
       setCloneSuccessId(cloned._id);
     } catch (err) {
-      setError(err instanceof Error ? err.message : t.viewZikresource.cloneError);
+      const msg = err instanceof Error ? err.message : '';
+      if (msg.includes('409') || msg.toLowerCase().includes('already')) {
+        setError(t.viewZikresource.alreadyCloned);
+      } else {
+        setError(msg || t.viewZikresource.cloneError);
+      }
     } finally {
       setIsCloning(false);
     }

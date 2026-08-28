@@ -24,6 +24,17 @@ export const findAllSongs = async (userId?: string): Promise<Song[]> => {
     return snapshot.docs.map(doc => doc.data() as Song);
 };
 
+export const findSongByClonedFromAndUser = async (clonedFrom: string, userId: string): Promise<Song | null> => {
+    const snapshot = await getDb()
+        .collection(collection)
+        .where('clonedFrom', '==', clonedFrom)
+        .where('createdBy', '==', userId)
+        .limit(1)
+        .get();
+    if (snapshot.empty) return null;
+    return snapshot.docs[0].data() as Song;
+};
+
 export const updateSongInDb = async (song: Song): Promise<Song> => {
     await getDb().collection(collection).doc(song.id).update({ ...song });
     return song;
@@ -32,3 +43,4 @@ export const updateSongInDb = async (song: Song): Promise<Song> => {
 export const deleteSongFromDb = async (id: string): Promise<void> => {
     await getDb().collection(collection).doc(id).delete();
 };
+

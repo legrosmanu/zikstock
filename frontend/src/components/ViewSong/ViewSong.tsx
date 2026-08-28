@@ -37,7 +37,12 @@ export const ViewSong: React.FC = () => {
       const result = await cloneSong(id);
       setCloneSuccessId(result.song._id);
     } catch (err) {
-      setError(err instanceof Error ? err.message : t.viewSong.cloneError);
+      const msg = err instanceof Error ? err.message : '';
+      if (msg.includes('409') || msg.toLowerCase().includes('already')) {
+        setError(t.viewSong.alreadyCloned);
+      } else {
+        setError(msg || t.viewSong.cloneError);
+      }
     } finally {
       setIsCloning(false);
     }

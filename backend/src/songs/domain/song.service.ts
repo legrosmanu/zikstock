@@ -2,29 +2,43 @@ import { v4 as uuidv4 } from 'uuid';
 import { Song } from './song.domain';
 import { Zikresource } from '../../zikresources/domain/zikresource.domain';
 import * as firestoreSongRepo from '../repositories/firestore-song.repository';
-import * as firestoreZikresourceRepo from '../../zikresources/repositories/firestore-zikresource.repository';
-import { cloneZikresource as defaultCloneZikresource } from '../../zikresources/domain/zikresource.service';
+import {
+    cloneZikresource,
+    findZikresourceById,
+    findZikresourceByClonedFromAndUser
+} from '../../zikresources/domain/zikresource.service';
 import { AppError } from '../../application/middleware/error.middleware';
 import { StatusCodes } from 'http-status-codes';
 
 export interface SongDependencies {
     saveSong: (song: Song) => Promise<Song>;
     findSongById: (id: string) => Promise<Song | null>;
+    findSongByClonedFromAndUser: (clonedFrom: string, userId: string) => Promise<Song | null>;
     findAllSongs: (userId?: string) => Promise<Song[]>;
     updateSongInDb: (song: Song) => Promise<Song>;
     deleteSongFromDb: (id: string) => Promise<void>;
     findZikresourceById: (id: string) => Promise<Zikresource | null>;
+    findZikresourceByClonedFromAndUser: (clonedFrom: string, userId: string) => Promise<Zikresource | null>;
     cloneZikresource: (id: string, userId: string) => Promise<Zikresource>;
 }
 
 export const defaultSongDeps: SongDependencies = {
     saveSong: firestoreSongRepo.saveSong,
     findSongById: firestoreSongRepo.findSongById,
+    findSongByClonedFromAndUser: firestoreSongRepo.findSongByClonedFromAndUser,
     findAllSongs: firestoreSongRepo.findAllSongs,
     updateSongInDb: firestoreSongRepo.updateSongInDb,
     deleteSongFromDb: firestoreSongRepo.deleteSongFromDb,
-    findZikresourceById: firestoreZikresourceRepo.findZikresourceById,
-    cloneZikresource: defaultCloneZikresource,
+    findZikresourceById,
+    findZikresourceByClonedFromAndUser,
+    cloneZikresource,
+};
+
+export const findSongById = async (
+    id: string,
+    deps: SongDependencies = defaultSongDeps
+): Promise<Song | null> => {
+    return deps.findSongById(id);
 };
 
 const validateZikresources = async (
@@ -126,6 +140,11 @@ export const cloneSong = async (
         throw new AppError(StatusCodes.FORBIDDEN, `You already own this song.`);
     }
 
+    const alreadyClonedSong = await deps.findSongByClonedFromAndUser(id, userId);
+    if (alreadyClonedSong) {
+        throw new AppError(StatusCodes.CONFLICT, `You have already added this song to your Songbook.`);
+    }
+
     const clonedZikresourceIds: string[] = [];
     const clonedResources = [];
 
@@ -137,9 +156,16 @@ export const cloneSong = async (
         if (res.createdBy === userId) {
             clonedZikresourceIds.push(res.id);
         } else {
-            const clonedRes = await deps.cloneZikresource(res.id, userId);
-            clonedZikresourceIds.push(clonedRes.id);
-            clonedResources.push(clonedRes);
+            const existingClonedRes = deps.findZikresourceByClonedFromAndUser
+                ? await deps.findZikresourceByClonedFromAndUser(res.id, userId)
+                : null;
+            if (existingClonedRes) {
+                clonedZikresourceIds.push(existingClonedRes.id);
+            } else {
+                const clonedRes = await deps.cloneZikresource(res.id, userId);
+                clonedZikresourceIds.push(clonedRes.id);
+                clonedResources.push(clonedRes);
+            }
         }
     }
 

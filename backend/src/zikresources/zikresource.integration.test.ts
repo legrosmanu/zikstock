@@ -40,6 +40,7 @@ describe('ZikresourceController Integration', () => {
         
         jest.mocked(firestoreRepo.saveZikresource).mockImplementation(mockRepo.saveZikresource);
         jest.mocked(firestoreRepo.findZikresourceById).mockImplementation(mockRepo.findZikresourceById);
+        jest.mocked(firestoreRepo.findZikresourceByClonedFromAndUser).mockImplementation(mockRepo.findZikresourceByClonedFromAndUser);
         jest.mocked(firestoreRepo.findAllZikresources).mockImplementation(mockRepo.findAllZikresources);
         jest.mocked(firestoreRepo.updateZikresourceInDb).mockImplementation(mockRepo.updateZikresourceInDb);
         jest.mocked(firestoreRepo.deleteZikresourceFromDb).mockImplementation(mockRepo.deleteZikresourceFromDb);
@@ -243,5 +244,23 @@ describe('ZikresourceController Integration', () => {
         expect(response.status).toBe(403);
         expect(response.body.message).toBe('You already own this zikresource.');
     });
+
+    it('POST /zikresources/:id/clone should return 409 when trying to clone an already cloned zikresource', async () => {
+        await mockRepo.saveZikresource({ id: 'res-other', createdBy: 'other-user', url: 'https://youtube.com/watch?v=123', artist: 'Artist', title: 'Title', type: 'video' });
+
+        // First clone succeeds
+        const firstResponse = await request(app)
+            .post('/zikresources/res-other/clone')
+            .set('Authorization', `Bearer ${VALID_TOKEN}`);
+        expect(firstResponse.status).toBe(201);
+
+        // Second clone returns 409 Conflict
+        const secondResponse = await request(app)
+            .post('/zikresources/res-other/clone')
+            .set('Authorization', `Bearer ${VALID_TOKEN}`);
+        expect(secondResponse.status).toBe(409);
+        expect(secondResponse.body.message).toBe('You have already added this resource to your Songbook.');
+    });
 });
+
 

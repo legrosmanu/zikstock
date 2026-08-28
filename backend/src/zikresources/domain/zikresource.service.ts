@@ -1,13 +1,14 @@
 import { v4 as uuidv4 } from 'uuid';
 import { Zikresource } from './zikresource.domain';
 import * as firestoreZikresourceRepo from '../repositories/firestore-zikresource.repository';
-import { checkHttpFrameEmbeddability as defaultCheckHttpFrameEmbeddability } from '../repositories/http-embeddability.repository';
+import { checkHttpFrameEmbeddability as checkHttpFrameEmbeddabilityRepo } from '../repositories/http-embeddability.repository';
 import { AppError } from '../../application/middleware/error.middleware';
 import { StatusCodes } from 'http-status-codes';
 
 export interface ZikresourceDependencies {
     saveZikresource: (res: Zikresource) => Promise<Zikresource>;
     findZikresourceById: (id: string) => Promise<Zikresource | null>;
+    findZikresourceByClonedFromAndUser: (clonedFrom: string, userId: string) => Promise<Zikresource | null>;
     findAllZikresources: (userId?: string) => Promise<Zikresource[]>;
     updateZikresourceInDb: (res: Zikresource) => Promise<Zikresource>;
     deleteZikresourceFromDb: (id: string) => Promise<void>;
@@ -17,10 +18,11 @@ export interface ZikresourceDependencies {
 export const defaultZikresourceDeps: ZikresourceDependencies = {
     saveZikresource: firestoreZikresourceRepo.saveZikresource,
     findZikresourceById: firestoreZikresourceRepo.findZikresourceById,
+    findZikresourceByClonedFromAndUser: firestoreZikresourceRepo.findZikresourceByClonedFromAndUser,
     findAllZikresources: firestoreZikresourceRepo.findAllZikresources,
     updateZikresourceInDb: firestoreZikresourceRepo.updateZikresourceInDb,
     deleteZikresourceFromDb: firestoreZikresourceRepo.deleteZikresourceFromDb,
-    checkHttpFrameEmbeddability: defaultCheckHttpFrameEmbeddability,
+    checkHttpFrameEmbeddability: checkHttpFrameEmbeddabilityRepo,
 };
 
 export const createZikresource = async (
@@ -32,6 +34,21 @@ export const createZikresource = async (
         ...partial,
     };
     return deps.saveZikresource(zikresource);
+};
+
+export const findZikresourceById = async (
+    id: string,
+    deps: ZikresourceDependencies = defaultZikresourceDeps
+): Promise<Zikresource | null> => {
+    return deps.findZikresourceById(id);
+};
+
+export const findZikresourceByClonedFromAndUser = async (
+    clonedFrom: string,
+    userId: string,
+    deps: ZikresourceDependencies = defaultZikresourceDeps
+): Promise<Zikresource | null> => {
+    return deps.findZikresourceByClonedFromAndUser(clonedFrom, userId);
 };
 
 export const getZikresourceById = async (
@@ -125,6 +142,10 @@ export const cloneZikresource = async (
     }
     if (existing.createdBy === userId) {
         throw new AppError(StatusCodes.FORBIDDEN, `You already own this zikresource.`);
+    }
+    const alreadyCloned = await deps.findZikresourceByClonedFromAndUser(id, userId);
+    if (alreadyCloned) {
+        throw new AppError(StatusCodes.CONFLICT, `You have already added this resource to your Songbook.`);
     }
     const cloned: Zikresource = {
         id: uuidv4(),

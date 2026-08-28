@@ -19,6 +19,11 @@ export const findAllSongs = async (userId?: string): Promise<Song[]> => {
     return all;
 };
 
+export const findSongByClonedFromAndUser = async (clonedFrom: string, userId: string): Promise<Song | null> => {
+    const all = Array.from(songs.values());
+    return all.find(s => s.clonedFrom === clonedFrom && s.createdBy === userId) || null;
+};
+
 export const updateSongInDb = async (song: Song): Promise<Song> => {
     songs.set(song.id, song);
     return song;
@@ -31,3 +36,4 @@ export const deleteSongFromDb = async (id: string): Promise<void> => {
 export const clearData = (): void => {
     songs.clear();
 };
+

@@ -1,10 +1,13 @@
 import {
     createZikresource,
     getZikresourceById,
+    findZikresourceById,
+    findZikresourceByClonedFromAndUser,
     getAllZikresources,
     updateZikresource,
     deleteZikresource,
     checkEmbeddability,
+    cloneZikresource,
     ZikresourceDependencies
 } from './zikresource.service';
 import { Zikresource } from './zikresource.domain';
@@ -19,6 +22,7 @@ describe('ZikresourceService', () => {
         deps = {
             saveZikresource: mockRepo.saveZikresource,
             findZikresourceById: mockRepo.findZikresourceById,
+            findZikresourceByClonedFromAndUser: mockRepo.findZikresourceByClonedFromAndUser,
             findAllZikresources: mockRepo.findAllZikresources,
             updateZikresourceInDb: mockRepo.updateZikresourceInDb,
             deleteZikresourceFromDb: mockRepo.deleteZikresourceFromDb,
@@ -62,6 +66,45 @@ describe('ZikresourceService', () => {
 
         expect(result.id).toBe('123');
         expect(result.url).toBe(zikresource.url);
+    });
+
+    it('should find a zikresource by id without throwing if not found', async () => {
+        const zikresource: Zikresource = {
+            id: '123',
+            createdBy: 'user-123',
+            url: 'https://example.com',
+            artist: 'Test Artist',
+            title: 'Test Title',
+            type: 'video',
+            tags: []
+        };
+        await deps.saveZikresource(zikresource);
+
+        const found = await findZikresourceById('123', deps);
+        expect(found?.id).toBe('123');
+
+        const notFound = await findZikresourceById('non-existent', deps);
+        expect(notFound).toBeNull();
+    });
+
+    it('should find a zikresource by clonedFrom and userId', async () => {
+        const zikresource: Zikresource = {
+            id: '123',
+            createdBy: 'user-123',
+            url: 'https://example.com',
+            artist: 'Test Artist',
+            title: 'Test Title',
+            type: 'video',
+            tags: [],
+            clonedFrom: 'orig-456'
+        };
+        await deps.saveZikresource(zikresource);
+
+        const found = await findZikresourceByClonedFromAndUser('orig-456', 'user-123', deps);
+        expect(found?.id).toBe('123');
+
+        const notFound = await findZikresourceByClonedFromAndUser('orig-456', 'user-999', deps);
+        expect(notFound).toBeNull();
     });
 
     it('should throw error if zikresource not found on getById', async () => {
@@ -193,6 +236,71 @@ describe('ZikresourceService', () => {
         await deps.saveZikresource(original);
 
         await expect(deleteZikresource('zik-mine', 'user-123', deps)).resolves.not.toThrow();
+    });
+
+    describe('cloneZikresource', () => {
+        it('should clone a zikresource created by another user', async () => {
+            const original: Zikresource = {
+                id: 'res-other',
+                createdBy: 'other-user',
+                url: 'https://youtube.com/watch?v=123',
+                artist: 'Artist',
+                title: 'Title',
+                type: 'video',
+                tags: [{ label: 'Rock', value: 'rock' }]
+            };
+            await deps.saveZikresource(original);
+
+            const cloned = await cloneZikresource('res-other', 'user-123', deps);
+
+            expect(cloned.id).toBeDefined();
+            expect(cloned.id).not.toBe('res-other');
+            expect(cloned.createdBy).toBe('user-123');
+            expect(cloned.clonedFrom).toBe('res-other');
+            expect(cloned.tags).toEqual([{ label: 'Rock', value: 'rock' }]);
+        });
+
+        it('should throw FORBIDDEN when cloning own zikresource', async () => {
+            const original: Zikresource = {
+                id: 'res-own',
+                createdBy: 'user-123',
+                url: 'https://youtube.com/watch?v=123',
+                artist: 'Artist',
+                title: 'Title',
+                type: 'video'
+            };
+            await deps.saveZikresource(original);
+
+            await expect(cloneZikresource('res-own', 'user-123', deps)).rejects.toThrow(
+                'You already own this zikresource.'
+            );
+        });
+
+        it('should throw CONFLICT when cloning a zikresource already cloned by the same user', async () => {
+            const original: Zikresource = {
+                id: 'res-other',
+                createdBy: 'other-user',
+                url: 'https://youtube.com/watch?v=123',
+                artist: 'Artist',
+                title: 'Title',
+                type: 'video'
+            };
+            await deps.saveZikresource(original);
+
+            // First clone succeeds
+            await cloneZikresource('res-other', 'user-123', deps);
+
+            // Second clone should throw 409 Conflict
+            await expect(cloneZikresource('res-other', 'user-123', deps)).rejects.toThrow(
+                'You have already added this resource to your Songbook.'
+            );
+        });
+
+        it('should throw NOT_FOUND if the zikresource does not exist', async () => {
+            await expect(cloneZikresource('non-existent', 'user-123', deps)).rejects.toThrow(
+                'Zikresource with id non-existent not found'
+            );
+        });
     });
 
     describe('checkEmbeddability', () => {
