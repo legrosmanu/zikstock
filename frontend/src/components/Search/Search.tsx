@@ -26,6 +26,7 @@ import { ZikresourceCard } from '../Cards/ZikresourceCard';
 import { SongCard } from '../Cards/SongCard';
 import { PlaylistCard } from '../Cards/PlaylistCard';
 import { SortDropdown } from '../Cards/SortDropdown';
+import { filterAndSortZikresources, filterAndSortSongs, filterAndSortPlaylists } from './search.utils';
 import './Search.css';
 import '../Cards/Card.css';
 
@@ -168,79 +169,32 @@ export const Search: React.FC = () => {
   const isNetworkMember = (creatorId: string) => networkUserIds.has(creatorId);
 
   // Filter & Sort Zikresources
-  const filteredResources = zikresources
-    .filter((resource) => {
-      if (isSelf(resource.createdBy)) return false;
-
-      if (selectedResourceType !== 'all') {
-        if (selectedResourceType === 'tabs' && resource.type !== 'tablature') return false;
-        if (selectedResourceType === 'videos' && resource.type !== 'video') return false;
-        if (selectedResourceType === 'backing-tracks' && resource.type !== 'backing-track') return false;
-        if (selectedResourceType === 'lyrics' && resource.type !== 'lyrics') return false;
-        if (selectedResourceType === 'other' && resource.type !== 'other') return false;
-      }
-
-      if (onlyNetwork && !isNetworkMember(resource.createdBy)) return false;
-
-      if (searchQuery.trim() !== '') {
-        const q = searchQuery.toLowerCase();
-        const matchesTitle = resource.title.toLowerCase().includes(q);
-        const matchesArtist = resource.artist.toLowerCase().includes(q);
-        const matchesCreator = resource.creatorName?.toLowerCase().includes(q);
-        const matchesTag = resource.tags?.some(
-          (tag) => tag.label.toLowerCase().includes(q) || tag.value.toLowerCase().includes(q)
-        );
-        return matchesTitle || matchesArtist || matchesCreator || matchesTag;
-      }
-
-      return true;
-    })
-    .sort((a, b) => {
-      if (sortBy === 'title') return a.title.localeCompare(b.title);
-      if (sortBy === 'artist') return (a.artist || '').localeCompare(b.artist || '');
-      return b._id.localeCompare(a._id);
-    });
+  const filteredResources = filterAndSortZikresources(zikresources, {
+    currentUserId: currentUser?.sub,
+    selectedResourceType,
+    onlyNetwork,
+    networkUserIds,
+    searchQuery,
+    sortBy,
+  });
 
   // Filter & Sort Songs
-  const filteredSongs = songs
-    .filter((song) => {
-      if (isSelf(song.createdBy)) return false;
-      if (onlyNetwork && !isNetworkMember(song.createdBy)) return false;
-
-      if (searchQuery.trim() !== '') {
-        const q = searchQuery.toLowerCase();
-        const matchesTitle = song.title.toLowerCase().includes(q);
-        const matchesArtist = song.artist.toLowerCase().includes(q);
-        const matchesCreator = song.creatorName?.toLowerCase().includes(q);
-        return matchesTitle || matchesArtist || matchesCreator;
-      }
-      return true;
-    })
-    .sort((a, b) => {
-      if (sortBy === 'title') return a.title.localeCompare(b.title);
-      if (sortBy === 'artist') return (a.artist || '').localeCompare(b.artist || '');
-      return b._id.localeCompare(a._id);
-    });
+  const filteredSongs = filterAndSortSongs(songs, {
+    currentUserId: currentUser?.sub,
+    onlyNetwork,
+    networkUserIds,
+    searchQuery,
+    sortBy,
+  });
 
   // Filter & Sort Playlists
-  const filteredPlaylists = playlists
-    .filter((pl) => {
-      if (isSelf(pl.createdBy)) return false;
-      if (onlyNetwork && !isNetworkMember(pl.createdBy)) return false;
-
-      if (searchQuery.trim() !== '') {
-        const q = searchQuery.toLowerCase();
-        const matchesName = pl.name.toLowerCase().includes(q);
-        const matchesDesc = pl.description && pl.description.toLowerCase().includes(q);
-        const matchesCreator = pl.creatorName?.toLowerCase().includes(q);
-        return matchesName || matchesDesc || matchesCreator;
-      }
-      return true;
-    })
-    .sort((a, b) => {
-      if (sortBy === 'title') return a.name.localeCompare(b.name);
-      return b._id.localeCompare(a._id);
-    });
+  const filteredPlaylists = filterAndSortPlaylists(playlists, {
+    currentUserId: currentUser?.sub,
+    onlyNetwork,
+    networkUserIds,
+    searchQuery,
+    sortBy: sortBy === 'artist' ? 'newest' : sortBy,
+  });
 
   const handleTabChange = (tab: 'zikresources' | 'songs' | 'playlists') => {
     setActiveTab(tab);
