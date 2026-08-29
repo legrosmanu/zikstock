@@ -49,25 +49,40 @@ export const ViewSong: React.FC = () => {
   };
 
   useEffect(() => {
+    let isMounted = true;
+    setIsLoading(true);
+    setError(null);
+    setCloneSuccessId(null);
+    setShowDeleteConfirm(false);
+
     const loadData = async () => {
       try {
         const [songData, allResources] = await Promise.all([
           fetchSongById(id),
           fetchZikresources({ scope: 'all' }),
         ]);
-        setSong(songData);
-        
-        const resourceIds = songData.zikresourceIds || [];
-        const matched = allResources.filter(r => resourceIds.includes(r._id));
-        setAssociatedResources(matched);
+        if (isMounted) {
+          setSong(songData);
+          const resourceIds = songData.zikresourceIds || [];
+          const matched = allResources.filter(r => resourceIds.includes(r._id));
+          setAssociatedResources(matched);
+        }
       } catch (err) {
-        console.error('Failed to load song data', err);
-        setError(t.viewSong.errorLoadFailed);
+        if (isMounted) {
+          console.error('Failed to load song data', err);
+          setError(t.viewSong.errorLoadFailed);
+        }
       } finally {
-        setIsLoading(false);
+        if (isMounted) {
+          setIsLoading(false);
+        }
       }
     };
     loadData();
+
+    return () => {
+      isMounted = false;
+    };
   }, [id, t.viewSong.errorLoadFailed]);
 
   const handleDelete = async () => {
@@ -119,9 +134,10 @@ export const ViewSong: React.FC = () => {
         {error && <div className="create-page-error" style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)', color: '#ef4444', padding: '1rem', borderRadius: '8px', marginBottom: '1.5rem', fontSize: '0.9rem' }}>{error}</div>}
 
         {isOwner && (
-          <div className="manage-top-actions">
+          <div key="owner-actions" className="manage-top-actions">
             <div className="action-buttons-left">
               <button
+                key="btn-edit-song"
                 type="button"
                 className="btn-edit-song"
                 onClick={() => navigate({ to: `/songs/${id}/edit` as never })}
@@ -133,6 +149,7 @@ export const ViewSong: React.FC = () => {
 
             {!showDeleteConfirm ? (
               <button
+                key="btn-delete-song"
                 type="button"
                 className="btn-delete-resource"
                 onClick={() => setShowDeleteConfirm(true)}
@@ -141,7 +158,7 @@ export const ViewSong: React.FC = () => {
                 <span>{t.viewSong.btnDelete}</span>
               </button>
             ) : (
-              <div className="delete-confirm-group">
+              <div key="delete-confirm-group" className="delete-confirm-group">
                 <span className="delete-confirm-text">{t.viewZikresource.confirmDeleteText}</span>
                 <button
                   type="button"
@@ -165,10 +182,11 @@ export const ViewSong: React.FC = () => {
         )}
 
         {!isOwner && user && (
-          <div className="manage-top-actions">
+          <div key="non-owner-actions" className="manage-top-actions">
             <div className="action-buttons-left">
               {cloneSuccessId ? (
                 <button
+                  key="btn-clone-success"
                   type="button"
                   className="btn-clone-song success"
                   onClick={() => navigate({ to: `/songs/${cloneSuccessId}` as never })}
@@ -178,6 +196,7 @@ export const ViewSong: React.FC = () => {
                 </button>
               ) : (
                 <button
+                  key="btn-clone-song"
                   type="button"
                   className="btn-clone-song"
                   onClick={handleClone}

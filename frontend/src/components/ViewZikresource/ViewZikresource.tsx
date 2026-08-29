@@ -134,18 +134,34 @@ export const ViewZikresource: React.FC = () => {
   }, [id, resource?.url]);
 
   useEffect(() => {
+    let isMounted = true;
+    setIsLoading(true);
+    setError(null);
+    setCloneSuccessId(null);
+    setShowDeleteConfirm(false);
+
     const loadResource = async () => {
       try {
         const data = await fetchZikresourceById(id);
-        setResource(data);
+        if (isMounted) {
+          setResource(data);
+        }
       } catch (err) {
-        console.error('Failed to load resource', err);
-        setError(t.viewZikresource.errorLoadFailed);
+        if (isMounted) {
+          console.error('Failed to load resource', err);
+          setError(t.viewZikresource.errorLoadFailed);
+        }
       } finally {
-        setIsLoading(false);
+        if (isMounted) {
+          setIsLoading(false);
+        }
       }
     };
     loadResource();
+
+    return () => {
+      isMounted = false;
+    };
   }, [id, t.viewZikresource.errorLoadFailed]);
 
   const handleDelete = async () => {
@@ -265,9 +281,10 @@ export const ViewZikresource: React.FC = () => {
         </div>
 
         {isOwner && (
-          <div className="manage-top-actions">
+          <div key="owner-actions" className="manage-top-actions">
             <div className="action-buttons-left">
               <button
+                key="btn-edit-resource"
                 type="button"
                 className="btn-edit-resource"
                 onClick={() => navigate({ to: `/zikresources/${id}/edit` as never })}
@@ -279,6 +296,7 @@ export const ViewZikresource: React.FC = () => {
 
             {!showDeleteConfirm ? (
               <button
+                key="btn-delete-resource"
                 type="button"
                 className="btn-delete-resource"
                 onClick={() => setShowDeleteConfirm(true)}
@@ -287,7 +305,7 @@ export const ViewZikresource: React.FC = () => {
                 <span>{t.viewZikresource.btnDelete}</span>
               </button>
             ) : (
-              <div className="delete-confirm-group">
+              <div key="delete-confirm-group" className="delete-confirm-group">
                 <span className="delete-confirm-text">{t.viewZikresource.confirmDeleteText}</span>
                 <button
                   type="button"
@@ -311,10 +329,11 @@ export const ViewZikresource: React.FC = () => {
         )}
 
         {!isOwner && user && (
-          <div className="manage-top-actions">
+          <div key="non-owner-actions" className="manage-top-actions">
             <div className="action-buttons-left">
               {cloneSuccessId ? (
                 <button
+                  key="btn-clone-success"
                   type="button"
                   className="btn-clone-resource success"
                   onClick={() => navigate({ to: `/zikresources/${cloneSuccessId}` as never })}
@@ -324,6 +343,7 @@ export const ViewZikresource: React.FC = () => {
                 </button>
               ) : (
                 <button
+                  key="btn-clone-resource"
                   type="button"
                   className="btn-clone-resource"
                   onClick={handleClone}
