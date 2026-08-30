@@ -1,7 +1,8 @@
-# GCP Deployment Guide for Zikstock
+# Deployment Guide for Zikstock
 
-This guide explains how to deploy the Zikstock application (Backend + Frontend) to Google Cloud Platform (GCP) using **Cloud Run** and **Firestore** (Native mode) in the `europe-west1` (Paris) region.  
-If you want to deploy it automatically, you can use the deploy Github workflow.
+This guide explains how to deploy the Zikstock application:
+- **Backend API & Database**: Google Cloud Platform (GCP) using **Cloud Run** and **Firestore** (Native mode) in the `europe-west1` (Paris) region.
+- **Frontend**: **Cloudflare Pages** (Global Edge CDN hosting with automatic Git deployments).
 
 ---
 
@@ -10,6 +11,7 @@ If you want to deploy it automatically, you can use the deploy Github workflow.
 1. Install the **[Google Cloud CLI](https://cloud.google.com/sdk/docs/install)**.
 2. Sign up/login to the **[Google Cloud Console](https://console.cloud.google.com/)**.
 3. Create a GCP Project (e.g. `zikstock-prod`) and make sure billing is enabled.
+4. Create a free account on **[Cloudflare](https://dash.cloudflare.com/)**.
 
 ---
 
@@ -23,14 +25,15 @@ Zikstock uses Google Sign-In, which requires an OAuth client ID:
 5. Name it (e.g., `Zikstock Web`).
 6. Add the following to **Authorized JavaScript origins**:
    - `http://localhost:5173` (for local development)
-   - Your frontend URL (once deployed; you can update this list later in the console).
+   - `https://zikstock.pages.dev` (Cloudflare Pages preview URL)
+   - `https://zikstock.com` and `https://www.zikstock.com` (custom production domains)
 7. Click **Create** and copy your **Client ID** (looks like `xxxxxx-xxxxxx.apps.googleusercontent.com`).
 
 ---
 
-## 3. Initial GCP Setup
+## 3. Initial GCP Setup (Backend & Database)
 
-Run the following commands in your terminal to authenticate and prepare your environment:
+Run the following commands in your terminal to authenticate and prepare your GCP environment:
 
 ```bash
 # 1. Login to your Google Cloud Account
@@ -49,22 +52,15 @@ gcloud services enable \
     firestore.googleapis.com
 ```
 
----
-
-## 4. Database Setup (Firestore)
-
+### Database Setup (Firestore)
 Create the Firestore database in **Native mode** inside the `europe-west1` region:
 
 ```bash
 gcloud firestore databases create --location=europe-west1 --type=firestore-native
 ```
 
----
-
-## 5. Deployment Steps
-
-### Step A: Create an Artifact Registry Repository
-Create a repository to store the Docker images for the frontend and backend:
+### Artifact Registry Setup
+Create a repository to store the backend Docker images:
 
 ```bash
 gcloud artifacts repositories create zikstock-repo \
@@ -73,48 +69,54 @@ gcloud artifacts repositories create zikstock-repo \
     --description="Zikstock Docker Images"
 ```
 
-### Step B: Build & Deploy Backend to Cloud Run
-1. Submit the backend build to GCP:
+---
+
+## 4. Backend Deployment (Cloud Run)
+
+### Manual Deployment via CLI
+1. Build & Push Backend image:
    ```bash
    gcloud builds submit backend \
        --tag europe-west1-docker.pkg.dev/[YOUR_PROJECT_ID]/zikstock-repo/backend:latest
    ```
 
 2. Deploy the backend container to Cloud Run:
-   Replace `[YOUR_GOOGLE_CLIENT_ID]` and `[YOUR_PROJECT_ID]` with your actual credentials:
    ```bash
    gcloud run deploy zikstock-backend \
        --image europe-west1-docker.pkg.dev/[YOUR_PROJECT_ID]/zikstock-repo/backend:latest \
        --platform managed \
        --region europe-west1 \
        --allow-unauthenticated \
-       --set-env-vars GCLOUD_PROJECT=[YOUR_PROJECT_ID],GOOGLE_CLIENT_ID=[YOUR_GOOGLE_CLIENT_ID]
+       --set-env-vars GCLOUD_PROJECT=[YOUR_PROJECT_ID],GOOGLE_CLIENT_ID=[YOUR_GOOGLE_CLIENT_ID],FRONTEND_URL="https://zikstock.pages.dev,https://zikstock.com,https://www.zikstock.com"
    ```
 
-3. **Important**: Note the URL of the deployed backend (e.g., `https://zikstock-backend-xxxxxx-ew.a.run.app`) printed in the output. You need it for Step C.
+3. Note the Backend Service URL output (e.g., `https://zikstock-backend-xxxxxx-ew.a.run.app`).
 
-### Step C: Build & Deploy Frontend to Cloud Run
-1. Submit the frontend build, passing the Backend API URL and Google Client ID as build arguments so Vite can package them:
-   ```bash
-   gcloud builds submit frontend \
-       --tag europe-west1-docker.pkg.dev/[YOUR_PROJECT_ID]/zikstock-repo/frontend:latest \
-       --build-arg VITE_API_URL=[YOUR_BACKEND_URL] \
-       --build-arg VITE_GOOGLE_CLIENT_ID=[YOUR_GOOGLE_CLIENT_ID]
-   ```
-
-2. Deploy the frontend container to Cloud Run:
-   ```bash
-   gcloud run deploy zikstock-frontend \
-       --image europe-west1-docker.pkg.dev/[YOUR_PROJECT_ID]/zikstock-repo/frontend:latest \
-       --platform managed \
-       --region europe-west1 \
-       --allow-unauthenticated
-   ```
-
-Your app is now live! The console will print the URL of the frontend deployment.
+### Automatic Deployment via GitHub Actions
+A GitHub Actions workflow is provided in `.github/workflows/deploy.yml` which deploys the backend container to Cloud Run on manual dispatch or release.
 
 ---
 
-## 6. Post-Deployment Settings
+## 5. Frontend Deployment (Cloudflare Pages)
 
-Go back to **APIs & Services** > **Credentials** in the GCP Console, edit your OAuth 2.0 Client ID, and add your frontend's deployed Cloud Run URL to the list of **Authorized JavaScript origins** so Google Sign-In functions correctly in production.
+1. In the **Cloudflare Dashboard**, navigate to **Workers & Pages** > **Create application** > **Pages** > **Connect to Git**.
+2. Connect your GitHub repository `zikstock`.
+3. Configure the build settings:
+   - **Framework preset**: `Vite`
+   - **Root directory**: `frontend`
+   - **Build command**: `pnpm build`
+   - **Build output directory**: `dist`
+4. Add the following **Environment variables**:
+   - `NODE_VERSION`: `20` (or `22`)
+   - `VITE_API_URL`: Your backend URL (e.g. `https://zikstock-backend-xxxxxx-ew.a.run.app` or `https://api.zikstock.com`)
+   - `VITE_GOOGLE_CLIENT_ID`: Your Google OAuth Client ID
+5. Click **Save and Deploy**. Cloudflare Pages will automatically rebuild and deploy the frontend on every commit pushed to `main`.
+
+---
+
+## 6. Custom Domain & DNS Configuration
+
+1. In Cloudflare, add your domain `zikstock.com`.
+2. Update your domain's Nameservers at your registrar (e.g. OVH) to point to Cloudflare's assigned nameservers.
+3. In your Cloudflare Pages project, go to **Custom domains** > **Set up a custom domain** and add `zikstock.com` and `www.zikstock.com`.
+4. (Optional) For the backend API (`api.zikstock.com`), create a CNAME record in Cloudflare DNS pointing to your Cloud Run hostname and configure an Origin Rule to rewrite the Host header.
