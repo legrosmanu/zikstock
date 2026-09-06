@@ -24,7 +24,7 @@ export const AddResourceModal: React.FC<AddResourceModalProps> = ({
   song,
   onResourceAdded,
 }) => {
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
   const [url, setUrl] = useState('');
   const [type, setType] = useState<string>('other');
   const [isAutoDetected, setIsAutoDetected] = useState(false);
@@ -161,12 +161,11 @@ export const AddResourceModal: React.FC<AddResourceModalProps> = ({
               <Music size={18} className="song-context-icon" />
               <div className="song-context-text">
                 <span className="song-context-title">{song.title}</span>
-                <span className="song-context-artist">{song.artist}</span>
+                <span className="song-context-artist">
+                  {locale === 'fr' ? 'de' : 'by'} {song.artist}
+                </span>
               </div>
             </div>
-            <span className="song-context-badge" title={t.addResourceModal.inheritedHint}>
-              {t.addResourceModal.inheritedHint}
-            </span>
           </div>
 
           {/* URL Field */}
