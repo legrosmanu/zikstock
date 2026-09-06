@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Music, Search, Check, Loader2, BookOpen, Video, Mic, HelpCircle } from 'lucide-react';
+import { Music, Search, Check, Loader2 } from 'lucide-react';
 import { useNavigate } from '@tanstack/react-router';
 import { fetchSongs } from '../../infra/song.api';
 import type { Song } from '../../infra/song.api';
-import { fetchZikresources } from '../../infra/zikresource.api';
-import type { Zikresource } from '../../infra/zikresource.api';
 import { createPlaylist } from '../../infra/playlist.api';
 import { useTranslation } from '../../hooks/useTranslation';
 import '../CreateSong/CreateSong.css';
@@ -17,11 +15,8 @@ export const CreatePlaylist: React.FC = () => {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [selectedSongIds, setSelectedSongIds] = useState<string[]>([]);
-  const [selectedZikresourceIds, setSelectedZikresourceIds] = useState<string[]>([]);
   const [songs, setSongs] = useState<Song[]>([]);
-  const [zikresources, setZikresources] = useState<Zikresource[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [zikSearchQuery, setZikSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -29,14 +24,10 @@ export const CreatePlaylist: React.FC = () => {
   useEffect(() => {
     const loadData = async () => {
       try {
-        const [songsData, zikData] = await Promise.all([
-          fetchSongs(),
-          fetchZikresources(),
-        ]);
+        const songsData = await fetchSongs();
         setSongs(songsData);
-        setZikresources(zikData);
       } catch (err) {
-        console.error('Failed to load data', err);
+        console.error('Failed to load songs', err);
         setError(t.createPlaylist.errorLoadData);
       } finally {
         setIsLoading(false);
@@ -51,22 +42,10 @@ export const CreatePlaylist: React.FC = () => {
     );
   };
 
-  const toggleZikresource = (id: string) => {
-    setSelectedZikresourceIds((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
-    );
-  };
-
   const filteredSongs = songs.filter(
     (s) =>
       s.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       s.artist.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  const filteredZikresources = zikresources.filter(
-    (z) =>
-      z.title.toLowerCase().includes(zikSearchQuery.toLowerCase()) ||
-      z.artist.toLowerCase().includes(zikSearchQuery.toLowerCase())
   );
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -84,7 +63,7 @@ export const CreatePlaylist: React.FC = () => {
         name: name.trim(),
         description: description.trim() || undefined,
         songIds: selectedSongIds,
-        zikresourceIds: selectedZikresourceIds,
+        zikresourceIds: [],
       });
       navigate({ to: '/home', search: { tab: 'playlists' } as never, replace: true });
     } catch (err) {
@@ -132,61 +111,6 @@ export const CreatePlaylist: React.FC = () => {
               disabled={isSubmitting}
               rows={3}
             />
-          </div>
-
-          <div className="form-group-flex">
-            <label className="form-label">{t.createPlaylist.fieldAddResources}</label>
-            <div className="search-filter-box">
-              <Search size={14} className="search-filter-icon" />
-              <input
-                type="text"
-                className="search-filter-input"
-                placeholder={t.createPlaylist.searchResourcesPlaceholder}
-                value={zikSearchQuery}
-                onChange={(e) => setZikSearchQuery(e.target.value)}
-              />
-            </div>
-
-            {isLoading ? (
-              <div className="resources-loading-msg">{t.createPlaylist.loadingResources}</div>
-            ) : filteredZikresources.length === 0 ? (
-              <div className="no-resources-msg">{t.createPlaylist.noResourcesFound}</div>
-            ) : (
-              <div className="selection-list-container">
-                {filteredZikresources.map((res) => {
-                  const isChecked = selectedZikresourceIds.includes(res._id);
-                  return (
-                    <div
-                      key={res._id}
-                      className={`selection-list-item ${isChecked ? 'selected' : ''}`}
-                      onClick={() => toggleZikresource(res._id)}
-                    >
-                      <div className="checkbox-indicator">
-                        {isChecked && <Check size={12} />}
-                      </div>
-                      <div className="item-meta">
-                        <span className="item-title">{res.title}</span>
-                        <span className="item-artist">{t.common.by} {res.artist}</span>
-                      </div>
-                      <div className="playlist-item-badge">
-                        {res.type === 'tablature' && <BookOpen size={12} />}
-                        {res.type === 'video' && <Video size={12} />}
-                        {res.type === 'backing-track' && <Music size={12} />}
-                        {res.type === 'lyrics' && <Mic size={12} />}
-                        {res.type === 'other' && <HelpCircle size={12} />}
-                        <span style={{ marginLeft: '4px' }}>
-                          {res.type === 'tablature' && t.dashboard.typeTablature}
-                          {res.type === 'video' && t.dashboard.typeVideo}
-                          {res.type === 'backing-track' && t.dashboard.typeBackingTrack}
-                          {res.type === 'lyrics' && t.dashboard.typeLyrics}
-                          {res.type === 'other' && t.dashboard.typeOther}
-                        </span>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
           </div>
 
           <div className="form-group-flex" style={{ marginTop: '1.5rem' }}>

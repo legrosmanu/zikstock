@@ -4,29 +4,24 @@ import {
   X,
   Music,
   Folder,
-  FileText,
   Loader2,
   LayoutGrid,
   List as ListIcon,
   Filter,
-  Check,
   ChevronDown
 } from 'lucide-react';
 import { useNavigate, useSearch } from '@tanstack/react-router';
 import { useAuthStore } from '../../store/authStore';
-import { fetchZikresources } from '../../infra/zikresource.api';
-import type { Zikresource } from '../../infra/zikresource.api';
 import { fetchSongs } from '../../infra/song.api';
 import type { Song } from '../../infra/song.api';
 import { fetchPlaylists } from '../../infra/playlist.api';
 import type { Playlist } from '../../infra/playlist.api';
 import { getNetwork } from '../../infra/network.api';
 import { useTranslation } from '../../hooks/useTranslation';
-import { ZikresourceCard } from '../Cards/ZikresourceCard';
 import { SongCard } from '../Cards/SongCard';
 import { PlaylistCard } from '../Cards/PlaylistCard';
 import { SortDropdown } from '../Cards/SortDropdown';
-import { filterAndSortZikresources, filterAndSortSongs, filterAndSortPlaylists } from './search.utils';
+import { filterAndSortSongs, filterAndSortPlaylists } from './search.utils';
 import './Search.css';
 import '../Cards/Card.css';
 
@@ -36,10 +31,12 @@ export const Search: React.FC = () => {
   const token = useAuthStore((state) => state.token);
   const { t } = useTranslation();
 
-  const searchParams = useSearch({ from: '/search' }) as { tab?: 'zikresources' | 'songs' | 'playlists' };
+  const searchParams = useSearch({ from: '/search' }) as { tab?: 'songs' | 'playlists' };
   
   // Tab Control
-  const [activeTab, setActiveTab] = useState<'zikresources' | 'songs' | 'playlists'>(searchParams.tab || 'zikresources');
+  const [activeTab, setActiveTab] = useState<'songs' | 'playlists'>(
+    searchParams.tab === 'playlists' ? 'playlists' : 'songs'
+  );
 
   // Display mode & sorting
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
@@ -47,13 +44,12 @@ export const Search: React.FC = () => {
 
   // Sync tab from search parameter
   useEffect(() => {
-    if (searchParams.tab) {
+    if (searchParams.tab === 'playlists' || searchParams.tab === 'songs') {
       setActiveTab(searchParams.tab);
     }
   }, [searchParams.tab]);
 
   // Lists States
-  const [zikresources, setZikresources] = useState<Zikresource[]>([]);
   const [songs, setSongs] = useState<Song[]>([]);
   const [playlists, setPlaylists] = useState<Playlist[]>([]);
   const [networkUserIds, setNetworkUserIds] = useState<Set<string>>(new Set());
@@ -65,7 +61,6 @@ export const Search: React.FC = () => {
   // Filters State
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [onlyNetwork, setOnlyNetwork] = useState<boolean>(false);
-  const [selectedResourceType, setSelectedResourceType] = useState<string>('all');
   const [isFilterDropdownOpen, setIsFilterDropdownOpen] = useState<boolean>(false);
   const filterDropdownRef = useRef<HTMLDivElement>(null);
 
@@ -93,26 +88,9 @@ export const Search: React.FC = () => {
     };
   }, [isFilterDropdownOpen]);
 
-  const filterOptions = [
-    { id: 'all', label: t.dashboard.filterAll },
-    { id: 'tabs', label: t.dashboard.filterTabs },
-    { id: 'videos', label: t.dashboard.filterVideos },
-    { id: 'backing-tracks', label: t.dashboard.filterTracks },
-    { id: 'lyrics', label: t.dashboard.filterLyrics },
-    { id: 'other', label: t.dashboard.filterOther }
-  ];
-
-  const activeResourceOption = filterOptions.find((opt) => opt.id === selectedResourceType);
-  const isResourceFiltered = activeTab === 'zikresources' && selectedResourceType !== 'all';
-  const hasActiveFilter = isResourceFiltered || onlyNetwork;
+  const hasActiveFilter = onlyNetwork;
 
   const getFilterButtonLabel = () => {
-    if (isResourceFiltered && onlyNetwork) {
-      return `${activeResourceOption?.label} • 👥`;
-    }
-    if (isResourceFiltered && activeResourceOption) {
-      return activeResourceOption.label;
-    }
     if (onlyNetwork) {
       return `👥 ${t.sidebar.network}`;
     }
@@ -121,7 +99,6 @@ export const Search: React.FC = () => {
 
   const handleClearFilters = () => {
     setOnlyNetwork(false);
-    setSelectedResourceType('all');
   };
 
   const loadAllData = useCallback(async () => {
@@ -134,14 +111,12 @@ export const Search: React.FC = () => {
       setIsLoading(true);
       setErrorMsg(null);
 
-      const [resourcesData, songsData, playlistsData, networkData] = await Promise.all([
-        fetchZikresources({ scope: 'all' }),
+      const [songsData, playlistsData, networkData] = await Promise.all([
         fetchSongs({ scope: 'all' }),
         fetchPlaylists({ scope: 'all' }),
         getNetwork()
       ]);
 
-      setZikresources(resourcesData);
       setSongs(songsData);
       setPlaylists(playlistsData);
 
@@ -164,39 +139,27 @@ export const Search: React.FC = () => {
     loadAllData();
   }, [loadAllData]);
 
-  // Helpers to check relationship
-  const isSelf = (creatorId: string) => currentUser?.sub === creatorId;
-  const isNetworkMember = (creatorId: string) => networkUserIds.has(creatorId);
-
-  // Filter & Sort Zikresources
-  const filteredResources = filterAndSortZikresources(zikresources, {
-    currentUserId: currentUser?.sub,
-    selectedResourceType,
-    onlyNetwork,
-    networkUserIds,
-    searchQuery,
-    sortBy,
-  });
-
-  // Filter & Sort Songs
+  // Apply pure filter & sort functions
   const filteredSongs = filterAndSortSongs(songs, {
     currentUserId: currentUser?.sub,
     onlyNetwork,
     networkUserIds,
     searchQuery,
-    sortBy,
+    sortBy
   });
 
-  // Filter & Sort Playlists
   const filteredPlaylists = filterAndSortPlaylists(playlists, {
     currentUserId: currentUser?.sub,
     onlyNetwork,
     networkUserIds,
     searchQuery,
-    sortBy: sortBy === 'artist' ? 'newest' : sortBy,
+    sortBy
   });
 
-  const handleTabChange = (tab: 'zikresources' | 'songs' | 'playlists') => {
+  const isNetworkMember = (userId: string) => networkUserIds.has(userId);
+  const isSelf = (userId: string) => userId === currentUser?.sub;
+
+  const handleTabChange = (tab: 'songs' | 'playlists') => {
     setActiveTab(tab);
     navigate({ to: '/search', search: { tab } });
   };
@@ -224,13 +187,6 @@ export const Search: React.FC = () => {
           {/* Category Tabs Header */}
           <div className="search-tabs-container">
             <button
-              className={`search-tab-button ${activeTab === 'zikresources' ? 'active' : ''}`}
-              onClick={() => handleTabChange('zikresources')}
-            >
-              <FileText size={16} />
-              <span>{t.sidebar.zikresources} ({filteredResources.length})</span>
-            </button>
-            <button
               className={`search-tab-button ${activeTab === 'songs' ? 'active' : ''}`}
               onClick={() => handleTabChange('songs')}
             >
@@ -246,7 +202,7 @@ export const Search: React.FC = () => {
             </button>
           </div>
 
-          {/* Filters & Search Toolbar (compact & unified) */}
+          {/* Filters & Search Toolbar */}
           <div className="filters-container glass-panel" style={{ marginTop: '1.25rem' }}>
             <div className="search-box">
               <SearchIcon size={16} className="search-icon" />
@@ -311,32 +267,6 @@ export const Search: React.FC = () => {
                     )}
                   </div>
 
-                  {activeTab === 'zikresources' && (
-                    <>
-                      <div className="filter-dropdown-section-title">
-                        {t.createZikresource.fieldType}
-                      </div>
-                      <div className="filter-dropdown-list">
-                        {filterOptions.map((opt) => (
-                          <button
-                            key={opt.id}
-                            type="button"
-                            className={`filter-dropdown-item ${selectedResourceType === opt.id ? 'active' : ''}`}
-                            onClick={() => {
-                              setSelectedResourceType(opt.id);
-                              setIsFilterDropdownOpen(false);
-                            }}
-                            role="menuitem"
-                          >
-                            <span className="filter-item-label">{opt.label}</span>
-                            {selectedResourceType === opt.id && <Check size={14} className="filter-item-check" />}
-                          </button>
-                        ))}
-                      </div>
-                      <hr className="filter-dropdown-divider" />
-                    </>
-                  )}
-
                   <div className="filter-dropdown-section-title">
                     {t.sidebar.network}
                   </div>
@@ -360,7 +290,6 @@ export const Search: React.FC = () => {
           <div className="reverb-toolbar-row" style={{ marginTop: '1.25rem' }}>
             <div className="reverb-toolbar-left">
               <span className="reverb-result-count">
-                {activeTab === 'zikresources' && `${filteredResources.length} ${filteredResources.length === 1 ? t.common.resourcesCountSingular : t.common.resourcesCountPlural}`}
                 {activeTab === 'songs' && `${filteredSongs.length} ${filteredSongs.length === 1 ? t.common.songsCountSingular : t.common.songsCountPlural}`}
                 {activeTab === 'playlists' && `${filteredPlaylists.length} ${filteredPlaylists.length === 1 ? 'Playlist' : 'Playlists'}`}
               </span>
@@ -401,29 +330,7 @@ export const Search: React.FC = () => {
 
           {/* Results Grid / List Area */}
           <div className="search-results-area" style={{ marginTop: '1.25rem' }}>
-            {/* 1. Zikresources */}
-            {activeTab === 'zikresources' && (
-              filteredResources.length === 0 ? (
-                <div className="search-no-results glass-panel">
-                  <p>{t.search.noItemsFound}</p>
-                </div>
-              ) : (
-                <div className={viewMode === 'grid' ? 'reverb-cards-grid' : 'reverb-cards-list'}>
-                  {filteredResources.map((resource) => (
-                    <ZikresourceCard
-                      key={resource._id}
-                      resource={resource}
-                      viewMode={viewMode}
-                      isNetworkMember={isNetworkMember(resource.createdBy)}
-                      isSelf={isSelf(resource.createdBy)}
-                      onClick={() => navigate({ to: '/zikresources/$id', params: { id: resource._id } })}
-                    />
-                  ))}
-                </div>
-              )
-            )}
-
-            {/* 2. Songs */}
+            {/* 1. Songs */}
             {activeTab === 'songs' && (
               filteredSongs.length === 0 ? (
                 <div className="search-no-results glass-panel">
@@ -445,7 +352,7 @@ export const Search: React.FC = () => {
               )
             )}
 
-            {/* 3. Playlists */}
+            {/* 2. Playlists */}
             {activeTab === 'playlists' && (
               filteredPlaylists.length === 0 ? (
                 <div className="search-no-results glass-panel">

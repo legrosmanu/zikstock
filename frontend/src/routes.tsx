@@ -5,7 +5,6 @@ import { useAuthStore } from './store/authStore';
 import { Landing } from './components/Landing/Landing';
 import { LoginPage } from './components/Auth/LoginPage';
 import { Home } from './components/Home/Home';
-import { CreateZikresource } from './components/CreateZikresource/CreateZikresource';
 import { CreateSong } from './components/CreateSong/CreateSong';
 import { CreatePlaylist } from './components/CreatePlaylist/CreatePlaylist';
 import { ViewZikresource } from './components/ViewZikresource/ViewZikresource';
@@ -133,9 +132,9 @@ const homeRoute = createRoute({
   loader: () => WittAuth(),
   getParentRoute: () => rootRoute,
   path: '/home',
-  validateSearch: (search: Record<string, unknown>): { tab?: 'zikresources' | 'songs' | 'playlists' } => {
+  validateSearch: (search: Record<string, unknown>): { tab?: 'songs' | 'playlists' } => {
     const tab = search.tab as string | undefined;
-    if (tab === 'zikresources' || tab === 'songs' || tab === 'playlists') {
+    if (tab === 'songs' || tab === 'playlists') {
       return { tab };
     }
     return {};
@@ -143,12 +142,15 @@ const homeRoute = createRoute({
   component: Home,
 });
 
-// Create Zikresource Route (/zikresources/new)
+// Create Zikresource Route (/zikresources/new) -> Redirects to /songs/new
 const createZikresourceRoute = createRoute({
   loader: () => WittAuth(),
   getParentRoute: () => rootRoute,
   path: '/zikresources/new',
-  component: CreateZikresource,
+  beforeLoad: () => {
+    throw redirect({ to: '/songs/new' });
+  },
+  component: () => null,
 });
 
 // Create Song Route (/songs/new)
@@ -228,9 +230,9 @@ const searchRoute = createRoute({
   loader: () => WittAuth(),
   getParentRoute: () => rootRoute,
   path: '/search',
-  validateSearch: (search: Record<string, unknown>): { tab?: 'zikresources' | 'songs' | 'playlists' } => {
+  validateSearch: (search: Record<string, unknown>): { tab?: 'songs' | 'playlists' } => {
     const tab = search.tab as string | undefined;
-    if (tab === 'zikresources' || tab === 'songs' || tab === 'playlists') {
+    if (tab === 'songs' || tab === 'playlists') {
       return { tab };
     }
     return {};

@@ -171,7 +171,7 @@ export const EditZikresource: React.FC = () => {
     setError(null);
     try {
       await deleteZikresource(id);
-      navigate({ to: '/home', search: { tab: 'zikresources' } as never });
+      navigate({ to: '/home', search: { tab: 'songs' } as never });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to delete resource.');
       setIsDeleting(false);

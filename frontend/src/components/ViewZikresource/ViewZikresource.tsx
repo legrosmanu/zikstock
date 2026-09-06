@@ -169,7 +169,7 @@ export const ViewZikresource: React.FC = () => {
     setError(null);
     try {
       await deleteZikresource(id);
-      navigate({ to: '/home', search: { tab: 'zikresources' } as never });
+      navigate({ to: '/home', search: { tab: 'songs' } as never });
     } catch (err) {
       setError(err instanceof Error ? err.message : t.viewZikresource.errorDeleteFailed);
       setIsDeleting(false);
@@ -215,7 +215,7 @@ export const ViewZikresource: React.FC = () => {
     return (
       <div className="manage-loading-container">
         <p style={{ color: '#ef4444' }}>{t.viewZikresource.notFound}</p>
-        <button className="btn-back" onClick={() => navigate({ to: '/home', search: { tab: 'zikresources' } as never })} style={{ marginTop: '1rem' }}>
+        <button className="btn-back" onClick={() => navigate({ to: '/home', search: { tab: 'songs' } as never })} style={{ marginTop: '1rem' }}>
           <ArrowLeft size={16} />
           <span>{t.common.backToHome || 'Home'}</span>
         </button>

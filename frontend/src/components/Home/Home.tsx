@@ -1,18 +1,13 @@
-import React, { useEffect, useState, useCallback, useRef } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   Plus,
   Search,
   X,
   LayoutGrid,
-  List as ListIcon,
-  Filter,
-  Check,
-  ChevronDown
+  List as ListIcon
 } from 'lucide-react';
 import { useNavigate, useSearch } from '@tanstack/react-router';
 import { useAuthStore } from '../../store/authStore';
-import { fetchZikresources } from '../../infra/zikresource.api';
-import type { Zikresource } from '../../infra/zikresource.api';
 import { fetchSongs } from '../../infra/song.api';
 import type { Song } from '../../infra/song.api';
 import { fetchPlaylists } from '../../infra/playlist.api';
@@ -21,7 +16,6 @@ import { useTranslation } from '../../hooks/useTranslation';
 
 // Sub-components
 import { WelcomeBanner } from './WelcomeBanner';
-import { ZikresourceList } from './ZikresourceList';
 import { SongList } from './SongList';
 import { PlaylistList } from './PlaylistList';
 import { SortDropdown } from '../Cards/SortDropdown';
@@ -33,10 +27,12 @@ export const Home: React.FC = () => {
   const token = useAuthStore((state) => state.token);
   const { t } = useTranslation();
 
-  const search = useSearch({ from: '/home' });
+  const search = useSearch({ from: '/home' }) as { tab?: 'songs' | 'playlists' };
 
   // Tab control
-  const [activeTab, setActiveTab] = useState<'zikresources' | 'songs' | 'playlists'>(search.tab || 'zikresources');
+  const [activeTab, setActiveTab] = useState<'songs' | 'playlists'>(
+    search.tab === 'playlists' ? 'playlists' : 'songs'
+  );
 
   // Display mode & sorting
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
@@ -44,13 +40,12 @@ export const Home: React.FC = () => {
 
   // Sync tab from search parameter
   useEffect(() => {
-    if (search.tab) {
+    if (search.tab === 'playlists' || search.tab === 'songs') {
       setActiveTab(search.tab);
     }
   }, [search.tab]);
 
   // Lists states
-  const [zikresources, setZikresources] = useState<Zikresource[]>([]);
   const [songs, setSongs] = useState<Song[]>([]);
   const [playlists, setPlaylists] = useState<Playlist[]>([]);
 
@@ -58,35 +53,8 @@ export const Home: React.FC = () => {
   const [isLoadingData, setIsLoadingData] = useState<boolean>(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  // Search & filter state
+  // Search state
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [selectedType, setSelectedType] = useState<string>('all');
-  const [isFilterDropdownOpen, setIsFilterDropdownOpen] = useState<boolean>(false);
-  const filterDropdownRef = useRef<HTMLDivElement>(null);
-
-  // Close filter dropdown on outside click or Escape key
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (filterDropdownRef.current && !filterDropdownRef.current.contains(event.target as Node)) {
-        setIsFilterDropdownOpen(false);
-      }
-    };
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        setIsFilterDropdownOpen(false);
-      }
-    };
-
-    if (isFilterDropdownOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-      document.addEventListener('keydown', handleKeyDown);
-    }
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [isFilterDropdownOpen]);
 
   const fetchAllData = useCallback(async () => {
     if (!token) {
@@ -98,13 +66,11 @@ export const Home: React.FC = () => {
       setIsLoadingData(true);
       setErrorMsg(null);
 
-      const [resourcesData, songsData, playlistsData] = await Promise.all([
-        fetchZikresources(),
+      const [songsData, playlistsData] = await Promise.all([
         fetchSongs(),
         fetchPlaylists()
       ]);
 
-      setZikresources(resourcesData);
       setSongs(songsData);
       setPlaylists(playlistsData);
     } catch (err) {
@@ -118,34 +84,6 @@ export const Home: React.FC = () => {
   useEffect(() => {
     fetchAllData();
   }, [fetchAllData]);
-
-  // Filter & Sort zikresources
-  const filteredResources = zikresources
-    .filter((resource) => {
-      if (selectedType !== 'all') {
-        if (selectedType === 'tabs' && resource.type !== 'tablature') return false;
-        if (selectedType === 'videos' && resource.type !== 'video') return false;
-        if (selectedType === 'backing-tracks' && resource.type !== 'backing-track') return false;
-        if (selectedType === 'lyrics' && resource.type !== 'lyrics') return false;
-        if (selectedType === 'other' && resource.type !== 'other') return false;
-      }
-
-      if (searchQuery.trim() !== '') {
-        const q = searchQuery.toLowerCase();
-        const matchesTitle = resource.title.toLowerCase().includes(q);
-        const matchesArtist = resource.artist.toLowerCase().includes(q);
-        const matchesTag = resource.tags?.some(
-          (tag) => tag.label.toLowerCase().includes(q) || tag.value.toLowerCase().includes(q)
-        );
-        return matchesTitle || matchesArtist || matchesTag;
-      }
-      return true;
-    })
-    .sort((a, b) => {
-      if (sortBy === 'title') return a.title.localeCompare(b.title);
-      if (sortBy === 'artist') return (a.artist || '').localeCompare(b.artist || '');
-      return b._id.localeCompare(a._id);
-    });
 
   // Filter & Sort songs
   const filteredSongs = songs
@@ -176,7 +114,7 @@ export const Home: React.FC = () => {
       return b._id.localeCompare(a._id);
     });
 
-  const hasAddedItems = zikresources.length > 0 || songs.length > 0 || playlists.length > 0;
+  const hasAddedItems = songs.length > 0 || playlists.length > 0;
   const showWelcomeBanner = !isLoadingData && !errorMsg && !hasAddedItems;
 
   return (
@@ -215,24 +153,15 @@ export const Home: React.FC = () => {
             <div className="resources-header">
               <div>
                 <h2 className="resources-title">
-                  {activeTab === 'zikresources' && t.dashboard.titleZikresources}
                   {activeTab === 'songs' && t.dashboard.titleSongs}
                   {activeTab === 'playlists' && t.dashboard.titlePlaylists}
                 </h2>
                 <p className="resources-subtitle">
-                  {activeTab === 'zikresources' && `${t.dashboard.subtitleZikresources} (${filteredResources.length})`}
                   {activeTab === 'songs' && `${t.dashboard.subtitleSongs} (${filteredSongs.length})`}
                   {activeTab === 'playlists' && `${t.dashboard.subtitlePlaylists} (${filteredPlaylists.length})`}
                 </p>
               </div>
 
-              {activeTab === 'zikresources' && (
-                <button className="btn-primary-large btn-add-zik" onClick={() => navigate({ to: '/zikresources/new' })}>
-                  <Plus size={16} />
-                  <span className="btn-label-full">{t.dashboard.addZikresource}</span>
-                  <span className="btn-label-short">{t.dashboard.addZikresourceShort}</span>
-                </button>
-              )}
               {activeTab === 'songs' && (
                 <button className="btn-primary-large btn-add-zik" onClick={() => navigate({ to: '/songs/new' })}>
                   <Plus size={16} />
@@ -249,18 +178,16 @@ export const Home: React.FC = () => {
               )}
             </div>
 
-            {/* Filters & Toolbar Controls */}
+            {/* Search Input */}
             <div className="filters-container glass-panel">
               <div className="search-box">
                 <Search size={16} className="search-icon" />
                 <input
                   type="text"
                   placeholder={
-                    activeTab === 'zikresources'
-                      ? t.dashboard.searchResourcesPlaceholder
-                      : activeTab === 'playlists'
-                        ? t.dashboard.searchPlaylistsPlaceholder
-                        : t.dashboard.searchSongsPlaceholder
+                    activeTab === 'playlists'
+                      ? t.dashboard.searchPlaylistsPlaceholder
+                      : t.dashboard.searchSongsPlaceholder
                   }
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
@@ -272,97 +199,12 @@ export const Home: React.FC = () => {
                   </button>
                 )}
               </div>
-
-              {activeTab === 'zikresources' && (() => {
-                const filterOptions = [
-                  { id: 'all', label: t.dashboard.filterAll },
-                  { id: 'tabs', label: t.dashboard.filterTabs },
-                  { id: 'videos', label: t.dashboard.filterVideos },
-                  { id: 'backing-tracks', label: t.dashboard.filterTracks },
-                  { id: 'lyrics', label: t.dashboard.filterLyrics },
-                  { id: 'other', label: t.dashboard.filterOther }
-                ];
-                const activeOption = filterOptions.find((opt) => opt.id === selectedType);
-
-                return (
-                  <div className="filter-dropdown-container" ref={filterDropdownRef}>
-                    <button
-                      type="button"
-                      className={`filter-dropdown-btn ${selectedType !== 'all' ? 'has-active-filter' : ''}`}
-                      onClick={() => setIsFilterDropdownOpen((prev) => !prev)}
-                      aria-expanded={isFilterDropdownOpen}
-                      aria-haspopup="true"
-                    >
-                      <Filter size={15} className="filter-btn-icon" />
-                      <span className="filter-btn-label">
-                        {selectedType !== 'all' && activeOption
-                          ? activeOption.label
-                          : t.common.filtersTitle}
-                      </span>
-                      <ChevronDown size={14} className={`filter-btn-chevron ${isFilterDropdownOpen ? 'open' : ''}`} />
-                    </button>
-
-                    {selectedType !== 'all' && (
-                      <button
-                        type="button"
-                        className="filter-reset-quick-btn"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelectedType('all');
-                        }}
-                        title={t.common.clearFilters}
-                        aria-label={t.common.clearFilters}
-                      >
-                        <X size={13} />
-                      </button>
-                    )}
-
-                    {isFilterDropdownOpen && (
-                      <div className="filter-dropdown-menu" role="menu">
-                        <div className="filter-dropdown-header">
-                          <span className="filter-dropdown-title">{t.common.filtersTitle}</span>
-                          {selectedType !== 'all' && (
-                            <button
-                              type="button"
-                              className="filter-dropdown-clear"
-                              onClick={() => {
-                                setSelectedType('all');
-                                setIsFilterDropdownOpen(false);
-                              }}
-                            >
-                              {t.common.clearFilters}
-                            </button>
-                          )}
-                        </div>
-                        <div className="filter-dropdown-list">
-                          {filterOptions.map((opt) => (
-                            <button
-                              key={opt.id}
-                              type="button"
-                              className={`filter-dropdown-item ${selectedType === opt.id ? 'active' : ''}`}
-                              onClick={() => {
-                                setSelectedType(opt.id);
-                                setIsFilterDropdownOpen(false);
-                              }}
-                              role="menuitem"
-                            >
-                              <span className="filter-item-label">{opt.label}</span>
-                              {selectedType === opt.id && <Check size={14} className="filter-item-check" />}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                );
-              })()}
             </div>
 
             {/* Reverb Toolbar Bar (View Switcher & Sorting) */}
             <div className="reverb-toolbar-row">
               <div className="reverb-toolbar-left">
                 <span className="reverb-result-count">
-                  {activeTab === 'zikresources' && `${filteredResources.length} ${filteredResources.length === 1 ? t.common.resourcesCountSingular : t.common.resourcesCountPlural}`}
                   {activeTab === 'songs' && `${filteredSongs.length} ${filteredSongs.length === 1 ? t.common.songsCountSingular : t.common.songsCountPlural}`}
                   {activeTab === 'playlists' && `${filteredPlaylists.length} ${filteredPlaylists.length === 1 ? 'Playlist' : 'Playlists'}`}
                 </span>
@@ -402,11 +244,6 @@ export const Home: React.FC = () => {
                 </div>
               </div>
             </div>
-
-            {/* Resources Tab View */}
-            {activeTab === 'zikresources' && (
-              <ZikresourceList resources={filteredResources} viewMode={viewMode} />
-            )}
 
             {/* Songs Tab View */}
             {activeTab === 'songs' && (

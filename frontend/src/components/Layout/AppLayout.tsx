@@ -5,7 +5,6 @@ import {
   User,
   Sun,
   Moon,
-  FileText,
   Folder,
   Users,
   Globe,
@@ -64,10 +63,10 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const searchParams = new URLSearchParams(routerState.location.search);
   const tabParam = searchParams.get('tab');
 
-  let activeSection: 'zikresources' | 'playlists' | 'songs' | 'network' | 'search' = 'zikresources';
+  let activeSection: 'playlists' | 'songs' | 'network' | 'search' = 'songs';
   if (currentPath === '/home') {
     if (tabParam === 'playlists') activeSection = 'playlists';
-    else if (tabParam === 'songs') activeSection = 'songs';
+    else activeSection = 'songs';
   } else if (currentPath.startsWith('/playlists')) {
     activeSection = 'playlists';
   } else if (currentPath.startsWith('/songs')) {
@@ -78,7 +77,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
     activeSection = 'search';
   }
 
-  const navigateToSection = (section: 'zikresources' | 'playlists' | 'songs' | 'network' | 'search') => {
+  const navigateToSection = (section: 'playlists' | 'songs' | 'network' | 'search') => {
     if (section === 'network') {
       navigate({ to: '/network' });
     } else if (section === 'search') {
@@ -98,7 +97,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
     <div className="app-shell-layout">
       {/* ── Desktop Left Sidebar ── */}
       <aside className="app-sidebar">
-        <div className="sidebar-brand" onClick={() => navigateToSection('zikresources')}>
+        <div className="sidebar-brand" onClick={() => navigateToSection('songs')}>
           <div className="brand-logo-icon">
             <Music size={22} />
           </div>
@@ -107,11 +106,11 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
 
         <nav className="sidebar-nav">
           <button
-            className={`sidebar-nav-item ${activeSection === 'zikresources' ? 'active' : ''}`}
-            onClick={() => navigateToSection('zikresources')}
+            className={`sidebar-nav-item ${activeSection === 'songs' ? 'active' : ''}`}
+            onClick={() => navigateToSection('songs')}
           >
-            <FileText size={18} />
-            <span>{t.sidebar.zikresources}</span>
+            <Music size={18} />
+            <span>{t.sidebar.songs}</span>
           </button>
 
           <button
@@ -120,14 +119,6 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
           >
             <Folder size={18} />
             <span>{t.sidebar.playlists}</span>
-          </button>
-
-          <button
-            className={`sidebar-nav-item ${activeSection === 'songs' ? 'active' : ''}`}
-            onClick={() => navigateToSection('songs')}
-          >
-            <Music size={18} />
-            <span>{t.sidebar.songs}</span>
           </button>
 
           <button
@@ -197,7 +188,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
       {/* ── Mobile Viewports ── */}
       {/* Mobile Top Header */}
       <header className="mobile-header">
-        <div className="mobile-header-brand" onClick={() => navigateToSection('zikresources')} style={{ cursor: 'pointer' }}>
+        <div className="mobile-header-brand" onClick={() => navigateToSection('songs')} style={{ cursor: 'pointer' }}>
           <div className="brand-logo-icon">
             <Music size={18} />
           </div>
@@ -265,11 +256,11 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
       {/* Mobile Bottom Tab Bar */}
       <nav className="mobile-bottom-nav">
         <button
-          className={`mobile-tab-item ${activeSection === 'zikresources' ? 'active' : ''}`}
-          onClick={() => navigateToSection('zikresources')}
+          className={`mobile-tab-item ${activeSection === 'songs' ? 'active' : ''}`}
+          onClick={() => navigateToSection('songs')}
         >
-          <FileText size={20} />
-          <span className="tab-label">{t.sidebar.zikresources}</span>
+          <Music size={20} />
+          <span className="tab-label">{t.sidebar.songs}</span>
         </button>
 
         <button
@@ -278,14 +269,6 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
         >
           <Folder size={20} />
           <span className="tab-label">{t.sidebar.playlists}</span>
-        </button>
-
-        <button
-          className={`mobile-tab-item ${activeSection === 'songs' ? 'active' : ''}`}
-          onClick={() => navigateToSection('songs')}
-        >
-          <Music size={20} />
-          <span className="tab-label">{t.sidebar.songs}</span>
         </button>
 
         <button

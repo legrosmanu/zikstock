@@ -144,15 +144,6 @@ export const ViewSong: React.FC = () => {
           <div key="owner-actions" className="manage-top-actions">
             <div className="action-buttons-left">
               <button
-                key="btn-add-resource"
-                type="button"
-                className="btn-add-resource-main"
-                onClick={() => setIsAddModalOpen(true)}
-              >
-                <Plus size={15} />
-                <span>{t.viewSong.btnAddResource}</span>
-              </button>
-              <button
                 key="btn-edit-song"
                 type="button"
                 className="btn-edit-song"

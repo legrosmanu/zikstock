@@ -3,14 +3,11 @@ import { ArrowLeft, Loader2, Trash2, Edit } from 'lucide-react';
 import { useNavigate, useParams } from '@tanstack/react-router';
 import { fetchPlaylistById, deletePlaylist } from '../../infra/playlist.api';
 import { fetchSongs } from '../../infra/song.api';
-import { fetchZikresources } from '../../infra/zikresource.api';
 import type { Playlist } from '../../infra/playlist.api';
 import type { Song } from '../../infra/song.api';
-import type { Zikresource } from '../../infra/zikresource.api';
 import { useTranslation } from '../../hooks/useTranslation';
 import { useAuthStore } from '../../store/authStore';
 import { SongCard } from '../Cards/SongCard';
-import { ZikresourceCard } from '../Cards/ZikresourceCard';
 import '../CreateSong/CreateSong.css';
 import './ViewPlaylist.css';
 import '../Cards/Card.css';
@@ -26,7 +23,6 @@ export const ViewPlaylist: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [playlist, setPlaylist] = useState<Playlist | null>(null);
   const [associatedSongs, setAssociatedSongs] = useState<Song[]>([]);
-  const [associatedZikresources, setAssociatedZikresources] = useState<Zikresource[]>([]);
 
   const user = useAuthStore((state) => state.user);
   const isOwner = user?.sub === playlist?.createdBy;
@@ -34,20 +30,15 @@ export const ViewPlaylist: React.FC = () => {
   useEffect(() => {
     const loadData = async () => {
       try {
-        const [playlistData, allSongs, allZikresources] = await Promise.all([
+        const [playlistData, allSongs] = await Promise.all([
           fetchPlaylistById(id),
           fetchSongs({ scope: 'all' }),
-          fetchZikresources({ scope: 'all' }),
         ]);
         setPlaylist(playlistData);
         
         const songIds = playlistData.songIds || [];
         const matchedSongs = allSongs.filter(s => songIds.includes(s._id));
         setAssociatedSongs(matchedSongs);
-
-        const zikIds = playlistData.zikresourceIds || [];
-        const matchedZiks = allZikresources.filter(z => zikIds.includes(z._id));
-        setAssociatedZikresources(matchedZiks);
       } catch (err) {
         console.error('Failed to load playlist data', err);
         setError(t.viewPlaylist.errorLoadFailed);
@@ -167,25 +158,6 @@ export const ViewPlaylist: React.FC = () => {
                   song={song}
                   viewMode="grid"
                   onClick={() => navigate({ to: `/songs/${song._id}` as never })}
-                />
-              ))}
-            </div>
-          )}
-        </div>
-
-        <div className="playlist-detail-panel glass-panel" style={{ marginTop: '2rem' }}>
-          <h2 className="section-title">{t.viewPlaylist.resourcesSectionTitle}</h2>
-          
-          {associatedZikresources.length === 0 ? (
-            <p className="no-songs-message">{t.viewPlaylist.noResourcesText}</p>
-          ) : (
-            <div className="reverb-cards-grid" style={{ marginTop: '1rem' }}>
-              {associatedZikresources.map((res) => (
-                <ZikresourceCard
-                  key={res._id}
-                  resource={res}
-                  viewMode="grid"
-                  onClick={() => navigate({ to: `/zikresources/${res._id}` as never })}
                 />
               ))}
             </div>

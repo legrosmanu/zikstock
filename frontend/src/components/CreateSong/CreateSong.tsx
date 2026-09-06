@@ -1,8 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { Music, Search, FileText, Video, Mic, Check, Loader2 } from 'lucide-react';
+import React, { useState } from 'react';
+import { Loader2 } from 'lucide-react';
 import { useNavigate } from '@tanstack/react-router';
-import { fetchZikresources } from '../../infra/zikresource.api';
-import type { Zikresource } from '../../infra/zikresource.api';
 import { createSong } from '../../infra/song.api';
 import { useTranslation } from '../../hooks/useTranslation';
 import './CreateSong.css';
@@ -13,58 +11,8 @@ export const CreateSong: React.FC = () => {
 
   const [title, setTitle] = useState('');
   const [artist, setArtist] = useState('');
-  const [selectedZikresourceIds, setSelectedZikresourceIds] = useState<string[]>([]);
-  const [zikresources, setZikresources] = useState<Zikresource[]>([]);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const loadResources = async () => {
-      try {
-        const data = await fetchZikresources();
-        setZikresources(data);
-      } catch (err) {
-        console.error('Failed to load resources', err);
-        setError(t.createSong.errorLoadResources);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    loadResources();
-  }, [t.createSong.errorLoadResources]);
-
-  const toggleResource = (id: string) => {
-    setSelectedZikresourceIds((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
-    );
-  };
-
-  const getResourceIcon = (type: string) => {
-    switch (type) {
-      case 'tablature': return <FileText size={14} />;
-      case 'video': return <Video size={14} />;
-      case 'lyrics': return <Mic size={14} />;
-      default: return <Music size={14} />;
-    }
-  };
-
-  const getResourceLabel = (type: string) => {
-    switch (type) {
-      case 'tablature': return t.dashboard.typeTablature;
-      case 'video': return t.dashboard.typeVideo;
-      case 'lyrics': return t.dashboard.typeLyrics;
-      case 'other': return t.dashboard.typeOther;
-      default: return t.dashboard.typeBackingTrack;
-    }
-  };
-
-  const filteredResources = zikresources.filter(
-    (r) =>
-      r.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      r.artist.toLowerCase().includes(searchQuery.toLowerCase())
-  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -84,7 +32,7 @@ export const CreateSong: React.FC = () => {
       const newSong = await createSong({
         title: title.trim(),
         artist: artist.trim(),
-        zikresourceIds: selectedZikresourceIds,
+        zikresourceIds: [],
       });
       navigate({ to: `/songs/${newSong._id}` as never, replace: true });
     } catch (err) {
@@ -119,6 +67,7 @@ export const CreateSong: React.FC = () => {
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 disabled={isSubmitting}
+                autoFocus
               />
             </div>
 
@@ -134,51 +83,6 @@ export const CreateSong: React.FC = () => {
                 disabled={isSubmitting}
               />
             </div>
-          </div>
-
-          <div className="form-group-flex">
-            <label className="form-label">{t.createSong.fieldSelectResources}</label>
-            <div className="search-filter-box">
-              <Search size={14} className="search-filter-icon" />
-              <input
-                type="text"
-                className="search-filter-input"
-                placeholder={t.createSong.searchPlaceholder}
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
-
-            {isLoading ? (
-              <div className="resources-loading-msg">{t.createSong.loading}</div>
-            ) : filteredResources.length === 0 ? (
-              <div className="no-resources-msg">{t.createSong.noResourcesFound}</div>
-            ) : (
-              <div className="selection-list-container">
-                {filteredResources.map((res) => {
-                  const isChecked = selectedZikresourceIds.includes(res._id);
-                  return (
-                    <div
-                      key={res._id}
-                      className={`selection-list-item ${isChecked ? 'selected' : ''}`}
-                      onClick={() => toggleResource(res._id)}
-                    >
-                      <div className="checkbox-indicator">
-                        {isChecked && <Check size={12} />}
-                      </div>
-                      <div className="item-meta">
-                        <span className="item-title">{res.title}</span>
-                        <span className="item-artist">{res.artist}</span>
-                      </div>
-                      <div className={`item-badge type-${res.type}`}>
-                        {getResourceIcon(res.type)}
-                        <span>{getResourceLabel(res.type)}</span>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
           </div>
 
           <div className="form-actions-row">
