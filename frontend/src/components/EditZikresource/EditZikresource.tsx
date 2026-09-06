@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Link, User, FileText, Tag, Loader2, Trash2, ExternalLink, Sparkles } from 'lucide-react';
+import { X, Link, Music, Tag, Loader2, Trash2, ExternalLink, Sparkles } from 'lucide-react';
 import { useNavigate, useParams } from '@tanstack/react-router';
 import { fetchZikresourceById, updateZikresource, deleteZikresource } from '../../infra/zikresource.api';
 import type { ZikresourceTag, ZikresourceType } from '../../infra/zikresource.api';
@@ -20,7 +20,7 @@ const PRESET_TAGS = ['rock', 'jazz', 'blues', 'classical', 'fingerstyle', 'acous
 export const EditZikresource: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams({ from: '/zikresources/$id/edit' }) as { id: string };
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
 
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -43,11 +43,7 @@ export const EditZikresource: React.FC = () => {
     tags: [],
   });
 
-  const [autoFilled, setAutoFilled] = useState<{ artist: boolean; title: boolean; type: boolean }>({
-    artist: false,
-    title: false,
-    type: false,
-  });
+  const [autoFilledType, setAutoFilledType] = useState(false);
 
   const [tagInput, setTagInput] = useState('');
 
@@ -75,36 +71,19 @@ export const EditZikresource: React.FC = () => {
   const applyUrlMetadata = (url: string) => {
     const metadata = extractMetadataFromUrl(url);
 
-    const nextAutoFilled = { ...autoFilled };
-
-    setForm((prevForm) => {
-      const nextForm = { ...prevForm };
-
-      (['artist', 'title', 'type'] as const).forEach((field) => {
-        const metaValue = metadata[field];
-        const isCurrentlyAutoFilled = autoFilled[field];
-        const isCurrentlyEmpty = !prevForm[field]?.trim();
-
-        if (metaValue) {
-          if (isCurrentlyAutoFilled || isCurrentlyEmpty) {
-            nextForm[field] = metaValue;
-            nextAutoFilled[field] = true;
-          }
-        } else if (isCurrentlyAutoFilled) {
-          nextForm[field] = '';
-          nextAutoFilled[field] = false;
-        }
-      });
-
-      return nextForm;
-    });
-
-    setAutoFilled(nextAutoFilled);
+    if (metadata.type) {
+      if (autoFilledType || !form.type) {
+        setForm((prev) => ({ ...prev, type: metadata.type! }));
+        setAutoFilledType(true);
+      }
+    } else if (autoFilledType) {
+      setForm((prev) => ({ ...prev, type: '' }));
+      setAutoFilledType(false);
+    }
   };
 
   const handleChange = (field: string, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }));
-    setAutoFilled((prev) => ({ ...prev, [field]: false }));
     setError(null);
 
     if (field === 'url') {
@@ -195,7 +174,9 @@ export const EditZikresource: React.FC = () => {
         <div className="create-header">
           <h1 className="create-title">Edit Zikresource</h1>
           <p className="create-subtitle">
-            Update this reference's properties.
+            {form.title && form.artist
+              ? `${form.title} ${locale === 'fr' ? 'de' : 'by'} ${form.artist}`
+              : "Update this reference's properties."}
           </p>
         </div>
 
@@ -250,6 +231,19 @@ export const EditZikresource: React.FC = () => {
           onSubmit={handleSubmit}
           noValidate
         >
+          {/* Song Context */}
+          {form.title && (
+            <div className="form-group">
+              <label className="form-label">
+                <Music size={15} />
+                {t.addResourceModal.songContext || 'Morceau'}
+              </label>
+              <p style={{ margin: 0, fontSize: '1.05rem', fontWeight: 600, color: 'var(--text-primary)' }}>
+                {form.title} <span style={{ fontWeight: 400, color: 'var(--text-secondary)' }}>{locale === 'fr' ? 'de' : 'by'}</span> {form.artist}
+              </p>
+            </div>
+          )}
+
           {/* URL */}
           <div className="form-group">
             <label className="form-label" htmlFor="field-url">
@@ -266,62 +260,14 @@ export const EditZikresource: React.FC = () => {
             />
           </div>
 
-           {/* Artist */}
-          <div className="form-group">
-            <div className="label-row">
-              <label className="form-label" htmlFor="field-artist">
-                <User size={15} />
-                Artist <span className="form-required">*</span>
-              </label>
-              {autoFilled.artist && (
-                <span className="autofill-badge" title={t.createZikresource.autoFilledHint}>
-                  <Sparkles size={12} />
-                  <span>{t.createZikresource.autoFilledHint}</span>
-                </span>
-              )}
-            </div>
-            <input
-              id="field-artist"
-              type="text"
-              className={`form-input ${autoFilled.artist ? 'autofilled-glow' : ''}`}
-              value={form.artist}
-              onChange={(e) => handleChange('artist', e.target.value)}
-              disabled={isSubmitting}
-            />
-          </div>
-
-          {/* Title */}
-          <div className="form-group">
-            <div className="label-row">
-              <label className="form-label" htmlFor="field-title">
-                <FileText size={15} />
-                Title <span className="form-required">*</span>
-              </label>
-              {autoFilled.title && (
-                <span className="autofill-badge" title={t.createZikresource.autoFilledHint}>
-                  <Sparkles size={12} />
-                  <span>{t.createZikresource.autoFilledHint}</span>
-                </span>
-              )}
-            </div>
-            <input
-              id="field-title"
-              type="text"
-              className={`form-input ${autoFilled.title ? 'autofilled-glow' : ''}`}
-              value={form.title}
-              onChange={(e) => handleChange('title', e.target.value)}
-              disabled={isSubmitting}
-            />
-          </div>
-
           {/* Type */}
           <div className="form-group">
             <div className="label-row">
               <label className="form-label" htmlFor="field-type">
-                <FileText size={15} />
+                <Tag size={15} />
                 Resource Type
               </label>
-              {autoFilled.type && (
+              {autoFilledType && (
                 <span className="autofill-badge" title={t.createZikresource.autoFilledHint}>
                   <Sparkles size={12} />
                   <span>{t.createZikresource.autoFilledHint}</span>
@@ -333,10 +279,10 @@ export const EditZikresource: React.FC = () => {
                 <button
                   key={value}
                   type="button"
-                  className={`type-chip ${form.type === value ? 'selected' : ''} ${autoFilled.type && form.type === value ? 'autofilled-glow' : ''}`}
+                  className={`type-chip ${form.type === value ? 'selected' : ''} ${autoFilledType && form.type === value ? 'autofilled-glow' : ''}`}
                   onClick={() => {
                     setForm((prev) => ({ ...prev, type: prev.type === value ? '' : value }));
-                    setAutoFilled((prev) => ({ ...prev, type: false }));
+                    setAutoFilledType(false);
                   }}
                   disabled={isSubmitting}
                 >
