@@ -18,7 +18,8 @@ import {
     getSongByIdHandler,
     updateSongHandler,
     deleteSongHandler,
-    cloneSongHandler
+    cloneSongHandler,
+    addZikresourceToSongHandler
 } from './songs/api/song.controller';
 import {
     createPlaylistHandler,
@@ -142,6 +143,7 @@ app.post('/songs', authMiddleware, createSongHandler);
 app.get('/songs', authMiddleware, getAllSongsHandler);
 app.get('/songs/:id', authMiddleware, getSongByIdHandler);
 app.post('/songs/:id/clone', authMiddleware, cloneSongHandler);
+app.post('/songs/:id/zikresources', authMiddleware, addZikresourceToSongHandler);
 app.put('/songs/:id', authMiddleware, updateSongHandler);
 app.delete('/songs/:id', authMiddleware, deleteSongHandler);
 

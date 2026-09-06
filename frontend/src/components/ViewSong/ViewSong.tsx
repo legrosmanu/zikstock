@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Loader2, Trash2, Edit, Copy, Check } from 'lucide-react';
+import { ArrowLeft, Loader2, Trash2, Edit, Copy, Check, Plus } from 'lucide-react';
 import { useNavigate, useParams } from '@tanstack/react-router';
 import { fetchSongById, deleteSong, cloneSong } from '../../infra/song.api';
 import { fetchZikresources } from '../../infra/zikresource.api';
@@ -9,6 +9,7 @@ import { HttpError } from '../../infra/httpClient';
 import { useTranslation } from '../../hooks/useTranslation';
 import { useAuthStore } from '../../store/authStore';
 import { ZikresourceCard } from '../Cards/ZikresourceCard';
+import { AddResourceModal } from './AddResourceModal';
 import '../CreateSong/CreateSong.css';
 import './ViewSong.css';
 import '../Cards/Card.css';
@@ -26,9 +27,15 @@ export const ViewSong: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [song, setSong] = useState<Song | null>(null);
   const [associatedResources, setAssociatedResources] = useState<Zikresource[]>([]);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
   const user = useAuthStore((state) => state.user);
   const isOwner = user?.sub === song?.createdBy;
+
+  const handleResourceAdded = (result: { song: Song; zikresource: Zikresource }) => {
+    setSong(result.song);
+    setAssociatedResources((prev) => [...prev, result.zikresource]);
+  };
 
   const handleClone = async () => {
     setIsCloning(true);
@@ -137,6 +144,15 @@ export const ViewSong: React.FC = () => {
           <div key="owner-actions" className="manage-top-actions">
             <div className="action-buttons-left">
               <button
+                key="btn-add-resource"
+                type="button"
+                className="btn-add-resource-main"
+                onClick={() => setIsAddModalOpen(true)}
+              >
+                <Plus size={15} />
+                <span>{t.viewSong.btnAddResource}</span>
+              </button>
+              <button
                 key="btn-edit-song"
                 type="button"
                 className="btn-edit-song"
@@ -211,10 +227,34 @@ export const ViewSong: React.FC = () => {
         )}
 
         <div className="song-detail-panel glass-panel">
-          <h2 className="section-title">{t.viewSong.resourcesSectionTitle}</h2>
+          <div className="resources-section-header-row">
+            <h2 className="section-title" style={{ margin: 0 }}>{t.viewSong.resourcesSectionTitle}</h2>
+            {isOwner && (
+              <button
+                type="button"
+                className="btn-add-resource-panel"
+                onClick={() => setIsAddModalOpen(true)}
+              >
+                <Plus size={14} />
+                <span>{t.viewSong.btnAddResource}</span>
+              </button>
+            )}
+          </div>
           
           {associatedResources.length === 0 ? (
-            <p className="no-resources-message">{t.viewSong.noResourcesText}</p>
+            <div className="empty-resources-container">
+              <p className="no-resources-message">{t.viewSong.noResourcesText}</p>
+              {isOwner && (
+                <button
+                  type="button"
+                  className="btn-add-first-resource"
+                  onClick={() => setIsAddModalOpen(true)}
+                >
+                  <Plus size={15} />
+                  <span>{t.viewSong.btnAddResource}</span>
+                </button>
+              )}
+            </div>
           ) : (
             <div className="reverb-cards-grid" style={{ marginTop: '1rem' }}>
               {associatedResources.map((res) => (
@@ -229,6 +269,15 @@ export const ViewSong: React.FC = () => {
           )}
         </div>
       </main>
+
+      {song && (
+        <AddResourceModal
+          isOpen={isAddModalOpen}
+          onClose={() => setIsAddModalOpen(false)}
+          song={{ id: song._id, title: song.title, artist: song.artist }}
+          onResourceAdded={handleResourceAdded}
+        />
+      )}
     </div>
   );
 };

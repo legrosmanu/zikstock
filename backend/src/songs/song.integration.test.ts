@@ -7,7 +7,8 @@ import {
     getSongByIdHandler,
     updateSongHandler,
     deleteSongHandler,
-    cloneSongHandler
+    cloneSongHandler,
+    addZikresourceToSongHandler
 } from './api/song.controller';
 import { errorMiddleware } from '../application/middleware/error.middleware';
 import { describe, it, expect, beforeEach, jest } from '@jest/globals';
@@ -78,6 +79,7 @@ describe('SongController Integration', () => {
         app.get('/songs', googleAuthMiddleware.authMiddleware, getAllSongsHandler);
         app.get('/songs/:id', googleAuthMiddleware.authMiddleware, getSongByIdHandler);
         app.post('/songs/:id/clone', googleAuthMiddleware.authMiddleware, cloneSongHandler);
+        app.post('/songs/:id/zikresources', googleAuthMiddleware.authMiddleware, addZikresourceToSongHandler);
         app.put('/songs/:id', googleAuthMiddleware.authMiddleware, updateSongHandler);
         app.delete('/songs/:id', googleAuthMiddleware.authMiddleware, deleteSongHandler);
         app.use(errorMiddleware);
@@ -275,5 +277,76 @@ describe('SongController Integration', () => {
         expect(secondResponse.status).toBe(409);
         expect(secondResponse.body.message).toBe('You have already added this song to your Songbook.');
     });
+
+    it('POST /songs should allow creating a song with empty zikresourceIds', async () => {
+        const payload = {
+            title: 'Empty Song',
+            artist: 'Solo Artist'
+        };
+
+        const response = await request(app)
+            .post('/songs')
+            .set('Authorization', `Bearer ${VALID_TOKEN}`)
+            .send(payload);
+
+        expect(response.status).toBe(201);
+        expect(response.body._id).toBeDefined();
+        expect(response.body.title).toBe('Empty Song');
+        expect(response.body.zikresourceIds).toEqual([]);
+    });
+
+    it('POST /songs/:id/zikresources should add a zikresource to the song and inherit title and artist', async () => {
+        await mockSongRepo.saveSong({
+            id: 'song-mine',
+            title: 'Shine On You Crazy Diamond',
+            artist: 'Pink Floyd',
+            zikresourceIds: [],
+            createdBy: 'user-123',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+        });
+
+        const payload = {
+            url: 'https://www.youtube.com/watch?v=cWGEuv5JM28',
+            type: 'video'
+        };
+
+        const response = await request(app)
+            .post('/songs/song-mine/zikresources')
+            .set('Authorization', `Bearer ${VALID_TOKEN}`)
+            .send(payload);
+
+        expect(response.status).toBe(201);
+        expect(response.body.zikresource).toBeDefined();
+        expect(response.body.zikresource.title).toBe('Shine On You Crazy Diamond');
+        expect(response.body.zikresource.artist).toBe('Pink Floyd');
+        expect(response.body.zikresource.type).toBe('video');
+        expect(response.body.song.zikresourceIds).toContain(response.body.zikresource._id);
+    });
+
+    it('POST /songs/:id/zikresources should return 403 when user does not own the song', async () => {
+        await mockSongRepo.saveSong({
+            id: 'song-other-user',
+            title: 'Time',
+            artist: 'Pink Floyd',
+            zikresourceIds: [],
+            createdBy: 'other-user',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+        });
+
+        const payload = {
+            url: 'https://www.youtube.com/watch?v=cWGEuv5JM28',
+            type: 'video'
+        };
+
+        const response = await request(app)
+            .post('/songs/song-other-user/zikresources')
+            .set('Authorization', `Bearer ${VALID_TOKEN}`)
+            .send(payload);
+
+        expect(response.status).toBe(403);
+    });
 });
+
 

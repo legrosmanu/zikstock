@@ -5,9 +5,10 @@ import {
     getSongById,
     updateSong,
     deleteSong,
-    cloneSong
+    cloneSong,
+    addZikresourceToSong
 } from '../domain/song.service';
-import { SongSchema, SongResponse, SongIdParamSchema, UserPayloadSchema } from './song.dto';
+import { SongSchema, SongResponse, SongIdParamSchema, UserPayloadSchema, CreateSongZikresourceSchema } from './song.dto';
 import { Song } from '../domain/song.domain';
 import { StatusCodes } from 'http-status-codes';
 import { AppError } from '../../application/middleware/error.middleware';
@@ -160,5 +161,44 @@ export const cloneSongHandler = async (req: Request, res: Response, next: NextFu
         next(error);
     }
 };
+
+export const addZikresourceToSongHandler = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const paramValidation = SongIdParamSchema.safeParse(req.params);
+        if (!paramValidation.success) {
+            throw new AppError(StatusCodes.BAD_REQUEST, `Validation failed: ${paramValidation.error.message}`);
+        }
+        const validation = CreateSongZikresourceSchema.safeParse(req.body);
+        if (!validation.success) {
+            throw new AppError(StatusCodes.BAD_REQUEST, `Validation failed: ${validation.error.message}`);
+        }
+        const userValidation = UserPayloadSchema.safeParse(req.user);
+        if (!userValidation.success) {
+            throw new AppError(StatusCodes.UNAUTHORIZED, `User identity validation failed: ${userValidation.error.message}`);
+        }
+        const userId = userValidation.data.sub;
+        const result = await addZikresourceToSong(
+            paramValidation.data.id,
+            validation.data,
+            userId
+        );
+        res.status(StatusCodes.CREATED).json({
+            song: toResponse(result.song),
+            zikresource: {
+                _id: result.zikresource.id,
+                createdBy: result.zikresource.createdBy,
+                url: result.zikresource.url,
+                artist: result.zikresource.artist,
+                title: result.zikresource.title,
+                type: result.zikresource.type,
+                tags: result.zikresource.tags,
+                clonedFrom: result.zikresource.clonedFrom,
+            },
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
 
 

@@ -5,6 +5,7 @@ import {
     updateSong,
     deleteSong,
     cloneSong,
+    addZikresourceToSong,
     SongDependencies
 } from './song.service';
 import { Song } from './song.domain';
@@ -29,6 +30,10 @@ describe('SongService', () => {
             cloneZikresource: jest.fn(async () => {
                 throw new Error('cloneZikresource mock not configured');
             }),
+            createZikresource: jest.fn(async (partial) => ({
+                id: 'new-zik-id',
+                ...partial,
+            })),
         };
     });
 
@@ -307,5 +312,88 @@ describe('SongService', () => {
             expect(result.clonedResources).toHaveLength(0); // No new resource was cloned
         });
     });
+
+    it('should create a song with empty zikresourceIds', async () => {
+        const userId = 'user-123';
+        const partial: Omit<Song, 'id' | 'createdAt' | 'updatedAt'> = {
+            title: 'Empty Song',
+            artist: 'Solo Artist',
+            zikresourceIds: [],
+            createdBy: userId,
+        };
+
+        const result = await createSong(partial, deps);
+        expect(result.id).toBeDefined();
+        expect(result.title).toBe('Empty Song');
+        expect(result.zikresourceIds).toEqual([]);
+    });
+
+    describe('addZikresourceToSong', () => {
+        it('should add a Zikresource to a song and inherit title and artist', async () => {
+            const userId = 'user-123';
+            const song: Song = {
+                id: 'song-test',
+                title: 'Wish You Were Here',
+                artist: 'Pink Floyd',
+                zikresourceIds: ['res-existing'],
+                createdBy: userId,
+                createdAt: '2026-06-14T00:00:00Z',
+                updatedAt: '2026-06-14T00:00:00Z',
+            };
+            await deps.saveSong(song);
+
+            const result = await addZikresourceToSong(
+                'song-test',
+                {
+                    url: 'https://www.youtube.com/watch?v=DPL_SV3n7IU',
+                    type: 'video',
+                },
+                userId,
+                deps
+            );
+
+            expect(result.zikresource).toBeDefined();
+            expect(result.zikresource.title).toBe('Wish You Were Here');
+            expect(result.zikresource.artist).toBe('Pink Floyd');
+            expect(result.zikresource.type).toBe('video');
+            expect(result.zikresource.createdBy).toBe(userId);
+            expect(result.song.zikresourceIds).toContain('new-zik-id');
+            expect(result.song.zikresourceIds).toHaveLength(2);
+        });
+
+        it('should throw NOT_FOUND if song does not exist', async () => {
+            await expect(
+                addZikresourceToSong(
+                    'non-existent-song',
+                    { url: 'https://example.com/tab' },
+                    'user-123',
+                    deps
+                )
+            ).rejects.toThrow('Song with id non-existent-song not found');
+        });
+
+        it('should throw FORBIDDEN if song does not belong to user', async () => {
+            const song: Song = {
+                id: 'song-someone-else',
+                title: 'Stairway to Heaven',
+                artist: 'Led Zeppelin',
+                zikresourceIds: [],
+                createdBy: 'other-user',
+                createdAt: '2026-06-14T00:00:00Z',
+                updatedAt: '2026-06-14T00:00:00Z',
+            };
+            await deps.saveSong(song);
+
+            await expect(
+                addZikresourceToSong(
+                    'song-someone-else',
+                    { url: 'https://example.com/tab' },
+                    'user-123',
+                    deps
+                )
+            ).rejects.toThrow('You do not have permission to modify this song.');
+        });
+    });
 });
+
 

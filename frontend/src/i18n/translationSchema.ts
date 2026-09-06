@@ -241,6 +241,7 @@ export interface TranslationSchema {
     notFound: string;
     btnEdit: string;
     btnDelete: string;
+    btnAddResource: string;
     btnClone: string;
     cloning: string;
     cloneSuccess: string;
@@ -249,6 +250,21 @@ export interface TranslationSchema {
     resourcesSectionTitle: string;
     noResourcesText: string;
     btnOpenLink: string;
+  };
+  addResourceModal: {
+    title: string;
+    subtitle: string;
+    songContext: string;
+    fieldUrl: string;
+    urlPlaceholder: string;
+    fieldType: string;
+    autoDetectedType: string;
+    btnCancel: string;
+    btnSubmit: string;
+    submitting: string;
+    errorUrlRequired: string;
+    errorUrlInvalid: string;
+    inheritedHint: string;
   };
   search: {
     title: string;

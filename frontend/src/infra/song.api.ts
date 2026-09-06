@@ -54,3 +54,22 @@ export const cloneSong = (id: string): Promise<CloneSongResponse> => {
   return authenticatedPost<CloneSongResponse>(`/songs/${id}/clone`);
 };
 
+export interface AddZikresourceToSongPayload {
+  url: string;
+  type?: string;
+  tags?: { label: string; value: string }[];
+}
+
+export interface AddZikresourceToSongResponse {
+  song: Song;
+  zikresource: Zikresource;
+}
+
+export const addZikresourceToSong = (
+  songId: string,
+  payload: AddZikresourceToSongPayload
+): Promise<AddZikresourceToSongResponse> => {
+  return authenticatedPost<AddZikresourceToSongResponse>(`/songs/${songId}/zikresources`, payload);
+};
+
+

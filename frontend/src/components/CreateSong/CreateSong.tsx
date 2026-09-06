@@ -78,19 +78,15 @@ export const CreateSong: React.FC = () => {
       setError(t.createSong.errorArtistRequired);
       return;
     }
-    if (selectedZikresourceIds.length === 0) {
-      setError(t.createSong.errorSelectResource);
-      return;
-    }
 
     setIsSubmitting(true);
     try {
-      await createSong({
+      const newSong = await createSong({
         title: title.trim(),
         artist: artist.trim(),
         zikresourceIds: selectedZikresourceIds,
       });
-      navigate({ to: '/home', search: { tab: 'songs' } as never, replace: true });
+      navigate({ to: `/songs/${newSong._id}` as never, replace: true });
     } catch (err) {
       setError(err instanceof Error ? err.message : t.createSong.errorCreateFailed);
     } finally {

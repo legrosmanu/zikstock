@@ -1,11 +1,13 @@
 import { v4 as uuidv4 } from 'uuid';
 import { Song } from './song.domain';
-import { Zikresource } from '../../zikresources/domain/zikresource.domain';
+import { Zikresource, Tag as ZikresourceTag } from '../../zikresources/domain/zikresource.domain';
+import { ZikresourceType } from '../../zikresources/api/zikresource.dto';
 import * as firestoreSongRepo from '../repositories/firestore-song.repository';
 import {
     cloneZikresource,
     findZikresourceById,
-    findZikresourceByClonedFromAndUser
+    findZikresourceByClonedFromAndUser,
+    createZikresource
 } from '../../zikresources/domain/zikresource.service';
 import { AppError } from '../../application/middleware/error.middleware';
 import { StatusCodes } from 'http-status-codes';
@@ -20,6 +22,7 @@ export interface SongDependencies {
     findZikresourceById: (id: string) => Promise<Zikresource | null>;
     findZikresourceByClonedFromAndUser: (clonedFrom: string, userId: string) => Promise<Zikresource | null>;
     cloneZikresource: (id: string, userId: string) => Promise<Zikresource>;
+    createZikresource: (partial: Omit<Zikresource, 'id'>) => Promise<Zikresource>;
 }
 
 export const defaultSongDeps: SongDependencies = {
@@ -32,6 +35,7 @@ export const defaultSongDeps: SongDependencies = {
     findZikresourceById,
     findZikresourceByClonedFromAndUser,
     cloneZikresource,
+    createZikresource,
 };
 
 export const findSongById = async (
@@ -184,5 +188,40 @@ export const cloneSong = async (
     const savedSong = await deps.saveSong(song);
     return { song: savedSong, clonedResources };
 };
+
+export const addZikresourceToSong = async (
+    songId: string,
+    data: { url: string; type?: ZikresourceType; tags?: ZikresourceTag[] },
+    userId: string,
+    deps: SongDependencies = defaultSongDeps
+): Promise<{ song: Song; zikresource: Zikresource }> => {
+    const existing = await deps.findSongById(songId);
+    if (!existing) {
+        throw new AppError(StatusCodes.NOT_FOUND, `Song with id ${songId} not found`);
+    }
+    if (existing.createdBy !== userId) {
+        throw new AppError(StatusCodes.FORBIDDEN, `You do not have permission to modify this song.`);
+    }
+
+    const zikresource = await deps.createZikresource({
+        url: data.url,
+        artist: existing.artist,
+        title: existing.title,
+        type: data.type || 'other',
+        tags: data.tags || [],
+        createdBy: userId,
+    });
+
+    const updatedSong: Song = {
+        ...existing,
+        zikresourceIds: [...(existing.zikresourceIds || []), zikresource.id],
+        updatedAt: new Date().toISOString(),
+    };
+
+    const savedSong = await deps.updateSongInDb(updatedSong);
+
+    return { song: savedSong, zikresource };
+};
+
 
 

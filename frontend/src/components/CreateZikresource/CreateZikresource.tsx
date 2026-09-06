@@ -19,7 +19,7 @@ interface FormState {
   tags: TagItem[];
 }
 
-const PRESET_TAGS = ['beginner', 'intermediate', 'advanced', 'jazz', 'rock', 'blues', 'classical', 'fingerstyle'];
+const PRESET_TAGS = ['rock', 'jazz', 'blues', 'classical', 'fingerstyle', 'acoustique', 'solo', 'rythmique'];
 
 export const CreateZikresource: React.FC = () => {
   const navigate = useNavigate();
