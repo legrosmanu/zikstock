@@ -5,8 +5,7 @@ import {
     getZikresourceById,
     updateZikresource,
     deleteZikresource,
-    checkEmbeddability,
-    cloneZikresource
+    checkEmbeddability
 } from '../domain/zikresource.service';
 import { ZikresourceSchema, ZikresourceResponse } from './zikresource.dto';
 import { Zikresource } from '../domain/zikresource.domain';
@@ -122,17 +121,3 @@ export const checkEmbeddabilityHandler = async (req: Request, res: Response, nex
         next(error);
     }
 };
-
-export const cloneZikresourceHandler = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        const userId = req.user?.sub;
-        if (!userId) {
-            throw new AppError(StatusCodes.UNAUTHORIZED, 'User identity is missing from token');
-        }
-        const result = await cloneZikresource(req.params.id as string, userId);
-        res.status(StatusCodes.CREATED).json(toResponse(result));
-    } catch (error) {
-        next(error);
-    }
-};
-

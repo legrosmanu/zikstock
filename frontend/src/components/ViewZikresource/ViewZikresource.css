@@ -148,39 +148,6 @@
   box-shadow: var(--glass-specular), 0 4px 14px var(--accent-glow);
 }
 
-.btn-clone-resource {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  background: rgba(48, 209, 88, 0.12);
-  border: 1px solid rgba(48, 209, 88, 0.3);
-  color: #30d158;
-  padding: 0.6rem 1.25rem;
-  border-radius: 12px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast);
-}
-
-.btn-clone-resource:hover:not(:disabled) {
-  background: #30d158;
-  color: #fff;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 14px rgba(48, 209, 88, 0.3);
-}
-
-.btn-clone-resource.success {
-  background: rgba(48, 209, 88, 0.25);
-  border-color: #30d158;
-  color: #30d158;
-}
-
-.btn-clone-resource:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-}
-
 .detail-panel {
   display: flex;
   flex-direction: column;

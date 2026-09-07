@@ -209,11 +209,6 @@ export interface TranslationSchema {
     goToLink: string;
     btnEdit: string;
     btnDelete: string;
-    btnClone: string;
-    cloning: string;
-    cloneSuccess: string;
-    cloneError: string;
-    alreadyCloned: string;
     confirmDeleteText: string;
     btnConfirmDelete: string;
     typeLabel: string;

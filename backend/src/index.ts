@@ -8,8 +8,7 @@ import {
     getZikresourceByIdHandler,
     updateZikresourceHandler,
     deleteZikresourceHandler,
-    checkEmbeddabilityHandler,
-    cloneZikresourceHandler
+    checkEmbeddabilityHandler
 } from './zikresources/api/zikresource.controller';
 import {
     createSongHandler,
@@ -134,7 +133,6 @@ app.post('/zikresources', authMiddleware, createZikresourceHandler);
 app.get('/zikresources', authMiddleware, getAllZikresourcesHandler);
 app.get('/zikresources/check-embed', authMiddleware, checkEmbeddabilityHandler);
 app.get('/zikresources/:id', authMiddleware, getZikresourceByIdHandler);
-app.post('/zikresources/:id/clone', authMiddleware, cloneZikresourceHandler);
 app.put('/zikresources/:id', authMiddleware, updateZikresourceHandler);
 app.delete('/zikresources/:id', authMiddleware, deleteZikresourceHandler);
 
