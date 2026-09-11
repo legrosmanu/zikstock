@@ -644,21 +644,67 @@
   }
 
   .song-resource-main-row {
-    flex-direction: column;
-    align-items: flex-start;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
     gap: 0.75rem;
+    padding: 0.75rem 0.85rem;
+  }
+
+  .resource-icon-badge {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    flex-shrink: 0;
+  }
+
+  .resource-info-col {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  .resource-primary-line {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    flex-wrap: wrap;
+  }
+
+  .resource-type-name {
+    font-size: 0.9rem;
+  }
+
+  .resource-domain-tag {
+    font-size: 0.7rem;
+    padding: 0.1rem 0.35rem;
   }
 
   .resource-actions-col {
     width: 100%;
-    justify-content: space-between;
-    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0.4rem;
     border-top: 1px solid var(--border-subtle);
-    padding-top: 0.65rem;
+    padding-top: 0.45rem;
+    margin-top: 0.1rem;
+  }
+
+  .btn-resource-preview {
+    padding: 0.35rem 0.65rem;
+    font-size: 0.78rem;
+  }
+
+  .btn-resource-open {
+    padding: 0.35rem 0.75rem;
+    font-size: 0.78rem;
+  }
+
+  .btn-resource-icon-action {
+    width: 30px;
+    height: 30px;
   }
 
   .resource-embed-iframe {
-    height: 240px;
+    height: 230px;
   }
 }
 
