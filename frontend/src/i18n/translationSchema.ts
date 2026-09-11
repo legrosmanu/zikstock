@@ -201,6 +201,25 @@ export interface TranslationSchema {
     saving: string;
     saveButton: string;
   };
+  editSong: {
+    title: string;
+    subtitle: string;
+    fieldTitle: string;
+    titlePlaceholder: string;
+    fieldArtist: string;
+    artistPlaceholder: string;
+    errorTitleRequired: string;
+    errorArtistRequired: string;
+    errorLoadFailed: string;
+    errorUpdateFailed: string;
+    successSaving: string;
+    saving: string;
+    saveButton: string;
+    btnDelete: string;
+    deleteConfirm: string;
+    deleteSuccess: string;
+    deleteError: string;
+  };
   viewZikresource: {
     errorLoadFailed: string;
     errorDeleteFailed: string;
