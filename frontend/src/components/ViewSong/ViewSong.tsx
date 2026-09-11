@@ -2,14 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Loader2, Trash2, Edit, Copy, Check, Plus } from 'lucide-react';
 import { useNavigate, useParams } from '@tanstack/react-router';
 import { fetchSongById, deleteSong, cloneSong } from '../../infra/song.api';
-import { fetchZikresources } from '../../infra/zikresource.api';
+import { fetchZikresources, deleteZikresource } from '../../infra/zikresource.api';
 import type { Song } from '../../infra/song.api';
 import type { Zikresource } from '../../infra/zikresource.api';
 import { HttpError } from '../../infra/httpClient';
 import { useTranslation } from '../../hooks/useTranslation';
 import { useAuthStore } from '../../store/authStore';
-import { ZikresourceCard } from '../Cards/ZikresourceCard';
+import { SongResourceLink } from './SongResourceLink';
 import { AddResourceModal } from './AddResourceModal';
+import { EditResourceModal } from './EditResourceModal';
 import '../CreateSong/CreateSong.css';
 import './ViewSong.css';
 import '../Cards/Card.css';
@@ -28,6 +29,7 @@ export const ViewSong: React.FC = () => {
   const [song, setSong] = useState<Song | null>(null);
   const [associatedResources, setAssociatedResources] = useState<Zikresource[]>([]);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [editingResource, setEditingResource] = useState<Zikresource | null>(null);
 
   const user = useAuthStore((state) => state.user);
   const isOwner = user?.sub === song?.createdBy;
@@ -35,6 +37,23 @@ export const ViewSong: React.FC = () => {
   const handleResourceAdded = (result: { song: Song; zikresource: Zikresource }) => {
     setSong(result.song);
     setAssociatedResources((prev) => [...prev, result.zikresource]);
+  };
+
+  const handleResourceDeleted = async (resourceId: string) => {
+    await deleteZikresource(resourceId);
+    setAssociatedResources((prev) => prev.filter((r) => r._id !== resourceId));
+    if (song) {
+      setSong({
+        ...song,
+        zikresourceIds: (song.zikresourceIds || []).filter((rid) => rid !== resourceId),
+      });
+    }
+  };
+
+  const handleResourceUpdated = (updated: Zikresource) => {
+    setAssociatedResources((prev) =>
+      prev.map((r) => (r._id === updated._id ? updated : r))
+    );
   };
 
   const handleClone = async () => {
@@ -247,13 +266,15 @@ export const ViewSong: React.FC = () => {
               )}
             </div>
           ) : (
-            <div className="reverb-cards-grid" style={{ marginTop: '1rem' }}>
+            <div className="song-resource-links-list">
               {associatedResources.map((res) => (
-                <ZikresourceCard
+                <SongResourceLink
                   key={res._id}
                   resource={res}
-                  viewMode="grid"
-                  onClick={() => navigate({ to: `/zikresources/${res._id}` as never })}
+                  songTitle={song.title}
+                  isOwner={isOwner}
+                  onEdit={(resourceToEdit) => setEditingResource(resourceToEdit)}
+                  onDelete={handleResourceDeleted}
                 />
               ))}
             </div>
@@ -267,6 +288,15 @@ export const ViewSong: React.FC = () => {
           onClose={() => setIsAddModalOpen(false)}
           song={{ id: song._id, title: song.title, artist: song.artist }}
           onResourceAdded={handleResourceAdded}
+        />
+      )}
+
+      {editingResource && (
+        <EditResourceModal
+          isOpen={Boolean(editingResource)}
+          onClose={() => setEditingResource(null)}
+          resource={editingResource}
+          onResourceUpdated={handleResourceUpdated}
         />
       )}
     </div>

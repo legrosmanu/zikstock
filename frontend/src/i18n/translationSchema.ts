@@ -245,6 +245,18 @@ export interface TranslationSchema {
     resourcesSectionTitle: string;
     noResourcesText: string;
     btnOpenLink: string;
+    typePartitions: string;
+    typeVideo: string;
+    typeBackingTrack: string;
+    typeLyrics: string;
+    typeOther: string;
+    btnOpenResource: string;
+    btnPreviewMedia: string;
+    btnHidePreview: string;
+    btnEditResource: string;
+    btnDeleteResource: string;
+    confirmDeleteResource: string;
+    deleteResourceError: string;
   };
   addResourceModal: {
     title: string;
@@ -260,6 +272,21 @@ export interface TranslationSchema {
     errorUrlRequired: string;
     errorUrlInvalid: string;
     inheritedHint: string;
+  };
+  editResourceModal: {
+    title: string;
+    subtitle: string;
+    fieldUrl: string;
+    urlPlaceholder: string;
+    fieldType: string;
+    autoDetectedType: string;
+    fieldTags: string;
+    tagsPlaceholder: string;
+    btnCancel: string;
+    btnSubmit: string;
+    submitting: string;
+    errorUrlRequired: string;
+    errorUrlInvalid: string;
   };
   search: {
     title: string;

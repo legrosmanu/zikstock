@@ -7,8 +7,6 @@ import { LoginPage } from './components/Auth/LoginPage';
 import { Home } from './components/Home/Home';
 import { CreateSong } from './components/CreateSong/CreateSong';
 import { CreatePlaylist } from './components/CreatePlaylist/CreatePlaylist';
-import { ViewZikresource } from './components/ViewZikresource/ViewZikresource';
-import { EditZikresource } from './components/EditZikresource/EditZikresource';
 import { ViewSong } from './components/ViewSong/ViewSong';
 import { EditSong } from './components/EditSong/EditSong';
 import { ViewPlaylist } from './components/ViewPlaylist/ViewPlaylist';
@@ -169,20 +167,26 @@ const createPlaylistRoute = createRoute({
   component: CreatePlaylist,
 });
 
-// View Zikresource Route (/zikresources/$id)
+// View Zikresource Route (/zikresources/$id) -> Redirect to /home
 const viewZikresourceRoute = createRoute({
   loader: () => WittAuth(),
   getParentRoute: () => rootRoute,
   path: '/zikresources/$id',
-  component: ViewZikresource,
+  beforeLoad: () => {
+    throw redirect({ to: '/home' });
+  },
+  component: () => null,
 });
 
-// Edit Zikresource Route (/zikresources/$id/edit)
+// Edit Zikresource Route (/zikresources/$id/edit) -> Redirect to /home
 const editZikresourceRoute = createRoute({
   loader: () => WittAuth(),
   getParentRoute: () => rootRoute,
   path: '/zikresources/$id/edit',
-  component: EditZikresource,
+  beforeLoad: () => {
+    throw redirect({ to: '/home' });
+  },
+  component: () => null,
 });
 
 // View Song Route (/songs/$id)
