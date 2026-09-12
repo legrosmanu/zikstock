@@ -10,10 +10,8 @@ export interface TranslationSchema {
     confirmDeleteConnection: string;
     confirmDeleteSong: string;
     confirmDeletePlaylist: string;
-    confirmDeleteZikresource: string;
-    errorDeleteResource: string;
-    errorDeleteSong: string;
-    errorDeletePlaylist: string;
+    confirmDeletePrompt: string;
+    btnConfirmDelete: string;
     confirm: string;
     cancel: string;
     unknownArtist: string;
@@ -37,7 +35,6 @@ export interface TranslationSchema {
     filtersTitle: string;
   };
   sidebar: {
-    zikresources: string;
     playlists: string;
     songs: string;
     network: string;
@@ -73,39 +70,25 @@ export interface TranslationSchema {
   welcomeBanner: {
     title: string;
     subtitle: string;
-    cardZikresourcesTitle: string;
-    cardZikresourcesDesc: string;
     cardPlaylistsTitle: string;
     cardPlaylistsDesc: string;
     cardSongsTitle: string;
     cardSongsDesc: string;
   };
   dashboard: {
-    titleZikresources: string;
     titleSongs: string;
     titlePlaylists: string;
-    subtitleZikresources: string;
     subtitleSongs: string;
     subtitlePlaylists: string;
-    addZikresource: string;
-    addZikresourceShort: string;
     createSong: string;
     createSongShort: string;
     createPlaylist: string;
     createPlaylistShort: string;
-    searchResourcesPlaceholder: string;
     searchPlaylistsPlaceholder: string;
     searchSongsPlaceholder: string;
-    filterAll: string;
-    filterTabs: string;
-    filterVideos: string;
-    filterTracks: string;
-    filterLyrics: string;
-    filterOther: string;
     errorFetchData: string;
     noPlaylistsFound: string;
     noSongsFound: string;
-    noResourcesFound: string;
     typeTablature: string;
     typeVideo: string;
     typeBackingTrack: string;
@@ -144,23 +127,6 @@ export interface TranslationSchema {
     sentRequestsHeading: string;
     noSentRequests: string;
   };
-  createZikresource: {
-    title: string;
-    subtitle: string;
-    fieldUrl: string;
-    fieldArtist: string;
-    fieldTitle: string;
-    fieldType: string;
-    fieldTags: string;
-    tagInputPlaceholder: string;
-    errorUrlRequired: string;
-    errorUrlInvalid: string;
-    errorArtistRequired: string;
-    errorTitleRequired: string;
-    successSaving: string;
-    saveButton: string;
-    autoFilledHint: string;
-  };
   createPlaylist: {
     title: string;
     subtitle: string;
@@ -168,10 +134,6 @@ export interface TranslationSchema {
     namePlaceholder: string;
     fieldDescription: string;
     descriptionPlaceholder: string;
-    fieldAddResources: string;
-    searchResourcesPlaceholder: string;
-    loadingResources: string;
-    noResourcesFound: string;
     fieldAddSongs: string;
     searchSongsPlaceholder: string;
     loadingSongs: string;
@@ -189,14 +151,8 @@ export interface TranslationSchema {
     titlePlaceholder: string;
     fieldArtist: string;
     artistPlaceholder: string;
-    fieldSelectResources: string;
-    searchPlaceholder: string;
-    loading: string;
-    noResourcesFound: string;
-    errorLoadResources: string;
     errorTitleRequired: string;
     errorArtistRequired: string;
-    errorSelectResource: string;
     errorCreateFailed: string;
     saving: string;
     saveButton: string;
@@ -220,22 +176,6 @@ export interface TranslationSchema {
     deleteSuccess: string;
     deleteError: string;
   };
-  viewZikresource: {
-    errorLoadFailed: string;
-    errorDeleteFailed: string;
-    loadingDetails: string;
-    notFound: string;
-    goToLink: string;
-    btnEdit: string;
-    btnDelete: string;
-    confirmDeleteText: string;
-    btnConfirmDelete: string;
-    typeLabel: string;
-    tagsLabel: string;
-    siteLabel: string;
-    previewTitle: string;
-    previewUnavailable: string;
-  };
   viewPlaylist: {
     errorLoadFailed: string;
     errorDeleteFailed: string;
@@ -245,8 +185,6 @@ export interface TranslationSchema {
     btnDelete: string;
     songsSectionTitle: string;
     noSongsText: string;
-    resourcesSectionTitle: string;
-    noResourcesText: string;
   };
   viewSong: {
     errorLoadFailed: string;
@@ -290,7 +228,6 @@ export interface TranslationSchema {
     submitting: string;
     errorUrlRequired: string;
     errorUrlInvalid: string;
-    inheritedHint: string;
   };
   editResourceModal: {
     title: string;

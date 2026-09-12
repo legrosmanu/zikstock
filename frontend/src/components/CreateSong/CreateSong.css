@@ -5,48 +5,6 @@
   flex-direction: column;
 }
 
-.create-page-nav {
-  height: 70px;
-  padding: 0 2rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border-bottom: 1px solid var(--nav-border, rgba(255, 255, 255, 0.05));
-  background: var(--nav-bg, rgba(10, 10, 11, 0.8));
-  backdrop-filter: blur(12px);
-  position: sticky;
-  top: 0;
-  z-index: 100;
-}
-
-.create-page-logo {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-}
-
-.create-page-logo-icon {
-  background: linear-gradient(135deg, var(--accent-primary, #8b5cf6) 0%, var(--accent-secondary, #a78bfa) 100%);
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #ffffff;
-  box-shadow: 0 0 15px rgba(139, 92, 246, 0.3);
-}
-
-.create-page-logo-text {
-  font-weight: 700;
-  font-size: 1.25rem;
-  letter-spacing: -0.025em;
-  color: var(--text-primary, #f3f4f6);
-}
-
 .btn-back-dashboard {
   background: transparent;
   border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.1));
@@ -236,37 +194,6 @@
 .item-artist {
   font-size: 0.8rem;
   color: var(--text-secondary);
-}
-
-.item-badge {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  font-size: 0.725rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  padding: 0.25rem 0.65rem;
-  border-radius: 9999px;
-  box-shadow: var(--glass-specular);
-}
-
-.item-badge.type-tablature {
-  background: rgba(10, 132, 255, 0.12);
-  border: 1px solid rgba(10, 132, 255, 0.25);
-  color: var(--color-tablature);
-}
-
-.item-badge.type-video {
-  background: rgba(255, 55, 95, 0.12);
-  border: 1px solid rgba(255, 55, 95, 0.25);
-  color: var(--color-video);
-}
-
-.item-badge.type-lyrics {
-  background: rgba(255, 159, 10, 0.12);
-  border: 1px solid rgba(255, 159, 10, 0.25);
-  color: var(--color-lyrics);
 }
 
 .form-actions-row {

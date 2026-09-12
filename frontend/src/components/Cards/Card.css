@@ -62,30 +62,6 @@
 }
 
 /* Luminous Apple System Header Gradients with Ambient Tint */
-.reverb-card-header.type-tablature {
-  background: linear-gradient(135deg, rgba(10, 132, 255, 0.16) 0%, rgba(10, 132, 255, 0.04) 100%);
-  color: var(--color-tablature);
-}
-
-.reverb-card-header.type-video {
-  background: linear-gradient(135deg, rgba(255, 55, 95, 0.16) 0%, rgba(255, 55, 95, 0.04) 100%);
-  color: var(--color-video);
-}
-
-.reverb-card-header.type-backing-track {
-  background: linear-gradient(135deg, rgba(48, 209, 88, 0.16) 0%, rgba(48, 209, 88, 0.04) 100%);
-  color: var(--color-backing-track);
-}
-
-.reverb-card-header.type-lyrics {
-  background: linear-gradient(135deg, rgba(255, 159, 10, 0.16) 0%, rgba(255, 159, 10, 0.04) 100%);
-  color: var(--color-lyrics);
-}
-
-.reverb-card-header.type-other {
-  background: linear-gradient(135deg, rgba(142, 142, 147, 0.16) 0%, rgba(142, 142, 147, 0.04) 100%);
-  color: var(--text-secondary);
-}
 
 .reverb-card-header.type-song {
   background: linear-gradient(135deg, rgba(191, 90, 242, 0.16) 0%, rgba(191, 90, 242, 0.04) 100%);
@@ -264,35 +240,7 @@
   box-shadow: var(--glass-specular), 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
-.reverb-card.list-mode .type-tablature .reverb-header-icon-badge {
-  background: rgba(10, 132, 255, 0.15);
-  border-color: rgba(10, 132, 255, 0.3);
-  color: var(--color-tablature);
-}
 
-.reverb-card.list-mode .type-video .reverb-header-icon-badge {
-  background: rgba(255, 55, 95, 0.15);
-  border-color: rgba(255, 55, 95, 0.3);
-  color: var(--color-video);
-}
-
-.reverb-card.list-mode .type-backing-track .reverb-header-icon-badge {
-  background: rgba(48, 209, 88, 0.15);
-  border-color: rgba(48, 209, 88, 0.3);
-  color: var(--color-backing-track);
-}
-
-.reverb-card.list-mode .type-lyrics .reverb-header-icon-badge {
-  background: rgba(255, 159, 10, 0.15);
-  border-color: rgba(255, 159, 10, 0.3);
-  color: var(--color-lyrics);
-}
-
-.reverb-card.list-mode .type-other .reverb-header-icon-badge {
-  background: rgba(142, 142, 147, 0.15);
-  border-color: rgba(142, 142, 147, 0.3);
-  color: var(--text-secondary);
-}
 
 .reverb-card.list-mode .type-song .reverb-header-icon-badge {
   background: rgba(191, 90, 242, 0.15);

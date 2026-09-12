@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { X, Link, Music, FileText, Video, Mic, HelpCircle, Sparkles, Loader2 } from 'lucide-react';
 import { useTranslation } from '../../hooks/useTranslation';
-import { extractMetadataFromUrl } from '../CreateZikresource/urlMetadataExtractor';
+import { extractMetadataFromUrl } from './urlMetadataExtractor';
 import { addZikresourceToSong } from '../../infra/song.api';
 import type { Song } from '../../infra/song.api';
 import type { Zikresource } from '../../infra/zikresource.api';

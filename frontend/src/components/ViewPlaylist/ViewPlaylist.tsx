@@ -123,14 +123,14 @@ export const ViewPlaylist: React.FC = () => {
               </button>
             ) : (
               <div className="delete-confirm-group">
-                <span className="delete-confirm-text">{t.viewZikresource.confirmDeleteText}</span>
+                <span className="delete-confirm-text">{t.common.confirmDeletePrompt}</span>
                 <button
                   type="button"
                   className="btn-confirm-delete"
                   onClick={handleDelete}
                   disabled={isDeleting}
                 >
-                  {isDeleting ? <Loader2 size={12} className="spinning" /> : t.viewZikresource.btnConfirmDelete}
+                  {isDeleting ? <Loader2 size={12} className="spinning" /> : t.common.btnConfirmDelete}
                 </button>
                 <button
                   type="button"

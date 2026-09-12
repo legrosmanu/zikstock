@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { X, Link, FileText, Video, Music, Mic, HelpCircle, Sparkles, Loader2, Tag as TagIcon, Plus } from 'lucide-react';
 import { useTranslation } from '../../hooks/useTranslation';
-import { extractMetadataFromUrl } from '../CreateZikresource/urlMetadataExtractor';
+import { extractMetadataFromUrl } from './urlMetadataExtractor';
 import { updateZikresource } from '../../infra/zikresource.api';
 import type { Zikresource, ZikresourceTag, ZikresourceType } from '../../infra/zikresource.api';
 import './AddResourceModal.css';
